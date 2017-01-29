@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QTcpServer>
+#include <QTcpSocket>
 
 #include "ui_pencil_mob.h"
 
@@ -10,16 +11,13 @@ class MainWindow : public QMainWindow, private Ui::MainWindow {
 Q_OBJECT
 private:
     QTcpServer srv;
+    QTcpSocket* client;
 
 public:
-    MainWindow() {
-        setupUi(this);
-        connect(&srv, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
-        srv.listen(QHostAddress::Any, 9000);
-        show();
-    }
+    MainWindow();
 
 public slots:
+    void readyToRead();
     void acceptConnection();
     void on_pushButton_clicked();
 
