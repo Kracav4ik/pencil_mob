@@ -6,3 +6,7 @@ void MainWindow::on_pushButton_clicked(){
     textEdit->setText(textEdit->toPlainText() + "\n" + lineEdit->text());
     lineEdit->setText("");
 }
+
+void MainWindow::acceptConnection() {
+    printf("NEW CONNECTION ACCEPTED!!! \n");
+}

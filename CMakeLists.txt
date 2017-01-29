@@ -16,6 +16,7 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
 
 set(EXE_NAME "pencil_mob")
 
@@ -31,4 +32,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 add_executable(${EXE_NAME} ${EXE_SOURCES})
 
-target_link_libraries(${EXE_NAME} Qt5::Widgets Qt5::Core)
+target_link_libraries(${EXE_NAME} Qt5::Widgets Qt5::Core Qt5::Network)
