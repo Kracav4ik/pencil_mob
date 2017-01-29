@@ -21,16 +21,30 @@
        <widget class="QLineEdit" name="lineEdit"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="buttonSend">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>PushButton</string>
+         <string>Send</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonConnect">
+        <property name="text">
+         <string>Connect</string>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <widget class="QTextEdit" name="textEdit"/>
+     <widget class="QTextEdit" name="textEdit">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -51,16 +65,16 @@
   <connection>
    <sender>lineEdit</sender>
    <signal>returnPressed()</signal>
-   <receiver>pushButton</receiver>
+   <receiver>buttonSend</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>35</y>
+     <x>494</x>
+     <y>51</y>
     </hint>
     <hint type="destinationlabel">
-     <x>601</x>
-     <y>34</y>
+     <x>575</x>
+     <y>53</y>
     </hint>
    </hints>
   </connection>

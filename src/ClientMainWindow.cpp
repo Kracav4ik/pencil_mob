@@ -1,35 +1,45 @@
 #include "ClientMainWindow.h"
-void ClientMainWindow::on_pushButton_clicked(){
+void ClientMainWindow::on_buttonSend_clicked(){
     if(lineEdit->text().isEmpty()){
         return;
     }
-    textEdit->setText(textEdit->toPlainText() + "\n" + lineEdit->text());
+    client->write(lineEdit->text().toStdString().c_str());
+    client->flush();
     lineEdit->setText("");
 }
 
-void ClientMainWindow::acceptConnection() {
-    printf("NEW CONNECTION ACCEPTED!!! \n");
-    client = srv.nextPendingConnection();
-    connect(client, SIGNAL(readyRead()),this, SLOT(readyToRead()));
+void ClientMainWindow::on_buttonConnect_clicked(){
+    buttonConnect->setEnabled(false);
+    client->connectToHost("localhost", 9000);
 }
 
-ClientMainWindow::ClientMainWindow():client(nullptr) {
+ClientMainWindow::ClientMainWindow():client(new QTcpSocket(this)) {
+    client->setObjectName("socket");
     setupUi(this);
-    connect(&srv, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
-    srv.listen(QHostAddress::Any, 9000);
     show();
 }
 
-void ClientMainWindow::readyToRead() {
-    int available = (int) client->bytesAvailable();
-    printf("Got data: %i bytes\n%s\n", available, client->readAll().toStdString().c_str());
-    client->write(
-            "HTTP/1.1 200 OK\n"
-            "Content-Type: text/html; charset=UTF-8\n"
-            "Connection: close\n"
-            "\n"
-            "<html><body><h1>Hello, world!</h1></body></html>"
-    );
-    client->flush();
-    client->close();
+void ClientMainWindow::on_socket_readyRead() {
+    textEdit->append(client->readAll());
+}
+
+void ClientMainWindow::on_socket_connected() {
+    buttonSend->setEnabled(true);
+    printf("Connected\n");
+}
+
+void ClientMainWindow::on_socket_error(QAbstractSocket::SocketError error) {
+    printf("Errrrrrror: %d\n", error);
+}
+
+void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state) {
+    printf("Staaaaaate: %d\n", state);
+    switch (state){
+        case QAbstractSocket::UnconnectedState:
+            buttonSend->setEnabled(false);
+            buttonConnect->setEnabled(true);
+            break;
+        default:
+            break;
+    }
 }

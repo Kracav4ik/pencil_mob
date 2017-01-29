@@ -1,11 +1,5 @@
+#include <QTime>
 #include "ServerMainWindow.h"
-void ServerMainWindow::on_pushButton_clicked(){
-    if(lineEdit->text().isEmpty()){
-        return;
-    }
-    textEdit->setText(textEdit->toPlainText() + "\n" + lineEdit->text());
-    lineEdit->setText("");
-}
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
@@ -22,14 +16,10 @@ ServerMainWindow::ServerMainWindow():client(nullptr) {
 
 void ServerMainWindow::readyToRead() {
     int available = (int) client->bytesAvailable();
-    printf("Got data: %i bytes\n%s\n", available, client->readAll().toStdString().c_str());
-    client->write(
-            "HTTP/1.1 200 OK\n"
-            "Content-Type: text/html; charset=UTF-8\n"
-            "Connection: close\n"
-            "\n"
-            "<html><body><h1>Hello, world!</h1></body></html>"
-    );
+    QByteArray data = client->readAll();
+    printf("Got data: %i bytes\n%s\n", available, data.toStdString().c_str());
+    QByteArray message = "[" + QTime::currentTime().toString().toUtf8() + "] " + data;
+    textEdit->append(message);
+    client->write(message);
     client->flush();
-    client->close();
 }

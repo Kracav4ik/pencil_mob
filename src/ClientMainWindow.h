@@ -10,16 +10,18 @@
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
 Q_OBJECT
 private:
-    QTcpServer srv;
     QTcpSocket* client;
 
 public:
     ClientMainWindow();
 
 public slots:
-    void readyToRead();
-    void acceptConnection();
-    void on_pushButton_clicked();
+    void on_socket_readyRead();
+    void on_buttonSend_clicked();
+    void on_buttonConnect_clicked();
+    void on_socket_connected();
+    void on_socket_error(QAbstractSocket::SocketError error);
+    void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
 };
 

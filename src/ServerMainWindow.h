@@ -19,7 +19,5 @@ public:
 public slots:
     void readyToRead();
     void acceptConnection();
-    void on_pushButton_clicked();
-
 };
 
