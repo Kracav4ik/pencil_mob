@@ -1,9 +1,11 @@
 #include "ClientMainWindow.h"
+#include "transport.h"
+
 void ClientMainWindow::on_buttonSend_clicked(){
     if(lineEdit->text().isEmpty()){
         return;
     }
-    client->write(lineEdit->text().toStdString().c_str());
+    client->write(createM(7777777, lineEdit->text()));
     client->flush();
     lineEdit->setText("");
 }
@@ -20,7 +22,7 @@ ClientMainWindow::ClientMainWindow():client(new QTcpSocket(this)) {
 }
 
 void ClientMainWindow::on_socket_readyRead() {
-    textEdit->append(client->readAll());
+    textEdit->append(takeM(client->readAll()));
 }
 
 void ClientMainWindow::on_socket_connected() {

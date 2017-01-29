@@ -1,5 +1,6 @@
 #include <QTime>
 #include "ServerMainWindow.h"
+#include "transport.h"
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
@@ -22,10 +23,12 @@ void ServerMainWindow::readyToRead() {
     QTcpSocket* socket = (QTcpSocket *) sender();
     int available = (int) socket->bytesAvailable();
     QByteArray data = socket->readAll();
-    printf("Got data: %i bytes\n%s\n", available, data.toStdString().c_str());
-    QByteArray message = "[" + QTime::currentTime().toString().toUtf8() + "] <" + clients[socket]->name.toUtf8() + "> " + data;
-    textEdit->append(message);
+    QString dataStr = takeM(data);
+    printf("Got data: %i bytes\n%s\n", available, dataStr.toUtf8().data());
+    QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
+    textEdit->append(s);
 
+    QByteArray message = createM(666, s);
     for (QTcpSocket* clientSocket : clients.keys()) {
         clientSocket->write(message);
         clientSocket->flush();
