@@ -7,14 +7,14 @@
 #include "ui_pencil_mob.h"
 
 
-class MainWindow : public QMainWindow, private Ui::MainWindow {
+class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
 Q_OBJECT
 private:
     QTcpServer srv;
     QTcpSocket* client;
 
 public:
-    MainWindow();
+    ClientMainWindow();
 
 public slots:
     void readyToRead();

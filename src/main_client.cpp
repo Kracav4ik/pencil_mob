@@ -1,8 +1,8 @@
 #include <QApplication>
-#include "MainWindow.h"
+#include "ClientMainWindow.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
-    MainWindow* window = new MainWindow();
+    ClientMainWindow* window = new ClientMainWindow();
     return app.exec();
 }

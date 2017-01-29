@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ClientMainWindow</class>
- <widget class="QMainWindow" name="ClientMainWindow">
+ <class>ServerMainWindow</class>
+ <widget class="QMainWindow" name="ServerMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Pencil mob</string>
+   <string>Pencil mob server</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">

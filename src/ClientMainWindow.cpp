@@ -1,5 +1,5 @@
-#include "MainWindow.h"
-void MainWindow::on_pushButton_clicked(){
+#include "ClientMainWindow.h"
+void ClientMainWindow::on_pushButton_clicked(){
     if(lineEdit->text().isEmpty()){
         return;
     }
@@ -7,20 +7,20 @@ void MainWindow::on_pushButton_clicked(){
     lineEdit->setText("");
 }
 
-void MainWindow::acceptConnection() {
+void ClientMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
     client = srv.nextPendingConnection();
     connect(client, SIGNAL(readyRead()),this, SLOT(readyToRead()));
 }
 
-MainWindow::MainWindow():client(nullptr) {
+ClientMainWindow::ClientMainWindow():client(nullptr) {
     setupUi(this);
     connect(&srv, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
     srv.listen(QHostAddress::Any, 9000);
     show();
 }
 
-void MainWindow::readyToRead() {
+void ClientMainWindow::readyToRead() {
     int available = (int) client->bytesAvailable();
     printf("Got data: %i bytes\n%s\n", available, client->readAll().toStdString().c_str());
     client->write(
