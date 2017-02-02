@@ -24,7 +24,9 @@ set(CLIENT_SOURCES
         main_client.cpp
         pencil_mob.ui
         ClientMainWindow.cpp
-        ClientMainWindow.h)
+        ClientMainWindow.h
+        CanvasWidget.cpp
+        CanvasWidget.h)
 
 set(SERVER_SOURCES
         main_server.cpp

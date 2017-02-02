@@ -23,5 +23,6 @@ public slots:
     void on_socket_error(QAbstractSocket::SocketError error);
     void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
+    void on_widget_debugInfo(int linesCount, int paintTime);
 };
 

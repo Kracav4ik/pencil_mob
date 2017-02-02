@@ -45,3 +45,7 @@ void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state
             break;
     }
 }
+
+void ClientMainWindow::on_widget_debugInfo(int linesCount, int paintTime) {
+    debug->setText(QString("linesCount: %1, paintTime: %2 ms").arg(linesCount).arg(paintTime));
+}
