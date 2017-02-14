@@ -8,6 +8,7 @@
 class CanvasWidget : public QWidget {
 Q_OBJECT
 private:
+    QColor penColor;
     bool flag = false;
     QList<QPolygon> trajectory;
 public:
