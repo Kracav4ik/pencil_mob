@@ -1,6 +1,7 @@
 #pragma once
 
-enum Message{
+enum MessageType {
     STRING_MESSAGE = 1,
-    PATH_MESSAGE = 2,
+    SET_CLIENT_NAME,
+    PATH_MESSAGE,
 };

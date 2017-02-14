@@ -26,7 +26,10 @@ void ClientMainWindow::on_socket_readyRead() {
     takeM(client->readAll(), {
             {STRING_MESSAGE, [this](const QByteArray& message){
                 textEdit->append(message);
-            }}
+            }},
+            {SET_CLIENT_NAME, [this](const QByteArray& message){
+                setWindowTitle("Name is " + message);
+            }},
     });
 }
 

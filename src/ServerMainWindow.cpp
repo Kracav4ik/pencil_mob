@@ -5,12 +5,14 @@
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
-    QTcpSocket* client = srv.nextPendingConnection();
+    QTcpSocket* clientSocket = srv.nextPendingConnection();
     static int i = 1;
     QString name = QString("player %1").arg(i++);
-    clients[client] = new ClientInfo(name);
-    connect(client, SIGNAL(readyRead()),this, SLOT(readyToRead()));
-    connect(client, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
+    clients[clientSocket] = new ClientInfo(name);
+    connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
+    connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
+    clientSocket->write(createM(SET_CLIENT_NAME, name));
+    clientSocket->flush();
 }
 
 ServerMainWindow::ServerMainWindow() {
