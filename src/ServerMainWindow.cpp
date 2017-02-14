@@ -1,6 +1,7 @@
 #include <QTime>
 #include "ServerMainWindow.h"
 #include "transport.h"
+#include "enums.h"
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
@@ -23,16 +24,22 @@ void ServerMainWindow::readyToRead() {
     QTcpSocket* socket = (QTcpSocket *) sender();
     int available = (int) socket->bytesAvailable();
     QByteArray data = socket->readAll();
-    QString dataStr = takeM(data);
-    printf("Got data: %i bytes\n%s\n", available, dataStr.toUtf8().data());
-    QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
-    textEdit->append(s);
+    takeM(data, {
+            {STRING_MESSAGE, [this, available, socket](const QByteArray& message) {
+                QString dataStr = message;
+                printf("Got data: %i bytes\n%s\n", available, dataStr.toUtf8().data());
+                QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
+                textEdit->append(s);
 
-    QByteArray message = createM(666, s);
-    for (QTcpSocket* clientSocket : clients.keys()) {
-        clientSocket->write(message);
-        clientSocket->flush();
-    }
+                QByteArray answer = createM(STRING_MESSAGE, s);
+                for (QTcpSocket* clientSocket : clients.keys()) {
+                    clientSocket->write(answer);
+                    clientSocket->flush();
+                }
+            }},
+            {PATH_MESSAGE, [this](const QByteArray& message) {
+            }},
+    });
 
 }
 

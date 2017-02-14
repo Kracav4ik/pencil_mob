@@ -1,11 +1,12 @@
 #include "ClientMainWindow.h"
 #include "transport.h"
+#include "enums.h"
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(lineEdit->text().isEmpty()){
         return;
     }
-    client->write(createM(7777777, lineEdit->text()));
+    client->write(createM(STRING_MESSAGE, lineEdit->text()));
     client->flush();
     lineEdit->setText("");
 }
@@ -22,7 +23,11 @@ ClientMainWindow::ClientMainWindow():client(new QTcpSocket(this)) {
 }
 
 void ClientMainWindow::on_socket_readyRead() {
-    textEdit->append(takeM(client->readAll()));
+    takeM(client->readAll(), {
+            {STRING_MESSAGE, [this](const QByteArray& message){
+                textEdit->append(message);
+            }}
+    });
 }
 
 void ClientMainWindow::on_socket_connected() {

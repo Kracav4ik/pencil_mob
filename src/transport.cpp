@@ -38,7 +38,7 @@ QByteArray createM(uint32_t type, QString string) {
     return out;
 }
 
-QString takeM(QByteArray message) {
+void takeM(QByteArray message, const MessageHandler& handler) {
     Decoder decoder(message);
     uint32_t mLen = decoder.number;
 
@@ -47,9 +47,20 @@ QString takeM(QByteArray message) {
 
     uint32_t type = decoder.number;
     printf("  type is %d\n", type);
-    message = message.left(mLen).mid(decoder.count);
-
-    return message;
+    handler.handle(type, message.left(mLen).mid(decoder.count));
 }
 
 
+MessageHandler::MessageHandler(std::initializer_list<HandlePair> handlePairs)
+        : handlePairs(handlePairs) {}
+
+void MessageHandler::handle(uint32_t type, const QByteArray& message) const {
+    for(HandlePair pair : handlePairs){
+        if(type == pair.type){
+            pair.callback(message);
+        }
+    }
+}
+
+HandlePair::HandlePair(uint32_t type, const std::function<void(const QByteArray&)>& callback)
+        : type(type), callback(callback) {}
