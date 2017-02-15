@@ -13,10 +13,12 @@ struct Decoder{
 };
 
 struct HandlePair {
-    uint32_t type;
-    std::function<void(const QByteArray&)> callback;
+    typedef std::function<void(const QByteArray&)> CallbackType;
 
-    HandlePair(uint32_t type, const std::function<void(const QByteArray&)>& callback);
+    uint32_t type;
+    CallbackType callback;
+
+    HandlePair(uint32_t type, const CallbackType& callback);
 };
 
 class MessageHandler {
@@ -29,6 +31,8 @@ public:
     void handle(uint32_t type, const QByteArray& message) const;
 };
 
-QByteArray createM(uint32_t type, QString string);
+QByteArray createM(uint32_t type, QByteArray data);
 
 void takeM(QByteArray message, const MessageHandler& handler);
+
+void print_debug(const QByteArray& array, const char* prefix);

@@ -11,7 +11,7 @@ void ServerMainWindow::acceptConnection() {
     clients[clientSocket] = new ClientInfo(name);
     connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
     connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
-    clientSocket->write(createM(SET_CLIENT_NAME, name));
+    clientSocket->write(createM(SET_CLIENT_NAME, name.toUtf8()));
     clientSocket->flush();
 }
 
@@ -33,13 +33,21 @@ void ServerMainWindow::readyToRead() {
                 QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
                 textEdit->append(s);
 
-                QByteArray answer = createM(STRING_MESSAGE, s);
+                QByteArray answer = createM(STRING_MESSAGE, s.toUtf8());
                 for (QTcpSocket* clientSocket : clients.keys()) {
                     clientSocket->write(answer);
                     clientSocket->flush();
                 }
             }},
-            {PATH_MESSAGE, [this](const QByteArray& message) {
+            {PATH_MESSAGE, [this, socket](const QByteArray& message) {
+                QByteArray answer = createM(PATH_MESSAGE, message);
+                for (QTcpSocket* clientSocket : clients.keys()) {
+                    if(clientSocket == socket){
+                        continue;
+                    }
+                    clientSocket->write(answer);
+                    clientSocket->flush();
+                }
             }},
     });
 

@@ -3,20 +3,21 @@
 
 void CanvasWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        flag = true;
-        trajectory.append(QPolygon());
+        drawingStroke = true;
+        strokes.append(Stroke(penColor));
     }
 }
 
 void CanvasWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        flag = false;
+        drawingStroke = false;
+        emit strokeFinished(strokes.last());
     }
 }
 
 void CanvasWidget::mouseMoveEvent(QMouseEvent *event) {
-    if (flag) {
-        trajectory.last() << event->pos();
+    if (drawingStroke) {
+        strokes.last().polygon << event->pos();
         update();
     }
 }
@@ -31,13 +32,21 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
         bg.setRgb(64, 64, 64);
     }
     p.fillRect(rect(), bg);
-    QPen pen(QBrush(penColor), 5);
-    p.setPen(pen);
-    for (const QPolygon &polygon : trajectory) {
-        p.drawPolyline(polygon);
+    for (const Stroke& stroke : strokes) {
+        QPen pen(QBrush(stroke.color), 5);
+        p.setPen(pen);
+        p.drawPolyline(stroke.polygon);
     }
 
-    emit debugInfo(trajectory.size(), (int) timer.elapsed());
+    emit debugInfo(strokes.size(), (int) timer.elapsed());
 }
 
 CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent), penColor(qrand()%256, qrand()%256, qrand()%256) {}
+
+void CanvasWidget::addStroke(const Stroke& stroke) {
+    strokes << stroke;
+    update();
+}
+
+Stroke::Stroke(const QColor& color, const QPolygon& polygon)
+        : color(color), polygon(polygon) {}

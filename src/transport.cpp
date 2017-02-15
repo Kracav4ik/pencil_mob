@@ -30,15 +30,17 @@ Decoder::Decoder(QByteArray bytes)
     } while (byte & 128);
 }
 
-QByteArray createM(uint32_t type, QString string) {
+QByteArray createM(uint32_t type, QByteArray data) {
     QByteArray out;
     out.append(encode(type));
-    out.append(string);
+    out.append(data);
     out.prepend(encode((uint32_t) out.length()));
+    print_debug(out, "<SND>");
     return out;
 }
 
 void takeM(QByteArray message, const MessageHandler& handler) {
+    print_debug(message, "<RCV>");
     Decoder decoder(message);
     uint32_t mLen = decoder.number;
 
@@ -50,6 +52,13 @@ void takeM(QByteArray message, const MessageHandler& handler) {
     handler.handle(type, message.left(mLen).mid(decoder.count));
 }
 
+void print_debug(const QByteArray& array, const char* prefix) {
+    printf("%s", prefix);
+    for (int i = 0; i < array.size(); ++i) {
+        printf(" %02x", (uint8_t)array[i]);
+    }
+    printf("\n");
+}
 
 MessageHandler::MessageHandler(std::initializer_list<HandlePair> handlePairs)
         : handlePairs(handlePairs) {}
@@ -62,5 +71,5 @@ void MessageHandler::handle(uint32_t type, const QByteArray& message) const {
     }
 }
 
-HandlePair::HandlePair(uint32_t type, const std::function<void(const QByteArray&)>& callback)
+HandlePair::HandlePair(uint32_t type, const CallbackType& callback)
         : type(type), callback(callback) {}

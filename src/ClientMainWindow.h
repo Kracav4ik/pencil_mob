@@ -15,6 +15,8 @@ private:
 public:
     ClientMainWindow();
 
+    bool isConnected();
+
 public slots:
     void on_socket_readyRead();
     void on_buttonSend_clicked();
@@ -24,5 +26,6 @@ public slots:
     void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
     void on_widget_debugInfo(int linesCount, int paintTime);
+    void on_widget_strokeFinished(const Stroke& stroke);
 };
 
