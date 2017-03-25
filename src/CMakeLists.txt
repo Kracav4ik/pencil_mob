@@ -26,7 +26,11 @@ set(CLIENT_SOURCES
         ClientMainWindow.cpp
         ClientMainWindow.h
         widgets/CanvasWidget.cpp
-        widgets/CanvasWidget.h)
+        widgets/CanvasWidget.h
+        widgets/color_chooser.ui
+        widgets/ColorChooserWidget.cpp
+        widgets/ColorChooserWidget.h
+        )
 
 set(SERVER_SOURCES
         main_server.cpp
