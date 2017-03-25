@@ -1,5 +1,5 @@
 #include <QtCore/QElapsedTimer>
-#include "CanvasWidget.h"
+#include "widgets/CanvasWidget.h"
 
 void CanvasWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
