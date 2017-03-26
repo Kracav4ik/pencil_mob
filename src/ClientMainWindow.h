@@ -6,11 +6,13 @@
 
 #include "ui_pencil_mob.h"
 
+class ColorChooserWidget;
 
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
 Q_OBJECT
 private:
     QTcpSocket* client;
+    ColorChooserWidget* colorChooser;
 
 public:
     ClientMainWindow();

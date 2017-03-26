@@ -1,6 +1,7 @@
 #include "ClientMainWindow.h"
 #include "transport.h"
 #include "enums.h"
+#include "widgets/ColorChooserWidget.h"
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(!isConnected()){
@@ -19,9 +20,11 @@ void ClientMainWindow::on_buttonConnect_clicked(){
     client->connectToHost("localhost", 9000);
 }
 
-ClientMainWindow::ClientMainWindow():client(new QTcpSocket(this)) {
+ClientMainWindow::ClientMainWindow(): client(new QTcpSocket(this)), colorChooser(new ColorChooserWidget(this)) {
     client->setObjectName("socket");
     setupUi(this);
+    addDockWidget(Qt::RightDockWidgetArea, colorChooser);
+    menuView->addAction(colorChooser->toggleViewAction());
     show();
 }
 
