@@ -48,5 +48,9 @@ void CanvasWidget::addStroke(const Stroke& stroke) {
     update();
 }
 
+const QColor& CanvasWidget::getPenColor() const {
+    return penColor;
+}
+
 Stroke::Stroke(const QColor& color, const QPolygon& polygon)
         : color(color), polygon(polygon) {}

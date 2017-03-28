@@ -9,17 +9,18 @@ Q_OBJECT
 private slots:
     void updateColor();
     void on_sliderL_valueChanged(int value);
+    void on_rainbowHS_mouseDrag(int x, int y);
 
 private:
     QColor color;
     bool isUpdating = false;
-    void selectColor(const QColor& c);
-
-public slots:
-    void on_rainbowHS_mouseDrag(int x, int y);
 
 public:
     ColorChooserWidget(QWidget* parent);
+    void selectColor(const QColor& c);
+
+signals:
+    void colorSelected(const QColor& color);
 };
 
 

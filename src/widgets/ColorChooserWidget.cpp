@@ -56,8 +56,6 @@ ColorChooserWidget::ColorChooserWidget(QWidget* parent): QDockWidget(parent) {
         painter.drawImage(QPoint(), img);
     });
 
-    selectColor(QColor(255, 0, 255));
-
     connect(editR, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
     connect(editG, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
     connect(editB, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
@@ -101,6 +99,7 @@ void ColorChooserWidget::selectColor(const QColor& c) {
     gradientV->update();
 
     isUpdating = false;
+    emit colorSelected(c);
 }
 
 #define GET_FROM_EDIT(VAR_NAME, MIN_VAR, MAX_VAR)                    \

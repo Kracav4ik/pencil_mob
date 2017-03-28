@@ -23,6 +23,7 @@ void ClientMainWindow::on_buttonConnect_clicked(){
 ClientMainWindow::ClientMainWindow(): client(new QTcpSocket(this)), colorChooser(new ColorChooserWidget(this)) {
     client->setObjectName("socket");
     setupUi(this);
+    colorChooser->selectColor(canvas->getPenColor());
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     menuView->addAction(colorChooser->toggleViewAction());
     show();
@@ -59,7 +60,7 @@ void ClientMainWindow::on_socket_readyRead() {
 
                     p << QPoint(x, y);
                 }
-                widget->addStroke(Stroke(QColor(r, g, b), p));
+                canvas->addStroke(Stroke(QColor(r, g, b), p));
             }},
     });
 }
@@ -85,11 +86,11 @@ void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state
     }
 }
 
-void ClientMainWindow::on_widget_debugInfo(int linesCount, int paintTime) {
+void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
     debug->setText(QString("linesCount: %1, paintTime: %2 ms").arg(linesCount).arg(paintTime));
 }
 
-void ClientMainWindow::on_widget_strokeFinished(const Stroke& stroke) {
+void ClientMainWindow::on_canvas_strokeFinished(const Stroke& stroke) {
     if(!isConnected()){
         return;
     }

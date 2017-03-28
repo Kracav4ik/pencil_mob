@@ -19,7 +19,7 @@ private:
     QList<Stroke> strokes;
 public:
     CanvasWidget(QWidget *parent);
-
+    const QColor& getPenColor() const;
     void addStroke(const Stroke& stroke);
 
 signals:
