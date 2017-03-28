@@ -1,7 +1,61 @@
 #include "widgets/ColorChooserWidget.h"
+#include <QPainter>
 
 ColorChooserWidget::ColorChooserWidget(QWidget* parent): QDockWidget(parent) {
     setupUi(this);
+    rainbowHS->setPaintFunction([this](const CustomPaintWidget& widget, QPainter& painter) {
+        QImage img(widget.size(), QImage::Format_RGB32);
+        int L = 128;
+
+        int w = img.width();
+        int h = img.height();
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                int H = x * 359 / (w - 1);
+                int S = 255 - y * 255 / (h - 1);
+                img.setPixelColor(x, y, QColor::fromHsl(H, S, L));
+            }
+        }
+
+        int H0 = color.hslHue();
+        int S0 = color.hslSaturation();
+
+        int x0 = H0 * (w - 1) / 359;
+        int y0 = (255 - S0) * (h - 1) / 255;
+        const QColor& cursorColor = QColor(0, 0, 0);
+        static const QPoint mask[] = {
+                {-3, 0}, {-4, 0}, {-5, 0},
+                {0, -3}, {0, -4}, {0, -5},
+                {3,  0}, {4,  0}, {5,  0},
+                {0,  3}, {0,  4}, {0,  5},
+        };
+        for (QPoint offset : mask) {
+            int x = x0 + offset.x();
+            int y = y0 + offset.y();
+            if (x >= 0 && x < w && y >= 0 && y < h) {
+                img.setPixelColor(x, y, cursorColor);
+            }
+        }
+
+        painter.drawImage(QPoint(), img);
+    });
+    gradientV->setPaintFunction([this](const CustomPaintWidget& widget, QPainter& painter) {
+        QImage img(widget.size(), QImage::Format_RGB32);
+        int H = color.hslHue();
+        int S = color.hslSaturation();
+
+        int w = img.width();
+        int h = img.height();
+        for (int x = 0; x < w; ++x) {
+            for (int y = 0; y < h; ++y) {
+                int L = 255 - y * 255 / (h - 1);
+                img.setPixelColor(x, y, QColor::fromHsl(H, S, L));
+            }
+        }
+
+        painter.drawImage(QPoint(), img);
+    });
+
     selectColor(QColor(255, 0, 255));
 
     connect(editR, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
@@ -42,6 +96,9 @@ void ColorChooserWidget::selectColor(const QColor& c) {
     }
     editL->setText(str(c.lightness()));
     sliderL->setValue(c.lightness());
+
+    rainbowHS->update();
+    gradientV->update();
 
     isUpdating = false;
 }

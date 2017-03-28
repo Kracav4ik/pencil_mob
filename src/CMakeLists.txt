@@ -30,6 +30,8 @@ set(CLIENT_SOURCES
         widgets/color_chooser.ui
         widgets/ColorChooserWidget.cpp
         widgets/ColorChooserWidget.h
+        widgets/CustomPaintWidget.cpp
+        widgets/CustomPaintWidget.h
         )
 
 set(SERVER_SOURCES

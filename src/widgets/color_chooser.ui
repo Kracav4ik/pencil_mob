@@ -49,14 +49,14 @@
         <widget class="QFrame" name="frame">
          <property name="minimumSize">
           <size>
-           <width>192</width>
-           <height>202</height>
+           <width>182</width>
+           <height>194</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>192</width>
-           <height>202</height>
+           <width>182</width>
+           <height>194</height>
           </size>
          </property>
          <property name="frameShape">
@@ -79,7 +79,7 @@
            <number>0</number>
           </property>
           <item row="0" column="0">
-           <widget class="QWidget" name="rainbowHS" native="true">
+           <widget class="CustomPaintWidget" name="rainbowHS" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -88,18 +88,15 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>190</width>
-              <height>200</height>
+              <width>180</width>
+              <height>192</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>190</width>
-              <height>200</height>
+              <width>180</width>
+              <height>192</height>
              </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: cyan</string>
             </property>
            </widget>
           </item>
@@ -124,13 +121,13 @@
          <property name="minimumSize">
           <size>
            <width>10</width>
-           <height>202</height>
+           <height>194</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>10</width>
-           <height>202</height>
+           <height>194</height>
           </size>
          </property>
          <property name="frameShape">
@@ -153,7 +150,7 @@
            <number>0</number>
           </property>
           <item row="0" column="0">
-           <widget class="QWidget" name="gradientV" native="true">
+           <widget class="CustomPaintWidget" name="gradientV" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -163,17 +160,14 @@
             <property name="minimumSize">
              <size>
               <width>8</width>
-              <height>200</height>
+              <height>192</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>8</width>
-              <height>200</height>
+              <height>192</height>
              </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: cyan</string>
             </property>
            </widget>
           </item>
@@ -185,13 +179,13 @@
          <property name="minimumSize">
           <size>
            <width>22</width>
-           <height>210</height>
+           <height>202</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>22</width>
-           <height>210</height>
+           <height>202</height>
           </size>
          </property>
          <property name="minimum">
@@ -565,6 +559,14 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomPaintWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">widgets/custompaintwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>editH</tabstop>
   <tabstop>editS</tabstop>
