@@ -15,6 +15,9 @@ private:
     bool isUpdating = false;
     void selectColor(const QColor& c);
 
+public slots:
+    void on_rainbowHS_mouseDrag(int x, int y);
+
 public:
     ColorChooserWidget(QWidget* parent);
 };

@@ -139,3 +139,17 @@ void ColorChooserWidget::updateColor() {
 void ColorChooserWidget::on_sliderL_valueChanged(int value) {
     editL->setText(str(value));
 }
+
+void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
+    int x1 = rainbowHS->width() - 1;
+    x = qBound(0, x, x1);
+    int y1 = rainbowHS->height() - 1;
+    y = qBound(0, y, y1);
+    
+    int H = x * 359 / x1;
+    int S = 255 - y * 255 / y1;
+
+    QColor c;
+    c.setHsl(H, S, color.lightness());
+    selectColor(c);
+}
