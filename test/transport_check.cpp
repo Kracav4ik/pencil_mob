@@ -3,6 +3,12 @@
 
 #define BYTE_ARRAY(STRING) QByteArray(STRING, sizeof(STRING) - 1)
 
+#define EXPECT_DECODER(NUMBER, COUNT, ARRAY) {              \
+    Decoder d(ARRAY);                                       \
+    EXPECT_EQ(NUMBER, d.number);                            \
+    EXPECT_EQ(COUNT, d.count);                              \
+}
+
 TEST(transport, test_encode) {
     EXPECT_EQ(encode(0x00000000), BYTE_ARRAY("\x00"));
     EXPECT_EQ(encode(0x00000001), BYTE_ARRAY("\x01"));
@@ -27,25 +33,25 @@ TEST(transport, test_encode) {
 }
 
 TEST(transport, test_decode) {
-    EXPECT_EQ(0x00000000, Decoder(BYTE_ARRAY("\x00")).number);
-    EXPECT_EQ(0x00000000, Decoder(BYTE_ARRAY("\x00\x8f\x0f")).number);
-    EXPECT_EQ(0x00000001, Decoder(BYTE_ARRAY("\x01")).number);
-    EXPECT_EQ(0x0000007f, Decoder(BYTE_ARRAY("\x7f")).number);
-    EXPECT_EQ(0x00000080, Decoder(BYTE_ARRAY("\x81\x00")).number);
-    EXPECT_EQ(0x00003fff, Decoder(BYTE_ARRAY("\xff\x7f")).number);
-    EXPECT_EQ(0x00004000, Decoder(BYTE_ARRAY("\x81\x80\x00")).number);
-    EXPECT_EQ(0x00004001, Decoder(BYTE_ARRAY("\x81\x80\x01")).number);
-    EXPECT_EQ(0x00004083, Decoder(BYTE_ARRAY("\x81\x81\x03")).number);
-    EXPECT_EQ(0x001fffff, Decoder(BYTE_ARRAY("\xff\xff\x7f")).number);
-    EXPECT_EQ(0x00200000, Decoder(BYTE_ARRAY("\x81\x80\x80\x00")).number);
-    EXPECT_EQ(0x00200001, Decoder(BYTE_ARRAY("\x81\x80\x80\x01")).number);
-    EXPECT_EQ(0x00200083, Decoder(BYTE_ARRAY("\x81\x80\x81\x03")).number);
-    EXPECT_EQ(0x00204187, Decoder(BYTE_ARRAY("\x81\x81\x83\x07")).number);
-    EXPECT_EQ(0x0fffffff, Decoder(BYTE_ARRAY("\xff\xff\xff\x7f")).number);
-    EXPECT_EQ(0x10000000, Decoder(BYTE_ARRAY("\x81\x80\x80\x80\x00")).number);
-    EXPECT_EQ(0x10000001, Decoder(BYTE_ARRAY("\x81\x80\x80\x80\x01")).number);
-    EXPECT_EQ(0x10000083, Decoder(BYTE_ARRAY("\x81\x80\x80\x81\x03")).number);
-    EXPECT_EQ(0x10004187, Decoder(BYTE_ARRAY("\x81\x80\x81\x83\x07")).number);
-    EXPECT_EQ(0x1020c38f, Decoder(BYTE_ARRAY("\x81\x81\x83\x87\x0f")).number);
-    EXPECT_EQ(0xffffffff, Decoder(BYTE_ARRAY("\x8f\xff\xff\xff\x7f")).number);
+    EXPECT_DECODER(0x00000000, 1, BYTE_ARRAY("\x00"));
+    EXPECT_DECODER(0x00000000, 1, BYTE_ARRAY("\x00\x8f\x0f"));
+    EXPECT_DECODER(0x00000001, 1, BYTE_ARRAY("\x01"));
+    EXPECT_DECODER(0x0000007f, 1, BYTE_ARRAY("\x7f"));
+    EXPECT_DECODER(0x00000080, 2, BYTE_ARRAY("\x81\x00"));
+    EXPECT_DECODER(0x00003fff, 2, BYTE_ARRAY("\xff\x7f"));
+    EXPECT_DECODER(0x00004000, 3, BYTE_ARRAY("\x81\x80\x00"));
+    EXPECT_DECODER(0x00004001, 3, BYTE_ARRAY("\x81\x80\x01"));
+    EXPECT_DECODER(0x00004083, 3, BYTE_ARRAY("\x81\x81\x03"));
+    EXPECT_DECODER(0x001fffff, 3, BYTE_ARRAY("\xff\xff\x7f"));
+    EXPECT_DECODER(0x00200000, 4, BYTE_ARRAY("\x81\x80\x80\x00"));
+    EXPECT_DECODER(0x00200001, 4, BYTE_ARRAY("\x81\x80\x80\x01"));
+    EXPECT_DECODER(0x00200083, 4, BYTE_ARRAY("\x81\x80\x81\x03"));
+    EXPECT_DECODER(0x00204187, 4, BYTE_ARRAY("\x81\x81\x83\x07"));
+    EXPECT_DECODER(0x0fffffff, 4, BYTE_ARRAY("\xff\xff\xff\x7f"));
+    EXPECT_DECODER(0x10000000, 5, BYTE_ARRAY("\x81\x80\x80\x80\x00"));
+    EXPECT_DECODER(0x10000001, 5, BYTE_ARRAY("\x81\x80\x80\x80\x01"));
+    EXPECT_DECODER(0x10000083, 5, BYTE_ARRAY("\x81\x80\x80\x81\x03"));
+    EXPECT_DECODER(0x10004187, 5, BYTE_ARRAY("\x81\x80\x81\x83\x07"));
+    EXPECT_DECODER(0x1020c38f, 5, BYTE_ARRAY("\x81\x81\x83\x87\x0f"));
+    EXPECT_DECODER(0xffffffff, 5, BYTE_ARRAY("\x8f\xff\xff\xff\x7f"));
 }
