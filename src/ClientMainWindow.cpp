@@ -31,7 +31,7 @@ ClientMainWindow::ClientMainWindow(): client(new QTcpSocket(this)), colorChooser
 }
 
 void ClientMainWindow::on_socket_readyRead() {
-    takeM(client->readAll(), {
+    reader.processBytes(client->readAll(), {
             {STRING_MESSAGE, [this](const QByteArray& message){
                 textEdit->append(message);
             }},

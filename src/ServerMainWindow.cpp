@@ -26,7 +26,7 @@ void ServerMainWindow::readyToRead() {
     QTcpSocket* socket = (QTcpSocket *) sender();
     int available = (int) socket->bytesAvailable();
     QByteArray data = socket->readAll();
-    takeM(data, {
+    reader.processBytes(data, {
             {STRING_MESSAGE, [this, available, socket](const QByteArray& message) {
                 QString dataStr = message;
                 printf("Got data: %i bytes\n%s\n", available, dataStr.toUtf8().data());

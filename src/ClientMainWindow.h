@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 
 #include "ui_pencil_mob.h"
+#include "transport.h"
 
 class ColorChooserWidget;
 
@@ -13,6 +14,7 @@ Q_OBJECT
 private:
     QTcpSocket* client;
     ColorChooserWidget* colorChooser;
+    MessageReader reader;
 
 public:
     ClientMainWindow();

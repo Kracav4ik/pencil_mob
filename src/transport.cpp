@@ -23,21 +23,8 @@ QByteArray createM(uint32_t type, QByteArray data) {
     out.append(encode(type));
     out.append(data);
     out.prepend(encode((uint32_t) out.length()));
-    print_debug(out, "<SND>");
+//    print_debug(out, "<SND>");
     return out;
-}
-
-void takeM(QByteArray message, const MessageHandler& handler) {
-    print_debug(message, "<RCV>");
-    Decoder decoder(message);
-    uint32_t mLen = decoder.number;
-
-    message = message.mid(decoder.count);
-    decoder = Decoder(message);
-
-    uint32_t type = decoder.number;
-    printf("  type is %d\n", type);
-    handler.handle(type, message.left(mLen).mid(decoder.count));
 }
 
 void print_debug(const QByteArray& array, const char* prefix) {
@@ -61,3 +48,28 @@ void MessageHandler::handle(uint32_t type, const QByteArray& message) const {
 
 HandlePair::HandlePair(uint32_t type, const CallbackType& callback)
         : type(type), callback(callback) {}
+
+void MessageReader::processBytes(const QByteArray& message, const MessageHandler& handler) {
+    QByteArray preMsg = unread + message;
+    while (true) {
+        Decoder sizeDecoder(preMsg);
+        if (!sizeDecoder.decoded){
+            break;
+        }
+        uint32_t size = sizeDecoder.number;
+
+        QByteArray messageContents = preMsg.mid(sizeDecoder.count);
+        Decoder typeDecoder(messageContents);
+        if (!typeDecoder.decoded){
+            break;
+        }
+        uint32_t type = typeDecoder.number;
+
+        if (size > messageContents.size()) {
+            break;
+        }
+        handler.handle(type, messageContents.left(size).mid(typeDecoder.count));
+        preMsg = messageContents.mid(size);
+    }
+    unread = preMsg;
+}
