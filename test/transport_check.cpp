@@ -1,13 +1,29 @@
 #include "gtest/gtest.h"
 #include "transport.h"
 
-#define BYTE_ARRAY(STRING) QByteArray(STRING, sizeof(STRING) - 1)
-
-#define EXPECT_DECODER(NUMBER, COUNT, ARRAY) {              \
-    Decoder d(ARRAY);                                       \
-    EXPECT_EQ(NUMBER, d.number);                            \
-    EXPECT_EQ(COUNT, d.count);                              \
+struct TestByteArray {
+    QByteArray array;
+    TestByteArray(const char* string, int size) : array(string, size) {}
+    int size() const { return array.size(); }
+    char operator[](int index) const {
+        EXPECT_GE(index, 0);
+        EXPECT_LT(index, size());
+        return array[index];
+    }
+};
+bool operator==(const QByteArray& qba, const TestByteArray& tba) {
+    return qba == tba.array;
 }
+#define BYTE_ARRAY(STRING) TestByteArray(STRING, sizeof(STRING) - 1)
+
+#define _DO_EXPECT_DECODER(NUMBER, COUNT, EXPECT_DECODED, ARRAY) {  \
+    Decoder d(ARRAY);                                               \
+    EXPECT_EQ(NUMBER, d.number);                                    \
+    EXPECT_EQ(COUNT, d.count);                                      \
+    EXPECT_DECODED(d.decoded);                                      \
+}
+#define EXPECT_DECODER(NUMBER, COUNT, ARRAY) _DO_EXPECT_DECODER(NUMBER, COUNT, EXPECT_TRUE, ARRAY)
+#define EXPECT_DECODER_FAIL(ARRAY) _DO_EXPECT_DECODER(0x00000000, 0, EXPECT_FALSE, ARRAY)
 
 TEST(transport, test_encode) {
     EXPECT_EQ(encode(0x00000000), BYTE_ARRAY("\x00"));
@@ -54,4 +70,16 @@ TEST(transport, test_decode) {
     EXPECT_DECODER(0x10004187, 5, BYTE_ARRAY("\x81\x80\x81\x83\x07"));
     EXPECT_DECODER(0x1020c38f, 5, BYTE_ARRAY("\x81\x81\x83\x87\x0f"));
     EXPECT_DECODER(0xffffffff, 5, BYTE_ARRAY("\x8f\xff\xff\xff\x7f"));
+}
+
+TEST(transport, test_decode_incomplete) {
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x81"));
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x81\x81"));
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x81\x81\x83"));
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x8f\xff\xff\xff"));
+    // TODO: decide what decoder shall return for overflow
+//    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x90\x80\x80\x80\x00"));
+//    EXPECT_DECODER_FAIL(BYTE_ARRAY("\x90\x80\x80\x80\x01"));
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\xff\xff\xff\xff\xff"));
+    EXPECT_DECODER_FAIL(BYTE_ARRAY("\xff\xff\xff\xff\xff\xff"));
 }
