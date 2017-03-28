@@ -54,3 +54,14 @@ QByteArray createM(uint32_t type, QByteArray data);
 void takeM(QByteArray message, const MessageHandler& handler);
 
 void print_debug(const QByteArray& array, const char* prefix);
+
+class MessageReader {
+private:
+    MessageHandler handler;
+    QByteArray unread;
+
+public:
+    MessageReader(const MessageHandler& handler);
+
+    void processBytes(const QByteArray& message);
+};
