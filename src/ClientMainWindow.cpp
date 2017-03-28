@@ -22,6 +22,7 @@ void ClientMainWindow::on_buttonConnect_clicked(){
 
 ClientMainWindow::ClientMainWindow(): client(new QTcpSocket(this)), colorChooser(new ColorChooserWidget(this)) {
     client->setObjectName("socket");
+    colorChooser->setObjectName("colorChooser");
     setupUi(this);
     colorChooser->selectColor(canvas->getPenColor());
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
@@ -108,4 +109,8 @@ void ClientMainWindow::on_canvas_strokeFinished(const Stroke& stroke) {
 
 bool ClientMainWindow::isConnected() {
     return buttonSend->isEnabled();
+}
+
+void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
+    canvas->setPenColor(color);
 }

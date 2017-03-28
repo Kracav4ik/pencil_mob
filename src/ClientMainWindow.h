@@ -27,6 +27,8 @@ public slots:
     void on_socket_error(QAbstractSocket::SocketError error);
     void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
+    void on_colorChooser_colorSelected(const QColor& color);
+
     void on_canvas_debugInfo(int linesCount, int paintTime);
     void on_canvas_strokeFinished(const Stroke& stroke);
 };

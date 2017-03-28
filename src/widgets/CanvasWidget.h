@@ -20,6 +20,7 @@ private:
 public:
     CanvasWidget(QWidget *parent);
     const QColor& getPenColor() const;
+    void setPenColor(const QColor& color);
     void addStroke(const Stroke& stroke);
 
 signals:
