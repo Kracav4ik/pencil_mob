@@ -18,18 +18,6 @@ QByteArray encode(uint32_t value) {
     return array;
 }
 
-Decoder::Decoder(QByteArray bytes)
-        : number(0)
-        , count(0) {
-    char byte;
-
-    do {
-        byte = bytes[count++];
-        number <<= 7;
-        number |= byte & 127;
-    } while (byte & 128);
-}
-
 QByteArray createM(uint32_t type, QByteArray data) {
     QByteArray out;
     out.append(encode(type));

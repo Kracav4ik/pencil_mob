@@ -6,10 +6,20 @@
 
 QByteArray encode(uint32_t value);
 struct Decoder{
-    uint32_t number;
-    int count;
+    uint32_t number = 0;
+    int count = 0;
 
-    Decoder(QByteArray bytes);
+    template <typename Array>
+    Decoder(const Array& bytes) {
+        char byte;
+
+        do {
+            byte = bytes[count++];
+            number <<= 7;
+            number |= byte & 127;
+        } while (byte & 128);
+    }
+
 };
 
 struct HandlePair {
