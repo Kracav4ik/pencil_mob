@@ -10,16 +10,40 @@ includes = [
 ]
 
 
+class Type:
+    def __init__(self, name, copy=False):
+        self.copy = copy
+        self.name = name
+
+    def for_param(self):
+        if self.copy:
+            return self.for_field()
+        return 'const %s&' % self.name
+
+    def for_field(self):
+        return self.name
+
+
+tuint8 = Type('uint8_t', True)
+tuint32 = Type('uint32_t', True)
+tstring = Type('QString')
+tpointvector = Type('QVector<QPoint>')
+
+
 class Field:
     def __init__(self, type, name):
+        """
+        :type type: Type
+        :type name: str
+        """
         self.type = type
         self.name = name
 
     def decl_ctor(self):
-        return 'const %s& %s' % (self.type, self.name)
+        return '%s %s' % (self.type.for_param(), self.name)
 
     def decl_field(self):
-        return '%s %s;' % (self.type, self.name)
+        return '%s %s;' % (self.type.for_field(), self.name)
 
     def ctor_init(self):
         return ', %s(%s)' % (self.name, self.name)
@@ -27,6 +51,10 @@ class Field:
 
 class MsgClass:
     def __init__(self, name, fields):
+        """
+        :type name: str
+        :type fields: list[Field]
+        """
         self.name = name
         self.fields = fields
 
@@ -40,7 +68,8 @@ class MsgClass:
         return '// TODO: decode'
 
     def write_to(self, f):
-        f.write('''struct %(cls)s : MessageBase{
+        f.write('''
+struct %(cls)s : MessageBase{
     %(decl_field)s
 
     %(cls)s(%(decl_ctor)s)
@@ -67,13 +96,13 @@ class MsgClass:
 
 
 msg_classes = [
-    MsgClass('StringMessage', [Field('QString', 'str')]),
-    MsgClass('SetClientNameMessage', [Field('QString', 'name')]),
+    MsgClass('StringMessage', [Field(tstring, 'str')]),
+    MsgClass('SetClientNameMessage', [Field(tstring, 'name')]),
     MsgClass('PathMessage', [
-        Field('uint8_t', 'r'),
-        Field('uint8_t', 'g'),
-        Field('uint8_t', 'b'),
-        Field('QVector<QPoint>', 'points')
+        Field(tuint8, 'r'),
+        Field(tuint8, 'g'),
+        Field(tuint8, 'b'),
+        Field(tpointvector, 'points')
     ]),
 ]
 
@@ -85,7 +114,7 @@ def main():
         f.write('\n\n')
         f.write('\n'.join('#include "%s"' % inc for inc in includes))
 
-        f.write('\n\n')
+        f.write('\n')
         for cls in msg_classes:
             cls.write_to(f)
 
