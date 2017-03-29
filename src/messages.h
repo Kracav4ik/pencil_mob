@@ -26,14 +26,14 @@ struct SetClientNameMessage : MessageBase{
     QString name;
 
     SetClientNameMessage(const QString& name)
-            : MessageBase(SET_CLIENT_NAME), name(name) {}
+            : MessageBase(SET_CLIENT_NAME_MESSAGE), name(name) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, name.toUtf8());
     }
 
     SetClientNameMessage(const QByteArray& data)
-            : MessageBase(SET_CLIENT_NAME), name(data) {}
+            : MessageBase(SET_CLIENT_NAME_MESSAGE), name(data) {}
 };
 
 struct PathMessage : MessageBase{
