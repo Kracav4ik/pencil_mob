@@ -27,10 +27,38 @@ class Type:
     def for_field(self):
         return self.name
 
+    def decode(self, arrName):
+        return '/* TODO: encode %s here */' % self.name
 
-tuint8 = Type('uint8_t', True)
+    def encode(self, varName):
+        return '/* TODO: encode %s here */' % self.name
+
+
+class StringType(Type):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def decode(self, arrName):
+        return '%s(%s);' % (self.name, arrName)
+
+    def encode(self, varName):
+        return '%s.toUtf8()' % varName
+
+
+class FixedIntType(Type):
+    def __init__(self, name):
+        super().__init__(name, True)
+
+    def decode(self, arrName):
+        return "(%(n)s)%(m)s[0];\n        %(m)s = %(m)s.mid(1);" % {'m': arrName, 'n': self.name}
+
+    def encode(self, varName):
+        return 'array.append(%s);' % varName
+
+
+tuint8 = FixedIntType('uint8_t')
 tuint32 = Type('uint32_t', True)
-tstring = Type('QString')
+tstring = StringType('QString')
 tpointvector = Type('QVector<QPoint>')
 
 
@@ -53,10 +81,10 @@ class Field:
         return ', %s(%s)' % (self.name, self.name)
 
     def encode_lines(self):
-        return ['/* TODO: encode %s here */' % self.decl_field()]
+        return self.type.encode(self.name)
 
     def decode_lines(self, array_name):
-        return ['/* TODO: decode %s here */' % self.decl_field()]
+        return '%s = %s' % (self.name, self.type.decode(array_name))
 
 
 class MsgClass:
@@ -77,13 +105,11 @@ class MsgClass:
         if len(self.fields) > 1:
             snippets.append('QByteArray array;')
             for f in self.fields:
-                snippets.append(join_lines(f.encode_lines()))
+                snippets.append(f.encode_lines())
             snippets.append('return createM(type, array);')
         else:
             # TODO: this WILL break, but for now it makes pretty code
-            encode_lines = self.fields[0].encode_lines()
-            assert len(encode_lines) == 1
-            snippets.append('return createM(type, %s);' % encode_lines[0])
+            snippets.append('return createM(type, %s);' % self.fields[0].encode_lines())
         return '\n\n'.join('        ' + s for s in snippets)
 
     def gen_decode(self):
@@ -94,7 +120,7 @@ class MsgClass:
         else:
             array_name = 'data'
         for f in self.fields:
-            snippets.append(join_lines(f.decode_lines(array_name)))
+            snippets.append(f.decode_lines(array_name))
         return '\n\n'.join('        ' + s for s in snippets)
 
     def write_to(self, f):
