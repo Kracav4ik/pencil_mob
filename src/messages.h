@@ -19,7 +19,9 @@ struct StringMessage : MessageBase{
     }
 
     StringMessage(const QByteArray& data)
-            : MessageBase(STRING_MESSAGE), str(data) {}
+            : MessageBase(STRING_MESSAGE) {
+        str = QString(data);
+    }
 };
 
 struct SetClientNameMessage : MessageBase{
@@ -33,7 +35,9 @@ struct SetClientNameMessage : MessageBase{
     }
 
     SetClientNameMessage(const QByteArray& data)
-            : MessageBase(SET_CLIENT_NAME_MESSAGE), name(data) {}
+            : MessageBase(SET_CLIENT_NAME_MESSAGE) {
+        name = QString(data);
+    }
 };
 
 struct PathMessage : MessageBase{
