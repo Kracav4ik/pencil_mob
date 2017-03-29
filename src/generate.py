@@ -10,6 +10,10 @@ includes = [
 ]
 
 
+def join_lines(lines):
+    return '\n        '.join(lines)
+
+
 class Type:
     def __init__(self, name, copy=False):
         self.copy = copy
@@ -48,6 +52,12 @@ class Field:
     def ctor_init(self):
         return ', %s(%s)' % (self.name, self.name)
 
+    def encode_lines(self):
+        return ['/* TODO: encode %s here */' % self.decl_field()]
+
+    def decode_lines(self, array_name):
+        return ['/* TODO: decode %s here */' % self.decl_field()]
+
 
 class MsgClass:
     def __init__(self, name, fields):
@@ -62,10 +72,30 @@ class MsgClass:
         return ''.join(('_'+c) if c.isupper() else c.upper() for c in self.name)[1:]
 
     def gen_encode(self):
-        return '// TODO: encode'
+        snippets = []
+        assert self.fields
+        if len(self.fields) > 1:
+            snippets.append('QByteArray array;')
+            for f in self.fields:
+                snippets.append(join_lines(f.encode_lines()))
+            snippets.append('return createM(type, array);')
+        else:
+            # TODO: this WILL break, but for now it makes pretty code
+            encode_lines = self.fields[0].encode_lines()
+            assert len(encode_lines) == 1
+            snippets.append('return createM(type, %s);' % encode_lines[0])
+        return '\n\n'.join('        ' + s for s in snippets)
 
     def gen_decode(self):
-        return '// TODO: decode'
+        snippets = []
+        if len(self.fields) > 1:
+            snippets.append('QByteArray m = data;')
+            array_name = 'm'
+        else:
+            array_name = 'data'
+        for f in self.fields:
+            snippets.append(join_lines(f.decode_lines(array_name)))
+        return '\n\n'.join('        ' + s for s in snippets)
 
     def write_to(self, f):
         f.write('''
@@ -76,12 +106,12 @@ struct %(cls)s : MessageBase{
             : MessageBase(%(cls_caps)s)%(ctor_init)s {}
 
     QByteArray encodeMessage() const override {
-        %(encode)s
+%(encode)s
     }
 
     %(cls)s(const QByteArray& data)
             : MessageBase(%(cls_caps)s) {
-            %(decode)s
+%(decode)s
     }
 };
 ''' % {
