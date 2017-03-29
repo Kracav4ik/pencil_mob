@@ -8,38 +8,32 @@
 #include "enums.h"
 #include "transport.h"
 
-struct MessageBase{
-    const uint32_t type;
-
-    MessageBase(uint32_t type) : type(type) {}
-
-    virtual QByteArray encodeMessage() const = 0;
-
-    virtual ~MessageBase() {}
-};
-
 struct StringMessage : MessageBase{
     QString str;
 
-    StringMessage(const QString& str) : MessageBase(STRING_MESSAGE), str(str) {}
+    StringMessage(const QString& str)
+            : MessageBase(STRING_MESSAGE), str(str) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, str.toUtf8());
     }
 
-    StringMessage(const QByteArray& data) : MessageBase(STRING_MESSAGE), str(data) {}
+    StringMessage(const QByteArray& data)
+            : MessageBase(STRING_MESSAGE), str(data) {}
 };
 
 struct SetClientNameMessage : MessageBase{
     QString name;
 
-    SetClientNameMessage(const QString& name) : MessageBase(SET_CLIENT_NAME), name(name) {}
+    SetClientNameMessage(const QString& name)
+            : MessageBase(SET_CLIENT_NAME), name(name) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, name.toUtf8());
     }
 
-    SetClientNameMessage(const QByteArray& data) : MessageBase(SET_CLIENT_NAME), name(data){}
+    SetClientNameMessage(const QByteArray& data)
+            : MessageBase(SET_CLIENT_NAME), name(data) {}
 };
 
 struct PathMessage : MessageBase{
@@ -61,7 +55,8 @@ struct PathMessage : MessageBase{
         return createM(type, array);
     }
 
-    PathMessage(const QByteArray& data) : MessageBase(PATH_MESSAGE) {
+    PathMessage(const QByteArray& data)
+            : MessageBase(PATH_MESSAGE) {
         QByteArray m = data;
         r = (uint8_t) m[0];
         g = (uint8_t) m[1];

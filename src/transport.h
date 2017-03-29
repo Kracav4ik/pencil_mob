@@ -61,3 +61,13 @@ private:
 public:
     void processBytes(const QByteArray& message, const MessageHandler& handler);
 };
+
+struct MessageBase{
+    const uint32_t type;
+
+    MessageBase(uint32_t type) : type(type) {}
+
+    virtual QByteArray encodeMessage() const = 0;
+
+    virtual ~MessageBase() {}
+};
