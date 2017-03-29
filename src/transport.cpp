@@ -18,6 +18,12 @@ QByteArray encode(uint32_t value) {
     return array;
 }
 
+uint32_t decodeAndShift(QByteArray& array) {
+    Decoder decoder(array);
+    array = array.mid(decoder.count);
+    return decoder.number;
+}
+
 QByteArray createM(uint32_t type, QByteArray data) {
     QByteArray out;
     out.append(encode(type));

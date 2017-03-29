@@ -5,6 +5,7 @@
 #include <functional>
 
 QByteArray encode(uint32_t value);
+
 struct Decoder{
     uint32_t number = 0;
     int count = 0;
@@ -27,8 +28,8 @@ struct Decoder{
 
         decoded = true;
     }
-
 };
+uint32_t decodeAndShift(QByteArray& array);
 
 struct HandlePair {
     typedef std::function<void(const QByteArray&)> CallbackType;

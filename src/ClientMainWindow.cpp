@@ -2,6 +2,7 @@
 #include "transport.h"
 #include "enums.h"
 #include "widgets/ColorChooserWidget.h"
+#include "messages.h"
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(!isConnected()){
@@ -10,7 +11,7 @@ void ClientMainWindow::on_buttonSend_clicked(){
     if(lineEdit->text().isEmpty()){
         return;
     }
-    client->write(createM(STRING_MESSAGE, lineEdit->text().toUtf8()));
+    client->write(StringMessage(lineEdit->text()).encodeMessage());
     client->flush();
     lineEdit->setText("");
 }
@@ -33,35 +34,16 @@ ClientMainWindow::ClientMainWindow(): client(new QTcpSocket(this)), colorChooser
 void ClientMainWindow::on_socket_readyRead() {
     reader.processBytes(client->readAll(), {
             {STRING_MESSAGE, [this](const QByteArray& message){
-                textEdit->append(message);
+                StringMessage m(message);
+                textEdit->append(m.str);
             }},
             {SET_CLIENT_NAME, [this](const QByteArray& message){
-                setWindowTitle("Name is " + message);
+                SetClientNameMessage m(message);
+                setWindowTitle("Name is " + m.name);
             }},
             {PATH_MESSAGE, [this](const QByteArray& message){
-                QByteArray m = message;
-                uint8_t r = (uint8_t) m[0];
-                uint8_t g = (uint8_t) m[1];
-                uint8_t b = (uint8_t) m[2];
-                m = m.mid(3);
-
-                Decoder decoder(m);
-                uint32_t pointsCount = decoder.number;
-                m = m.mid(decoder.count);
-
-                QPolygon p;
-                for (int i = 0; i < pointsCount; ++i) {
-                    decoder = Decoder(m);
-                    uint32_t x = decoder.number;
-                    m = m.mid(decoder.count);
-
-                    decoder = Decoder(m);
-                    uint32_t y = decoder.number;
-                    m = m.mid(decoder.count);
-
-                    p << QPoint(x, y);
-                }
-                canvas->addStroke(Stroke(QColor(r, g, b), p));
+                PathMessage m(message);
+                canvas->addStroke(Stroke(QColor(m.r, m.g, m.b), m.points));
             }},
     });
 }
@@ -95,15 +77,10 @@ void ClientMainWindow::on_canvas_strokeFinished(const Stroke& stroke) {
     if(!isConnected()){
         return;
     }
-    const QColor& color = stroke.color;
-    const QPolygon& polygon = stroke.polygon;
-    QByteArray array;
-    array.append((uint8_t) color.red()).append((uint8_t) color.green()).append((uint8_t) color.blue());
-    array.append(encode((uint32_t) polygon.size()));
-    for (const QPoint& point : polygon) {
-        array.append(encode((uint32_t) point.x())).append(encode((uint32_t) point.y()));
-    }
-    client->write(createM(PATH_MESSAGE, array));
+    uint8_t r = (uint8_t) stroke.color.red();
+    uint8_t g = (uint8_t) stroke.color.green();
+    uint8_t b = (uint8_t) stroke.color.blue();
+    client->write(PathMessage(r, g, b, stroke.polygon).encodeMessage());
     client->flush();
 }
 

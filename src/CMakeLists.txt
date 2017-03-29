@@ -16,7 +16,7 @@ find_package(Qt5Network REQUIRED)
 set(CLIENT_NAME "pencil_mob")
 set(SERVER_NAME "pencil_mob_server")
 
-set(COMMON_SOURCES transport.cpp transport.h enums.h)
+set(COMMON_SOURCES transport.cpp transport.h enums.h messages.h)
 add_library(pencil_mob_common ${COMMON_SOURCES})
 target_link_libraries(pencil_mob_common Qt5::Core)
 

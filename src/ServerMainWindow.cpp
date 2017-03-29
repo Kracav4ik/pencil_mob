@@ -2,6 +2,7 @@
 #include "ServerMainWindow.h"
 #include "transport.h"
 #include "enums.h"
+#include "messages.h"
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
@@ -11,7 +12,7 @@ void ServerMainWindow::acceptConnection() {
     clients[clientSocket] = new ClientInfo(name);
     connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
     connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
-    clientSocket->write(createM(SET_CLIENT_NAME, name.toUtf8()));
+    clientSocket->write(SetClientNameMessage(name).encodeMessage());
     clientSocket->flush();
 }
 
@@ -28,12 +29,13 @@ void ServerMainWindow::readyToRead() {
     QByteArray data = socket->readAll();
     reader.processBytes(data, {
             {STRING_MESSAGE, [this, available, socket](const QByteArray& message) {
-                QString dataStr = message;
-                printf("Got data: %i bytes\n%s\n", available, dataStr.toUtf8().data());
+                StringMessage m(message);
+                QString dataStr = m.str;
+                printf("Got data: %i bytes\n%s\n", available, message.data());
                 QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
                 textEdit->append(s);
 
-                QByteArray answer = createM(STRING_MESSAGE, s.toUtf8());
+                QByteArray answer = StringMessage(s).encodeMessage();
                 for (QTcpSocket* clientSocket : clients.keys()) {
                     clientSocket->write(answer);
                     clientSocket->flush();
