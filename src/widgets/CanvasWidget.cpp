@@ -26,12 +26,18 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
     QElapsedTimer timer;
     timer.start();
 
+    QImage pattern(16, 16, QImage::Format_RGB32);
+    QPainter localP(&pattern);
+    localP.fillRect(rect(), QColor(255, 255, 255));
+    QColor color(192, 192, 192);
+
+    localP.fillRect(QRect(0, 0, 8, 8), color);
+    localP.fillRect(QRect(8, 8, 8, 8), color);
+
+    QBrush b(pattern);
     QPainter p(this);
-    QColor bg = QColor(192, 192, 192);
-    if(penColor.value() > 128){
-        bg.setRgb(64, 64, 64);
-    }
-    p.fillRect(rect(), bg);
+    p.fillRect(rect(), b);
+
     for (const Stroke& stroke : strokes) {
         QPen pen(QBrush(stroke.color), 5);
         p.setPen(pen);
