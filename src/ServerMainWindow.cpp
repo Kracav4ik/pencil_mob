@@ -23,6 +23,19 @@ ServerMainWindow::ServerMainWindow() {
     show();
 }
 
+HandlePair::CallbackType ServerMainWindow::multicastFunc(uint32_t messageType, QTcpSocket* ignoreSocket) {
+    return [this, ignoreSocket](const QByteArray& message) {
+        QByteArray answer = createM(messageType, message);
+        for (QTcpSocket* clientSocket : clients.keys()) {
+            if(clientSocket == ignoreSocket){
+                continue;
+            }
+            clientSocket->write(answer);
+            clientSocket->flush();
+        }
+    };
+}
+
 void ServerMainWindow::readyToRead() {
     QTcpSocket* socket = (QTcpSocket *) sender();
     int available = (int) socket->bytesAvailable();
@@ -41,16 +54,7 @@ void ServerMainWindow::readyToRead() {
                     clientSocket->flush();
                 }
             }},
-            {PATH_MESSAGE, [this, socket](const QByteArray& message) {
-                QByteArray answer = createM(PATH_MESSAGE, message);
-                for (QTcpSocket* clientSocket : clients.keys()) {
-                    if(clientSocket == socket){
-                        continue;
-                    }
-                    clientSocket->write(answer);
-                    clientSocket->flush();
-                }
-            }},
+            {PATH_MESSAGE, multicastFunc(PATH_MESSAGE, socket)},
     });
 
 }

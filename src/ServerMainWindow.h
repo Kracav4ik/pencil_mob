@@ -19,7 +19,9 @@ private:
     QTcpServer srv;
     QMap<QTcpSocket*, ClientInfo*> clients;
     MessageReader reader;
-    
+
+    HandlePair::CallbackType multicastFunc(uint32_t messageType, QTcpSocket* ignoreSocket=nullptr);
+
 public:
     ServerMainWindow();
 
