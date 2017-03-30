@@ -248,7 +248,15 @@ def main():
         f.write('\n')
         for cls in msg_classes:
             cls.write_to(f)
+    with open('enums.h', 'w') as f:
+        names = [msg.cls_caps() for msg in msg_classes]
+        names[0] += ' = 1'
+        f.write('''#pragma once
 
+enum MessageType {
+    %s
+};
+''' % ',\n    '.join(names))
 
 if __name__ == '__main__':
     main()
