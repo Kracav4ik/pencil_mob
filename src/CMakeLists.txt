@@ -32,6 +32,7 @@ set(CLIENT_SOURCES
         widgets/ColorChooserWidget.h
         widgets/CustomPaintWidget.cpp
         widgets/CustomPaintWidget.h
+        TextProgress.h
         )
 
 set(SERVER_SOURCES

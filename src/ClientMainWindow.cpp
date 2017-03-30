@@ -3,6 +3,7 @@
 #include "enums.h"
 #include "widgets/ColorChooserWidget.h"
 #include "messages.h"
+#include "TextProgress.h"
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(!isConnected()){
@@ -70,7 +71,8 @@ void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state
 }
 
 void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
-    debug->setText(QString("linesCount: %1, paintTime: %2 ms").arg(linesCount).arg(paintTime));
+    static TextProgress p(20);
+    debug->setText(QString("linesCount: %1, paintTime: %2 ms |%3|").arg(linesCount).arg(paintTime).arg(p.get()));
 }
 
 void ClientMainWindow::on_canvas_strokeFinished(const Stroke& stroke) {
