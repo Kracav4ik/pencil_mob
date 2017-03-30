@@ -27,49 +27,114 @@ class Type:
     def for_field(self):
         return self.name
 
-    def decode(self, arrName):
-        return '/* TODO: encode %s here */' % self.name
+    def decode(self, var_name, array_name):
+        return '/* TODO: decode %s %s here from %s */' % (self.name, var_name, array_name)
 
-    def encode(self, varName):
-        return '/* TODO: encode %s here */' % self.name
+    def encode(self, var_name):
+        return '/* TODO: encode %s %s here */' % (self.name, var_name)
 
 
 class StringType(Type):
     def __init__(self, name):
         super().__init__(name)
 
-    def decode(self, arrName):
-        return '%s(%s);' % (self.name, arrName)
+    def decode(self, var_name, array_name):
+        return '%s = %s(%s);' % (var_name, self.name, array_name)
 
-    def encode(self, varName):
-        return '%s.toUtf8()' % varName
+    def encode(self, var_name):
+        return '%s.toUtf8()' % var_name
+
+
+class StructType(Type):
+    def __init__(self, name, fields):
+        super().__init__(name)
+        self.fields = fields
+
+    def decode(self, var_name, array_name):
+        return '\n'.join('        %s %s' % (field.type.name, field.decode_lines(array_name)) for field in self.fields)
+
+    def encode(self, var_name):
+        return '\n'.join('            ' + field.encode_lines(var_name) for field in self.fields)
+
+
+class ListType(Type):
+    def __init__(self, name, item_type):
+        super().__init__(name)
+        self.item_type = item_type
+
+    def decode(self, var_name, array_name):
+        counter = Field(tuint32, '%sCount' % var_name, False)
+        s = '\n        '.join([counter.decl_field(), counter.decode_lines(array_name)])
+        s += '''
+        for (int _ = 0; _ < %(counter_name)s; ++_) {
+%(subdecode)s
+
+            %(var_name)s << %(item_type)s(%(params)s);
+        }''' % {
+            'var_name': var_name,
+            'counter_name': counter.name,
+            'item_type': self.item_type.name,
+            'subdecode': self.item_type.decode(var_name, array_name),
+            'params': ', '.join(f.name for f in self.item_type.fields),
+        }
+        return s
+
+    def encode(self, var_name):
+        counter = Field(tuint32, 'size')
+        s = counter.encode_lines(var_name)
+        item_name = '%sItem' % var_name
+        s += '''
+        for (%(item_type)s %(item_name)s : %(var_name)s) {
+%(subdecode)s
+        }''' % {
+            'var_name': var_name,
+            'item_type': self.item_type.for_param(),
+            'item_name': item_name,
+            'subdecode': self.item_type.encode(item_name),
+        }
+        return s
+
+
+class VaryingIntType(Type):
+    def __init__(self, name):
+        super().__init__(name, True)
+
+    def decode(self, var_name, array_name):
+        return '%s = decodeAndShift(%s);' % (var_name, array_name)
+
+    def encode(self, var_name):
+        return 'array.append(encode((%s)%s));' % (self.name, var_name)
 
 
 class FixedIntType(Type):
     def __init__(self, name):
         super().__init__(name, True)
 
-    def decode(self, arrName):
-        return "(%(n)s)%(m)s[0];\n        %(m)s = %(m)s.mid(1);" % {'m': arrName, 'n': self.name}
+    def decode(self, var_name, array_name):
+        return "%(var_name)s = (%(type_name)s)%(array_name)s[0];\n        %(array_name)s = %(array_name)s.mid(1);" % {
+            'array_name': array_name,
+            'type_name': self.name,
+            'var_name': var_name,
+        }
 
-    def encode(self, varName):
-        return 'array.append(%s);' % varName
+    def encode(self, var_name):
+        return 'array.append(%s);' % var_name
 
 
 tuint8 = FixedIntType('uint8_t')
-tuint32 = Type('uint32_t', True)
+tuint32 = VaryingIntType('uint32_t')
 tstring = StringType('QString')
-tpointvector = Type('QVector<QPoint>')
 
 
 class Field:
-    def __init__(self, type, name):
+    def __init__(self, type, name, use_parens=True):
         """
         :type type: Type
         :type name: str
         """
         self.type = type
         self.name = name
+        self.use_parens = use_parens
 
     def decl_ctor(self):
         return '%s %s' % (self.type.for_param(), self.name)
@@ -80,11 +145,21 @@ class Field:
     def ctor_init(self):
         return ', %s(%s)' % (self.name, self.name)
 
-    def encode_lines(self):
-        return self.type.encode(self.name)
+    def encode_lines(self, structName=''):
+        if structName:
+            name = '%s.%s' % (structName, self.name)
+            if self.use_parens:
+                name += '()'
+        else:
+            name = self.name
+
+        return self.type.encode(name)
 
     def decode_lines(self, array_name):
-        return '%s = %s' % (self.name, self.type.decode(array_name))
+        return self.type.decode(self.name, array_name)
+
+
+tpointvector = ListType('QVector<QPoint>', StructType('QPoint', [Field(tuint32, 'x'), Field(tuint32, 'y')]))
 
 
 class MsgClass:
