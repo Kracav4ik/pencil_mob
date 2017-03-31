@@ -15,6 +15,7 @@ private:
     QTcpSocket* client;
     ColorChooserWidget* colorChooser;
     MessageReader reader;
+    Painting painting;
 
 public:
     ClientMainWindow();
@@ -32,6 +33,6 @@ public slots:
     void on_colorChooser_colorSelected(const QColor& color);
 
     void on_canvas_debugInfo(int linesCount, int paintTime);
-    void on_canvas_strokeFinished(const Stroke& stroke);
+    void on_painting_strokeFinished(const Stroke& stroke);
 };
 

@@ -4,28 +4,21 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-struct Stroke{
-    QColor color;
-    QPolygon polygon;
+#include "Painting.h"
 
-    Stroke(const QColor& color, const QPolygon& polygon=QPolygon());
-};
 
 class CanvasWidget : public QWidget {
 Q_OBJECT
 private:
-    QColor penColor;
-    bool drawingStroke = false;
-    QList<Stroke> strokes;
+    Painting* painting = nullptr;
+
 public:
     CanvasWidget(QWidget *parent);
-    const QColor& getPenColor() const;
-    void setPenColor(const QColor& color);
-    void addStroke(const Stroke& stroke);
+
+    void setPainting(Painting* p);
 
 signals:
     void debugInfo(int linesCount, int paintTime);
-    void strokeFinished(const Stroke& stroke);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -33,6 +33,8 @@ set(CLIENT_SOURCES
         widgets/CustomPaintWidget.cpp
         widgets/CustomPaintWidget.h
         TextProgress.h
+        Painting.cpp
+        Painting.h
         )
 
 set(SERVER_SOURCES

@@ -3,22 +3,25 @@
 
 void CanvasWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        drawingStroke = true;
-        strokes.append(Stroke(penColor));
+        if (painting){
+            painting->beginStroke();
+        }
     }
 }
 
 void CanvasWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        drawingStroke = false;
-        emit strokeFinished(strokes.last());
+        if (painting){
+            painting->endStroke();
+        }
     }
 }
 
 void CanvasWidget::mouseMoveEvent(QMouseEvent *event) {
-    if (drawingStroke) {
-        strokes.last().polygon << event->pos();
-        update();
+    if (event->buttons() & Qt::LeftButton) {
+        if (painting){
+            painting->continueStroke(event->pos());
+        }
     }
 }
 
@@ -38,29 +41,15 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
     QPainter p(this);
     p.fillRect(rect(), b);
 
-    for (const Stroke& stroke : strokes) {
-        QPen pen(QBrush(stroke.color), 5);
-        p.setPen(pen);
-        p.drawPolyline(stroke.polygon);
+    if (painting) {
+        p.drawPicture(0, 0, painting->getPicture());
     }
 
-    emit debugInfo(strokes.size(), (int) timer.elapsed());
+    emit debugInfo(painting ? painting->strokesSize() : 0, (int) timer.elapsed());
 }
 
-CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent), penColor(qrand()%256, qrand()%256, qrand()%256) {}
+CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent) {}
 
-void CanvasWidget::addStroke(const Stroke& stroke) {
-    strokes << stroke;
-    update();
+void CanvasWidget::setPainting(Painting* p) {
+    painting = p;
 }
-
-const QColor& CanvasWidget::getPenColor() const {
-    return penColor;
-}
-
-void CanvasWidget::setPenColor(const QColor& color) {
-    penColor = color;
-}
-
-Stroke::Stroke(const QColor& color, const QPolygon& polygon)
-        : color(color), polygon(polygon) {}
