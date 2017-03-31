@@ -24,7 +24,7 @@ ServerMainWindow::ServerMainWindow() {
 }
 
 HandlePair::CallbackType ServerMainWindow::multicastFunc(uint32_t messageType, QTcpSocket* ignoreSocket) {
-    return [this, ignoreSocket](const QByteArray& message) {
+    return [this, messageType, ignoreSocket](const QByteArray& message) {
         QByteArray answer = createM(messageType, message);
         for (QTcpSocket* clientSocket : clients.keys()) {
             if(clientSocket == ignoreSocket){
