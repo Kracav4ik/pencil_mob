@@ -42,6 +42,8 @@ set(CLIENT_SOURCES
         tools/Tool.h
         tools/PenTool.cpp
         tools/PenTool.h
+        widgets/ToolSelectorButton.cpp
+        widgets/ToolSelectorButton.h
         )
 
 set(SERVER_SOURCES

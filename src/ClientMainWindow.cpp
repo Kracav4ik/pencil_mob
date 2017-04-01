@@ -52,7 +52,7 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
 
-    toolSelector->selectTool(&toolSelector->penTool);
+    toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
     show();
 }

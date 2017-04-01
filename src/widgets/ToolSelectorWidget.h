@@ -5,11 +5,17 @@
 #include "tools/PenTool.h"
 #include "ui_tool_selector.h"
 
+class ClientMainWindow;
+
 class ToolSelectorWidget : public QDockWidget, private Ui::ToolSelectorWidget{
 Q_OBJECT
-public:
+private:
+    friend class ClientMainWindow;
     PenTool penTool;
     Tool* currentTool = nullptr;
+    QButtonGroup toolButtons;
+
+public:
     ToolSelectorWidget(QWidget* parent);
 
     void selectTool(Tool* tool);
