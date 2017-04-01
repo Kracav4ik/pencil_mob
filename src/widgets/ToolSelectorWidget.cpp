@@ -17,6 +17,10 @@ ToolSelectorWidget::ToolSelectorWidget(QWidget* parent)
     toolButtons.addButton(button);
     layout->addWidget(button);
 
+    button = new ToolSelectorButton(this, "EraserTool", &eraserTool);
+    toolButtons.addButton(button);
+    layout->addWidget(button);
+
     layout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     dockWidgetContents->setLayout(layout);
 }

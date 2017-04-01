@@ -44,10 +44,11 @@ struct PathMessage : MessageBase{
     uint8_t r;
     uint8_t g;
     uint8_t b;
+    bool isEraser;
     QVector<QPoint> points;
 
-    PathMessage(uint8_t r, uint8_t g, uint8_t b, const QVector<QPoint>& points)
-            : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), points(points) {}
+    PathMessage(uint8_t r, uint8_t g, uint8_t b, bool isEraser, const QVector<QPoint>& points)
+            : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), isEraser(isEraser), points(points) {}
 
     QByteArray encodeMessage() const override {
         QByteArray array;
@@ -57,6 +58,8 @@ struct PathMessage : MessageBase{
         array.append(g);
 
         array.append(b);
+
+        array.append((char)(isEraser ? 1 : 0));
 
         array.append(encode((uint32_t)points.size()));
         for (const QPoint& pointsItem : points) {
@@ -78,6 +81,9 @@ struct PathMessage : MessageBase{
         m = m.mid(1);
 
         b = (uint8_t)m[0];
+        m = m.mid(1);
+
+        isEraser = m[0] != '\0';
         m = m.mid(1);
 
         uint32_t pointsCount;

@@ -47,6 +47,9 @@ ClientMainWindow::ClientMainWindow()
     connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
     connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
     connect(&toolSelector->penTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
+    connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
+    connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
+    connect(&toolSelector->eraserTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
     connect(toolSelector, SIGNAL(toolSelected(Tool*)), canvas, SLOT(setCurrentTool(Tool*)));
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
@@ -69,7 +72,7 @@ void ClientMainWindow::on_socket_readyRead() {
             }},
             {PATH_MESSAGE, [this](const QByteArray& message){
                 PathMessage m(message);
-                painting.addStroke(Stroke(QColor(m.r, m.g, m.b), m.points));
+                painting.addStroke(Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
             }},
     });
 }
@@ -107,7 +110,7 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     uint8_t r = (uint8_t) stroke.color.red();
     uint8_t g = (uint8_t) stroke.color.green();
     uint8_t b = (uint8_t) stroke.color.blue();
-    client->write(PathMessage(r, g, b, stroke.polygon).encodeMessage());
+    client->write(PathMessage(r, g, b, stroke.isEraser, stroke.polygon).encodeMessage());
     client->flush();
 }
 

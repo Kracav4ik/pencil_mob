@@ -35,12 +35,19 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
     QPainter p(this);
     p.fillRect(rect(), b);
 
-    if (painting) {
-        p.drawPicture(0, 0, painting->getPicture());
+    QImage img(rect().size(), QImage::Format_ARGB32_Premultiplied);
+    img.fill(Qt::transparent);
+    {
+        QPainter imagePainter(&img);
+        if (painting) {
+            imagePainter.drawPicture(0, 0, painting->getPicture());
+        }
+        if (currentTool) {
+            currentTool->paint(imagePainter);
+        }
     }
-    if (currentTool) {
-        currentTool->paint(p);
-    }
+
+    p.drawImage(rect(), img);
 
     emit debugInfo(painting ? painting->strokesSize() : 0, (int) timer.elapsed());
 }

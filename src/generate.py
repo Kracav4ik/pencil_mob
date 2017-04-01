@@ -121,7 +121,22 @@ class FixedIntType(Type):
         return 'array.append(%s);' % var_name
 
 
+class BoolType(Type):
+    def __init__(self, name):
+        super().__init__(name, True)
+
+    def decode(self, var_name, array_name):
+        return "%(var_name)s = %(array_name)s[0] != '\\0';\n        %(array_name)s = %(array_name)s.mid(1);" % {
+            'array_name': array_name,
+            'var_name': var_name,
+        }
+
+    def encode(self, var_name):
+        return 'array.append((char)(%s ? 1 : 0));' % var_name
+
+
 tuint8 = FixedIntType('uint8_t')
+tbool = BoolType('bool')
 tuint32 = VaryingIntType('uint32_t')
 tstring = StringType('QString')
 
@@ -233,6 +248,7 @@ msg_classes = [
         Field(tuint8, 'r'),
         Field(tuint8, 'g'),
         Field(tuint8, 'b'),
+        Field(tbool, 'isEraser'),
         Field(tpointvector, 'points')
     ]),
 ]

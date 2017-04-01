@@ -3,6 +3,7 @@
 #include <QDockWidget>
 
 #include "tools/PenTool.h"
+#include "tools/EraserTool.h"
 #include "ui_tool_selector.h"
 
 class ClientMainWindow;
@@ -12,6 +13,7 @@ Q_OBJECT
 private:
     friend class ClientMainWindow;
     PenTool penTool;
+    EraserTool eraserTool;
     Tool* currentTool = nullptr;
     QButtonGroup toolButtons;
 

@@ -10,10 +10,11 @@ TEST(messages, encoding) {
     EXPECT_EQ(BYTE_ARRAY("\x01\x02"), SetClientNameMessage(QString("")).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x06\x02" "abcde"), SetClientNameMessage(QString("abcde")).encodeMessage());
 
-    EXPECT_EQ(BYTE_ARRAY("\x05\x03\x01\x02\x03\x00"), PathMessage(1, 2, 3, {}).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x03\x01\x02\x03\x00\x00"), PathMessage(1, 2, 3, false, {}).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x03\x01\x02\x03\x01\x00"), PathMessage(1, 2, 3, true, {}).encodeMessage());
     EXPECT_EQ(
-            BYTE_ARRAY("\x0f\x03\xf1\xf2\xf3\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"),
-            PathMessage(241, 242, 243, {{10, 20}, {100, 200}, {10000, 20000}}).encodeMessage()
+            BYTE_ARRAY("\x10\x03\xf1\xf2\xf3\x01\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"),
+            PathMessage(241, 242, 243, true, {{10, 20}, {100, 200}, {10000, 20000}}).encodeMessage()
     );
 }
 
@@ -24,17 +25,19 @@ TEST(messages, decoding) {
     EXPECT_EQ(QString(""), SetClientNameMessage(BYTE_ARRAY("")).name);
     EXPECT_EQ(QString("abcde"), SetClientNameMessage(BYTE_ARRAY("abcde")).name);
 
-    PathMessage m1(BYTE_ARRAY("\x01\x02\x03\x00"));
+    PathMessage m1(BYTE_ARRAY("\x01\x02\x03\x01\x00"));
     EXPECT_EQ(1, m1.r);
     EXPECT_EQ(2, m1.g);
     EXPECT_EQ(3, m1.b);
+    EXPECT_TRUE(m1.isEraser);
     QVector<QPoint> p1;
     EXPECT_EQ(p1, m1.points);
 
-    PathMessage m2(BYTE_ARRAY("\xf1\xf2\xf3\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"));
+    PathMessage m2(BYTE_ARRAY("\xf1\xf2\xf3\x00\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"));
     EXPECT_EQ(241, m2.r);
     EXPECT_EQ(242, m2.g);
     EXPECT_EQ(243, m2.b);
+    EXPECT_FALSE(m2.isEraser);
     QVector<QPoint> p2{{10, 20}, {100, 200}, {10000, 20000}};
     EXPECT_EQ(p2, m2.points);
 }
