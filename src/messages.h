@@ -51,26 +51,40 @@ struct PathMessage : MessageBase{
 
     QByteArray encodeMessage() const override {
         QByteArray array;
-        array.append(r).append(g).append(b);
-        array.append(encode((uint32_t) points.size()));
-        for (const QPoint& point : points) {
-            array.append(encode((uint32_t) point.x())).append(encode((uint32_t) point.y()));
+
+        array.append(r);
+
+        array.append(g);
+
+        array.append(b);
+
+        array.append(encode((uint32_t)points.size()));
+        for (const QPoint& pointsItem : points) {
+            array.append(encode((uint32_t)pointsItem.x()));
+            array.append(encode((uint32_t)pointsItem.y()));
         }
+
         return createM(type, array);
     }
 
     PathMessage(const QByteArray& data)
             : MessageBase(PATH_MESSAGE) {
         QByteArray m = data;
-        r = (uint8_t) m[0];
-        g = (uint8_t) m[1];
-        b = (uint8_t) m[2];
-        m = m.mid(3);
 
-        uint32_t pointsCount = decodeAndShift(m);
+        r = (uint8_t)m[0];
+        m = m.mid(1);
+
+        g = (uint8_t)m[0];
+        m = m.mid(1);
+
+        b = (uint8_t)m[0];
+        m = m.mid(1);
+
+        uint32_t pointsCount;
+        pointsCount = decodeAndShift(m);
         for (int _ = 0; _ < pointsCount; ++_) {
-            uint32_t x = decodeAndShift(m);
-            uint32_t y = decodeAndShift(m);
+        uint32_t x = decodeAndShift(m);
+        uint32_t y = decodeAndShift(m);
 
             points << QPoint(x, y);
         }
