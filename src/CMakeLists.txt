@@ -38,6 +38,10 @@ set(CLIENT_SOURCES
         widgets/tool_selector.ui
         widgets/ToolSelectorWidget.cpp
         widgets/ToolSelectorWidget.h
+        tools/Tool.cpp
+        tools/Tool.h
+        tools/PenTool.cpp
+        tools/PenTool.h
         )
 
 set(SERVER_SOURCES

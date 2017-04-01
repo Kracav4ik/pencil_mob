@@ -34,13 +34,26 @@ ClientMainWindow::ClientMainWindow()
     toolSelector->setObjectName("toolSelector");
     painting.setObjectName("painting");
     setupUi(this);
-    colorChooser->selectColor(painting.getPenColor());
+
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
     menuView->addAction(colorChooser->toggleViewAction());
     menuView->addAction(toolSelector->toggleViewAction());
     canvas->setPainting(&painting);
+
+    // connect() hell
     connect(&painting, SIGNAL(changed()), canvas, SLOT(update()));
+    connect(&painting, SIGNAL(penColorChanged(const QColor&)), &toolSelector->penTool, SLOT(setPenColor(const QColor&)));
+    connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
+    connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
+    connect(&toolSelector->penTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
+    connect(toolSelector, SIGNAL(toolSelected(Tool*)), canvas, SLOT(setCurrentTool(Tool*)));
+    connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
+    connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
+    connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
+
+    toolSelector->selectTool(&toolSelector->penTool);
+    colorChooser->selectColor(painting.getPenColor());
     show();
 }
 
@@ -87,7 +100,7 @@ void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
     debug->setText(QString("linesCount: %1, paintTime: %2 ms |%3|").arg(linesCount).arg(paintTime).arg(p.get()));
 }
 
-void ClientMainWindow::on_painting_strokeFinished(const Stroke& stroke) {
+void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     if(!isConnected()){
         return;
     }

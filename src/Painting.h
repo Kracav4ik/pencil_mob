@@ -9,6 +9,8 @@ struct Stroke{
     QPolygon polygon;
 
     Stroke(const QColor& color, const QPolygon& polygon=QPolygon());
+
+    void  paint(QPainter& painer) const;
 };
 
 
@@ -20,21 +22,18 @@ private:
 
 signals:
     void changed();
-    void strokeFinished(const Stroke& stroke);
+    void penColorChanged(const QColor& color);
+
+public slots:
+    void addStroke(const Stroke& stroke);
 
 public:
     Painting(QObject* parent);
-
-    void addStroke(const Stroke& stroke);
 
     const QColor& getPenColor() const;
     void setPenColor(const QColor& color);
 
     QPicture getPicture() const;
-
-    void beginStroke();
-    void continueStroke(const QPoint& point);
-    void endStroke();
 
     int strokesSize() const;
 };

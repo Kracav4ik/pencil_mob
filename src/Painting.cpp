@@ -5,6 +5,12 @@
 Stroke::Stroke(const QColor& color, const QPolygon& polygon)
         : color(color), polygon(polygon) {}
 
+void Stroke::paint(QPainter& painer) const {
+    QPen pen(QBrush(color), 5);
+    painer.setPen(pen);
+    painer.drawPolyline(polygon);
+}
+
 Painting::Painting(QObject* parent)
         : QObject(parent), penColor(qrand()%256, qrand()%256, qrand()%256) {}
 
@@ -14,6 +20,7 @@ const QColor& Painting::getPenColor() const {
 
 void Painting::setPenColor(const QColor& color) {
     penColor = color;
+    emit penColorChanged(penColor);
 }
 
 void Painting::addStroke(const Stroke& stroke) {
@@ -26,25 +33,9 @@ QPicture Painting::getPicture() const {
     QPainter p(&picture);
 
     for (const Stroke& stroke : strokes) {
-        QPen pen(QBrush(stroke.color), 5);
-        p.setPen(pen);
-        p.drawPolyline(stroke.polygon);
+        stroke.paint(p);
     }
     return picture;
-}
-
-void Painting::beginStroke() {
-    strokes << Stroke(penColor);
-    emit changed();
-}
-
-void Painting::continueStroke(const QPoint& point) {
-    strokes.last().polygon << point;
-    emit changed();
-}
-
-void Painting::endStroke() {
-    emit strokeFinished(strokes.last());
 }
 
 int Painting::strokesSize() const {

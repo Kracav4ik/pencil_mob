@@ -3,25 +3,19 @@
 
 void CanvasWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        if (painting){
-            painting->beginStroke();
-        }
+        emit beginDrag();
     }
 }
 
 void CanvasWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        if (painting){
-            painting->endStroke();
-        }
+        emit endDrag();
     }
 }
 
 void CanvasWidget::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton) {
-        if (painting){
-            painting->continueStroke(event->pos());
-        }
+        emit drag(event->pos());
     }
 }
 
@@ -44,6 +38,9 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
     if (painting) {
         p.drawPicture(0, 0, painting->getPicture());
     }
+    if (currentTool) {
+        currentTool->paint(p);
+    }
 
     emit debugInfo(painting ? painting->strokesSize() : 0, (int) timer.elapsed());
 }
@@ -52,4 +49,8 @@ CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent) {}
 
 void CanvasWidget::setPainting(Painting* p) {
     painting = p;
+}
+
+void CanvasWidget::setCurrentTool(Tool* tool) {
+    currentTool = tool;
 }
