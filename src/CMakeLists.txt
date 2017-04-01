@@ -35,6 +35,9 @@ set(CLIENT_SOURCES
         TextProgress.h
         Painting.cpp
         Painting.h
+        widgets/tool_selector.ui
+        widgets/ToolSelectorWidget.cpp
+        widgets/ToolSelectorWidget.h
         )
 
 set(SERVER_SOURCES

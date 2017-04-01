@@ -2,6 +2,7 @@
 #include "transport.h"
 #include "enums.h"
 #include "widgets/ColorChooserWidget.h"
+#include "widgets/ToolSelectorWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
 
@@ -23,14 +24,21 @@ void ClientMainWindow::on_buttonConnect_clicked(){
 }
 
 ClientMainWindow::ClientMainWindow()
-        : client(new QTcpSocket(this)), colorChooser(new ColorChooserWidget(this)), painting(this) {
+        : client(new QTcpSocket(this))
+        , colorChooser(new ColorChooserWidget(this))
+        , toolSelector(new ToolSelectorWidget(this))
+        , painting(this)
+{
     client->setObjectName("socket");
     colorChooser->setObjectName("colorChooser");
+    toolSelector->setObjectName("toolSelector");
     painting.setObjectName("painting");
     setupUi(this);
     colorChooser->selectColor(painting.getPenColor());
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
+    addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
     menuView->addAction(colorChooser->toggleViewAction());
+    menuView->addAction(toolSelector->toggleViewAction());
     canvas->setPainting(&painting);
     connect(&painting, SIGNAL(changed()), canvas, SLOT(update()));
     show();

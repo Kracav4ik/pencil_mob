@@ -8,12 +8,14 @@
 #include "transport.h"
 
 class ColorChooserWidget;
+class ToolSelectorWidget;
 
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
 Q_OBJECT
 private:
     QTcpSocket* client;
     ColorChooserWidget* colorChooser;
+    ToolSelectorWidget* toolSelector;
     MessageReader reader;
     Painting painting;
 
