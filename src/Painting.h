@@ -10,7 +10,7 @@ struct Stroke{
 
     Stroke(const QColor& color, const QPolygon& polygon=QPolygon());
 
-    void  paint(QPainter& painer) const;
+    void paint(QPainter& painter) const;
 };
 
 
