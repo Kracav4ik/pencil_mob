@@ -1,18 +1,7 @@
 #pragma once
-#include <QPolygon>
 #include <QColor>
 #include <QPicture>
-
-
-struct Stroke{
-    QColor color;
-    bool isEraser;
-    QPolygon polygon;
-
-    Stroke(const QColor& color, bool isEraser=false, const QPolygon& polygon=QPolygon());
-
-    void paint(QPainter& painter) const;
-};
+#include "Stroke.h"
 
 
 class Painting : public QObject {
