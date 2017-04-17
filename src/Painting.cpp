@@ -1,9 +1,12 @@
 #include "Painting.h"
 #include <QPainter>
 
+QColor randColor() {
+    return QColor(qrand()%256, qrand()%256, qrand()%256);
+}
 
 Painting::Painting(QObject* parent)
-        : QObject(parent), penColor(qrand()%256, qrand()%256, qrand()%256) {}
+        : QObject(parent), penColor(randColor()) {}
 
 const QColor& Painting::getPenColor() const {
     return penColor;
