@@ -40,10 +40,7 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
     {
         QPainter imagePainter(&img);
         if (painting) {
-            imagePainter.drawPicture(0, 0, painting->getPicture());
-        }
-        if (currentTool) {
-            currentTool->paint(imagePainter);
+            imagePainter.drawPicture(0, 0, painting->getPicture(size()));
         }
     }
 
@@ -56,8 +53,4 @@ CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent) {}
 
 void CanvasWidget::setPainting(Painting* p) {
     painting = p;
-}
-
-void CanvasWidget::setCurrentTool(Tool* tool) {
-    currentTool = tool;
 }

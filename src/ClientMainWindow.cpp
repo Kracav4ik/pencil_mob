@@ -50,10 +50,12 @@ ClientMainWindow::ClientMainWindow()
     connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
     connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
     connect(&toolSelector->eraserTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
-    connect(toolSelector, SIGNAL(toolSelected(Tool*)), canvas, SLOT(setCurrentTool(Tool*)));
+    connect(toolSelector, SIGNAL(toolSelected(Tool*)), &painting, SLOT(setCurrentTool(Tool*)));
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
+    connect(addLayer, SIGNAL(clicked()), &painting, SLOT(addLayer()));
+    connect(selectLayer, SIGNAL(valueChanged(int)), &painting, SLOT(selectLayer(int)));
 
     toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
@@ -120,4 +122,8 @@ bool ClientMainWindow::isConnected() {
 
 void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
+}
+
+void ClientMainWindow::on_addLayer_clicked() {
+    selectLayer->setMaximum(selectLayer->maximum() + 1);
 }

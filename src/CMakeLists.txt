@@ -46,6 +46,8 @@ set(CLIENT_SOURCES
         widgets/ToolSelectorButton.h
         tools/EraserTool.cpp
         tools/EraserTool.h
+        Layer.cpp
+        Layer.h
         Stroke.cpp
         Stroke.h
         )

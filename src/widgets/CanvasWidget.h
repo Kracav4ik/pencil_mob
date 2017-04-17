@@ -12,10 +12,6 @@ class CanvasWidget : public QWidget {
 Q_OBJECT
 private:
     Painting* painting = nullptr;
-    Tool* currentTool = nullptr;
-
-public slots:
-    void setCurrentTool(Tool* tool);
 
 public:
     CanvasWidget(QWidget *parent);
