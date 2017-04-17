@@ -36,7 +36,7 @@ public:
 
     QPicture getPicture() const;
 
-    int strokesSize() const;
+    int strokesCount() const;
 };
 
 

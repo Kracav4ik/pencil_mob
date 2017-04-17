@@ -44,6 +44,6 @@ QPicture Painting::getPicture() const {
     return picture;
 }
 
-int Painting::strokesSize() const {
+int Painting::strokesCount() const {
     return strokes.size();
 }

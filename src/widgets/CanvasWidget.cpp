@@ -49,7 +49,7 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
 
     p.drawImage(rect(), img);
 
-    emit debugInfo(painting ? painting->strokesSize() : 0, (int) timer.elapsed());
+    emit debugInfo(painting ? painting->strokesCount() : 0, (int) timer.elapsed());
 }
 
 CanvasWidget::CanvasWidget(QWidget *parent) : QWidget(parent) {}
