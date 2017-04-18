@@ -49,3 +49,7 @@ void ToolSelectorWidget::endDrag() {
         currentTool->endDrag();
     }
 }
+
+QList<Tool*> ToolSelectorWidget::allTools() {
+    return {&penTool, &eraserTool};
+}

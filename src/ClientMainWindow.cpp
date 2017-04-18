@@ -44,12 +44,11 @@ ClientMainWindow::ClientMainWindow()
     // connect() hell
     connect(&painting, SIGNAL(changed()), canvas, SLOT(update()));
     connect(&painting, SIGNAL(penColorChanged(const QColor&)), &toolSelector->penTool, SLOT(setPenColor(const QColor&)));
-    connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
-    connect(&toolSelector->penTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
-    connect(&toolSelector->penTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
-    connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
-    connect(&toolSelector->eraserTool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
-    connect(&toolSelector->eraserTool, SIGNAL(needRepaint()), canvas, SLOT(update()));
+    for (Tool* tool : toolSelector->allTools()) {
+        connect(tool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
+        connect(tool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
+        connect(tool, SIGNAL(needRepaint()), canvas, SLOT(update()));
+    }
     connect(toolSelector, SIGNAL(toolSelected(Tool*)), &painting, SLOT(setCurrentTool(Tool*)));
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));

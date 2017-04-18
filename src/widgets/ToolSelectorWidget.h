@@ -11,7 +11,7 @@ class ClientMainWindow;
 class ToolSelectorWidget : public QDockWidget, private Ui::ToolSelectorWidget{
 Q_OBJECT
 private:
-    friend class ClientMainWindow;
+    friend class ClientMainWindow; // TODO: unfriend
     PenTool penTool;
     EraserTool eraserTool;
     Tool* currentTool = nullptr;
@@ -21,6 +21,8 @@ public:
     ToolSelectorWidget(QWidget* parent);
 
     void selectTool(Tool* tool);
+
+    QList<Tool*> allTools();
 
 signals:
     void toolSelected(Tool* tool);
