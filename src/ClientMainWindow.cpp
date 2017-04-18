@@ -3,6 +3,7 @@
 #include "enums.h"
 #include "widgets/ColorChooserWidget.h"
 #include "widgets/ToolSelectorWidget.h"
+#include "widgets/LayersWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
 
@@ -27,18 +28,22 @@ ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
         , toolSelector(new ToolSelectorWidget(this))
+        , layersWidget(new LayersWidget(this))
         , painting(this)
 {
     client->setObjectName("socket");
     colorChooser->setObjectName("colorChooser");
     toolSelector->setObjectName("toolSelector");
+    layersWidget->setObjectName("layersWidget");
     painting.setObjectName("painting");
     setupUi(this);
 
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
+    addDockWidget(Qt::LeftDockWidgetArea, layersWidget);
     menuView->addAction(colorChooser->toggleViewAction());
     menuView->addAction(toolSelector->toggleViewAction());
+    menuView->addAction(layersWidget->toggleViewAction());
     canvas->setPainting(&painting);
 
     // connect() hell
@@ -53,8 +58,8 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
-    connect(addLayer, SIGNAL(clicked()), &painting, SLOT(addLayer()));
-    connect(selectLayer, SIGNAL(valueChanged(int)), &painting, SLOT(selectLayer(int)));
+    connect(layersWidget->addLayer, SIGNAL(clicked()), this, SLOT(addLayerSocket())); // TODO: we should not know innards of layersWidget
+    connect(layersWidget, SIGNAL(selectedLayer(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
 
     toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
@@ -73,7 +78,11 @@ void ClientMainWindow::on_socket_readyRead() {
             }},
             {PATH_MESSAGE, [this](const QByteArray& message){
                 PathMessage m(message);
+                painting.selectLayer(m.layerId);
                 painting.addStroke(Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
+            }},
+            {ADD_NEW_LAYER_MESSAGE, [this](const QByteArray& message){
+                addLayerExt();
             }},
     });
 }
@@ -111,7 +120,8 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     uint8_t r = (uint8_t) stroke.color.red();
     uint8_t g = (uint8_t) stroke.color.green();
     uint8_t b = (uint8_t) stroke.color.blue();
-    client->write(PathMessage(r, g, b, stroke.isEraser, stroke.polygon).encodeMessage());
+    uint32_t layerId = painting.getCurrentLayerId();
+    client->write(PathMessage(r, g, b, layerId, stroke.isEraser, stroke.polygon).encodeMessage());
     client->flush();
 }
 
@@ -123,6 +133,20 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
 }
 
-void ClientMainWindow::on_addLayer_clicked() {
-    selectLayer->setMaximum(selectLayer->maximum() + 1);
+void ClientMainWindow::addLayerExt() {
+    painting.addLayer();
+
+    layersWidget->mmm(layersWidget->verticalLayout, "a"); // TODO: we should not know innards of layersWidget
+
+    layersWidget->verticalLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    layersWidget->layers->setLayout(layersWidget->verticalLayout);
+}
+
+void ClientMainWindow::addLayerSocket() {
+    addLayerExt();
+    if(!isConnected()){
+        return;
+    }
+    client->write(AddNewLayerMessage(QString("")).encodeMessage()); // TODO: send actual name
+    client->flush();
 }

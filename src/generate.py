@@ -248,9 +248,11 @@ msg_classes = [
         Field(tuint8, 'r'),
         Field(tuint8, 'g'),
         Field(tuint8, 'b'),
+        Field(tuint32, 'layerId'),
         Field(tbool, 'isEraser'),
         Field(tpointvector, 'points')
     ]),
+    MsgClass('AddNewLayerMessage', [Field(tstring, 'layerName')]),
 ]
 
 
@@ -270,7 +272,7 @@ def main():
         f.write('''#pragma once
 
 enum MessageType {
-    %s
+    %s,
 };
 ''' % ',\n    '.join(names))
 

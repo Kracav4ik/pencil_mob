@@ -6,13 +6,14 @@
 class Tool;
 class Layer;
 class Stroke;
+class ClientMainWindow;
 
 class Painting : public QObject {
 Q_OBJECT
 private:
     QColor penColor;
     QVector<Layer*> layers;
-    Layer* currentLayer;
+    uint32_t currentLayer = 0;
     Tool* currentTool = nullptr;
 
 signals:
@@ -22,7 +23,7 @@ signals:
 public slots:
     void addStroke(const Stroke& stroke);
     void addLayer();
-    void selectLayer(int);
+    void selectLayer(uint32_t layerId);
     void setCurrentTool(Tool* tool);
 
 public:
@@ -35,6 +36,8 @@ public:
     QPicture getPicture(const QSize& size) const;
 
     int strokesCount() const;
+
+    uint32_t getCurrentLayerId() const;
 };
 
 

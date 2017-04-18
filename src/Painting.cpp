@@ -9,7 +9,7 @@ QColor randColor() {
 }
 
 Painting::Painting(QObject* parent)
-        : QObject(parent), penColor(randColor()), layers({new Layer()}), currentLayer(layers[0]) {}
+        : QObject(parent), penColor(randColor()), layers({new Layer()}) {}
 
 const QColor& Painting::getPenColor() const {
     return penColor;
@@ -21,7 +21,7 @@ void Painting::setPenColor(const QColor& color) {
 }
 
 void Painting::addStroke(const Stroke& stroke) {
-    currentLayer->addStroke(stroke);
+    layers[currentLayer]->addStroke(stroke);
     emit changed();
 }
 
@@ -29,9 +29,10 @@ QPicture Painting::getPicture(const QSize& size) const {
     QPicture picture;
     QPainter p(&picture);
 
-    for (const Layer* layer: layers) {
+    for (uint32_t i = 0; i < layers.size(); ++i) {
+        const Layer* layer = layers[i];
         QImage img = layer->drawImg(size);
-        if (currentLayer == layer && currentTool) {
+        if (currentLayer == i && currentTool) {
             QPainter imgP(&img);
             currentTool->paint(imgP);
         }
@@ -52,8 +53,8 @@ void Painting::addLayer() {
     layers.append(new Layer());
 }
 
-void Painting::selectLayer(int num) {
-    currentLayer = layers[num];
+void Painting::selectLayer(uint32_t num) {
+    currentLayer = num;
 }
 
 void Painting::setCurrentTool(Tool* tool) {
@@ -64,4 +65,8 @@ Painting::~Painting() {
     for (Layer* layer: layers) {
         delete layer;
     }
+}
+
+uint32_t Painting::getCurrentLayerId() const {
+    return currentLayer;
 }

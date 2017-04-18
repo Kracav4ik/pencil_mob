@@ -50,6 +50,9 @@ set(CLIENT_SOURCES
         Layer.h
         Stroke.cpp
         Stroke.h
+        widgets/layers.ui
+        widgets/LayersWidget.cpp
+        widgets/LayersWidget.h
         )
 
 set(SERVER_SOURCES

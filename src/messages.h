@@ -44,11 +44,12 @@ struct PathMessage : MessageBase{
     uint8_t r;
     uint8_t g;
     uint8_t b;
+    uint32_t layerId;
     bool isEraser;
     QVector<QPoint> points;
 
-    PathMessage(uint8_t r, uint8_t g, uint8_t b, bool isEraser, const QVector<QPoint>& points)
-            : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), isEraser(isEraser), points(points) {}
+    PathMessage(uint8_t r, uint8_t g, uint8_t b, uint32_t layerId, bool isEraser, const QVector<QPoint>& points)
+            : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), layerId(layerId), isEraser(isEraser), points(points) {}
 
     QByteArray encodeMessage() const override {
         QByteArray array;
@@ -58,6 +59,8 @@ struct PathMessage : MessageBase{
         array.append(g);
 
         array.append(b);
+
+        array.append(encode((uint32_t)layerId));
 
         array.append((char)(isEraser ? 1 : 0));
 
@@ -83,6 +86,8 @@ struct PathMessage : MessageBase{
         b = (uint8_t)m[0];
         m = m.mid(1);
 
+        layerId = decodeAndShift(m);
+
         isEraser = m[0] != '\0';
         m = m.mid(1);
 
@@ -94,5 +99,21 @@ struct PathMessage : MessageBase{
 
             points << QPoint(x, y);
         }
+    }
+};
+
+struct AddNewLayerMessage : MessageBase{
+    QString layerName;
+
+    AddNewLayerMessage(const QString& layerName)
+            : MessageBase(ADD_NEW_LAYER_MESSAGE), layerName(layerName) {}
+
+    QByteArray encodeMessage() const override {
+        return createM(type, layerName.toUtf8());
+    }
+
+    AddNewLayerMessage(const QByteArray& data)
+            : MessageBase(ADD_NEW_LAYER_MESSAGE) {
+        layerName = QString(data);
     }
 };
