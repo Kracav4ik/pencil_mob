@@ -30,8 +30,14 @@ class Type:
     def decode(self, var_name, array_name):
         return '/* TODO: decode %s %s here from %s */' % (self.name, var_name, array_name)
 
-    def encode(self, var_name):
+    def encode_simple(self, var_name):
         return '/* TODO: encode %s %s here */' % (self.name, var_name)
+
+    def encode(self, simple, var_name):
+        result = self.encode_simple(var_name)
+        if not simple:
+            result = 'array.append(%s);' % result
+        return result
 
 
 class StringType(Type):
@@ -41,7 +47,7 @@ class StringType(Type):
     def decode(self, var_name, array_name):
         return '%s = %s(%s);' % (var_name, self.name, array_name)
 
-    def encode(self, var_name):
+    def encode_simple(self, var_name):
         return '%s.toUtf8()' % var_name
 
 
@@ -53,8 +59,8 @@ class StructType(Type):
     def decode(self, var_name, array_name):
         return '\n'.join('        %s %s' % (field.type.name, field.decode_lines(array_name)) for field in self.fields)
 
-    def encode(self, var_name):
-        return '\n'.join('            ' + field.encode_lines(var_name) for field in self.fields)
+    def encode(self, simple, var_name):
+        return '\n'.join('            ' + field.encode_lines(False, var_name) for field in self.fields)
 
 
 class ListType(Type):
@@ -79,9 +85,9 @@ class ListType(Type):
         }
         return s
 
-    def encode(self, var_name):
+    def encode(self, simple, var_name):
         counter = Field(tuint32, 'size')
-        s = counter.encode_lines(var_name)
+        s = counter.encode_lines(False, var_name)
         item_name = '%sItem' % var_name
         s += '''
         for (%(item_type)s %(item_name)s : %(var_name)s) {
@@ -90,7 +96,7 @@ class ListType(Type):
             'var_name': var_name,
             'item_type': self.item_type.for_param(),
             'item_name': item_name,
-            'subdecode': self.item_type.encode(item_name),
+            'subdecode': self.item_type.encode(False, item_name),
         }
         return s
 
@@ -102,8 +108,8 @@ class VaryingIntType(Type):
     def decode(self, var_name, array_name):
         return '%s = decodeAndShift(%s);' % (var_name, array_name)
 
-    def encode(self, var_name):
-        return 'array.append(encode((%s)%s));' % (self.name, var_name)
+    def encode_simple(self, var_name):
+        return 'encode((%s)%s)' % (self.name, var_name)
 
 
 class FixedIntType(Type):
@@ -117,8 +123,8 @@ class FixedIntType(Type):
             'var_name': var_name,
         }
 
-    def encode(self, var_name):
-        return 'array.append(%s);' % var_name
+    def encode_simple(self, var_name):
+        return var_name
 
 
 class BoolType(Type):
@@ -131,8 +137,8 @@ class BoolType(Type):
             'var_name': var_name,
         }
 
-    def encode(self, var_name):
-        return 'array.append((char)(%s ? 1 : 0));' % var_name
+    def encode_simple(self, var_name):
+        return '(char)(%s ? 1 : 0)' % var_name
 
 
 tuint8 = FixedIntType('uint8_t')
@@ -160,15 +166,15 @@ class Field:
     def ctor_init(self):
         return ', %s(%s)' % (self.name, self.name)
 
-    def encode_lines(self, structName=''):
-        if structName:
-            name = '%s.%s' % (structName, self.name)
+    def encode_lines(self, simple, qualifier=None):
+        if qualifier:
+            name = '%s.%s' % (qualifier, self.name)
             if self.use_parens:
                 name += '()'
         else:
             name = self.name
 
-        return self.type.encode(name)
+        return self.type.encode(simple, name)
 
     def decode_lines(self, array_name):
         return self.type.decode(self.name, array_name)
@@ -195,11 +201,10 @@ class MsgClass:
         if len(self.fields) > 1:
             snippets.append('QByteArray array;')
             for f in self.fields:
-                snippets.append(f.encode_lines())
+                snippets.append(f.encode_lines(False))
             snippets.append('return createM(type, array);')
         else:
-            # TODO: this WILL break, but for now it makes pretty code
-            snippets.append('return createM(type, %s);' % self.fields[0].encode_lines())
+            snippets.append('return createM(type, %s);' % self.fields[0].encode_lines(True))
         return '\n\n'.join('        ' + s for s in snippets)
 
     def gen_decode(self):
