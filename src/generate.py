@@ -258,6 +258,7 @@ msg_classes = [
         Field(tpointvector, 'points')
     ]),
     MsgClass('AddNewLayerMessage', [Field(tstring, 'layerName')]),
+    MsgClass('RenameLayerMessage', [Field(tuint32, "idx"), Field(tstring, 'layerName')]),
 ]
 
 

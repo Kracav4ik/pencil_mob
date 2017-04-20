@@ -55,6 +55,8 @@ void ServerMainWindow::readyToRead() {
                 }
             }},
             {PATH_MESSAGE, multicastFunc(PATH_MESSAGE, socket)},
+            {RENAME_LAYER_MESSAGE, multicastFunc(RENAME_LAYER_MESSAGE, socket)},
+            {ADD_NEW_LAYER_MESSAGE, multicastFunc(ADD_NEW_LAYER_MESSAGE, socket)},
     });
 
 }

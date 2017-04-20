@@ -4,25 +4,53 @@
 LayersWidget::LayersWidget(QWidget* parent)
         : QDockWidget(parent), layerButtons(this) {
     setupUi(this);
-    QVBoxLayout* layout = new QVBoxLayout();
-
-    mmm(layout, "0");
-
-    layout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    layers->setLayout(layout);
+    appendLayer();
+    getLastBut()->click();
 }
 
-void LayersWidget::mmm(QVBoxLayout* layout, const char* string) {
-    QPushButton* button = new QPushButton(string, this);
+void LayersWidget::appendLayer(QString name) {
+    if (name.isNull()) {
+        name = QString("Layer %1").arg(getCountLayers() + 1);
+    }
+    QPushButton* button = new QPushButton(name, this);
     button->setCheckable(true);
-    layerButtons.addButton(button);
-    layout->addWidget(button);
+    layerButtons.addButton(button, layerButtons.buttons().size());
+
+    QVBoxLayout* boxLayout = reinterpret_cast<QVBoxLayout*>(layers->layout());
+    boxLayout->insertWidget(boxLayout->count() - 1, button);
+
     connect(button, &QAbstractButton::toggled, [this](bool checked){
         if (checked) {
-            int i = -2 - layerButtons.checkedId();
-            QString result = QInputDialog::getText(this, "WTF", "How the fuck", QLineEdit::Normal, QString("ID is %1").arg(i));
-            printf("result is \"%s\" (isNull %s isEmpty %s)\n", result.toUtf8().data(), result.isNull() ? "true" : "false", result.isEmpty() ? "true" : "false");
-            selectedLayer((uint32_t) i); // TODO WHAT THE ACTUAL FUCK COULD YOU NOT
+            uint32_t i = getCurButIdx();
+            selectedLayer(i); // TODO WHAT THE ACTUAL FUCK COULD YOU NOT
         }
     });
+}
+
+int LayersWidget::getCountLayers() const {
+    return layerButtons.buttons().size();
+}
+
+QAbstractButton* LayersWidget::getCurBut(){
+    return layerButtons.checkedButton();
+}
+
+uint32_t LayersWidget::getCurButIdx(){
+    return (uint32_t) layerButtons.checkedId();
+}
+
+void LayersWidget::on_renameLayer_clicked() {
+    // TODO: emit signal
+    QString newName = QInputDialog::getText(this, "Choose new name", "Layer name", QLineEdit::Normal, layerButtons.checkedButton()->text());
+    if (!newName.isEmpty()) {
+        layerButtons.checkedButton()->setText(newName);
+    }
+}
+
+QAbstractButton* LayersWidget::getLastBut() {
+    return layerButtons.buttons()[getCountLayers() - 1];
+}
+
+QAbstractButton* LayersWidget::getIdxBut(uint32_t idx) {
+    return layerButtons.button(idx);
 }

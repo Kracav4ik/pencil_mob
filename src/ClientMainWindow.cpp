@@ -59,6 +59,7 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
     connect(layersWidget->addLayer, SIGNAL(clicked()), this, SLOT(addLayerSocket())); // TODO: we should not know innards of layersWidget
+    connect(layersWidget->renameLayer, SIGNAL(clicked()), this, SLOT(renameLayerSocket())); // TODO: we should not know innards of layersWidget
     connect(layersWidget, SIGNAL(selectedLayer(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
 
     toolSelector->toolButtons.buttons()[0]->click();
@@ -82,7 +83,12 @@ void ClientMainWindow::on_socket_readyRead() {
                 painting.addStroke(Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
             }},
             {ADD_NEW_LAYER_MESSAGE, [this](const QByteArray& message){
-                addLayerExt();
+                AddNewLayerMessage m(message);
+                addLayerExt(m.layerName);
+            }},
+            {RENAME_LAYER_MESSAGE, [this](const QByteArray& message){
+                RenameLayerMessage m(message);
+                renameLayer(m.idx, m.layerName);
             }},
     });
 }
@@ -133,13 +139,13 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
 }
 
-void ClientMainWindow::addLayerExt() {
+void ClientMainWindow::addLayerExt(QString name=QString()) {
     painting.addLayer();
+    layersWidget->appendLayer(name); // TODO: we should not know innards of layersWidget
+}
 
-    layersWidget->mmm(layersWidget->verticalLayout, "a"); // TODO: we should not know innards of layersWidget
-
-    layersWidget->verticalLayout->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    layersWidget->layers->setLayout(layersWidget->verticalLayout);
+void ClientMainWindow::renameLayer(uint32_t idx, QString name) {
+    layersWidget->getIdxBut(idx)->setText(name);
 }
 
 void ClientMainWindow::addLayerSocket() {
@@ -147,6 +153,16 @@ void ClientMainWindow::addLayerSocket() {
     if(!isConnected()){
         return;
     }
-    client->write(AddNewLayerMessage(QString("")).encodeMessage()); // TODO: send actual name
+    QString name = layersWidget->getLastBut()->text();
+    client->write(AddNewLayerMessage(name).encodeMessage());
+    client->flush();
+}
+
+void ClientMainWindow::renameLayerSocket() {
+    if(!isConnected()){
+        return;
+    }
+    QString name = layersWidget->getCurBut()->text();
+    client->write(RenameLayerMessage(layersWidget->getCurButIdx(), name).encodeMessage());
     client->flush();
 }

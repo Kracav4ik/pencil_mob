@@ -21,7 +21,8 @@ private:
     MessageReader reader;
     Painting painting;
 
-    void addLayerExt();
+    void addLayerExt(QString name);
+    void renameLayer(uint32_t idx, QString name);
 
 public:
     ClientMainWindow();
@@ -30,6 +31,7 @@ public:
 
 public slots:
     void addLayerSocket();
+    void renameLayerSocket();
     void on_socket_readyRead();
     void on_buttonSend_clicked();
     void on_buttonConnect_clicked();
