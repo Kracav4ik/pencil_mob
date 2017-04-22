@@ -1,7 +1,7 @@
 #pragma once
 #include <QColor>
 #include <QPicture>
-#include "Stroke.h"
+#include <QVector>
 
 class Tool;
 class Layer;

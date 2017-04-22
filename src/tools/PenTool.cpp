@@ -1,5 +1,7 @@
 #include "PenTool.h"
 
+#include "Stroke.h"
+
 void PenTool::beginDrag() {
     currentStoke = new Stroke(penColor);
 }

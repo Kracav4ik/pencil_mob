@@ -6,6 +6,7 @@
 #include "widgets/LayersWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
+#include "Stroke.h"
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(!isConnected()){

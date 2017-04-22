@@ -2,7 +2,9 @@
 
 
 #include <QObject>
-#include <QPainter>
+
+class QPainter;
+class QPoint;
 
 class Tool: public QObject {
 Q_OBJECT
@@ -17,5 +19,3 @@ public:
 signals:
     void needRepaint();
 };
-
-

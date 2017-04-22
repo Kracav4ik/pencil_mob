@@ -1,6 +1,6 @@
 #include "EraserTool.h"
 
-#include "Painting.h"
+#include "Stroke.h"
 
 void EraserTool::beginDrag() {
     currentStoke = new Stroke(QColor(), true);

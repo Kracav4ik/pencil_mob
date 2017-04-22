@@ -1,8 +1,9 @@
 #pragma once
 
-
-#include "Painting.h"
 #include "tools/Tool.h"
+#include <QColor>
+
+class Stroke;
 
 class PenTool: public Tool {
 Q_OBJECT
@@ -23,5 +24,3 @@ public slots:
 signals:
     void strokeFinished(const Stroke& stroke);
 };
-
-
