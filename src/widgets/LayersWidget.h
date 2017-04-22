@@ -9,24 +9,22 @@ class LayersWidget : public QDockWidget, private Ui::LayersWidget{
 Q_OBJECT
 private:
     QButtonGroup layerButtons;
-    friend class ClientMainWindow; // TODO: unfriend
-    
-public slots:
+
+    void layerButtonClicked(uint32_t idx);
+
+private slots:
     void on_renameLayer_clicked();
+    void on_addLayer_clicked();
+
+public slots:
+    void appendLayer(uint32_t idx, const QString& name);
+    void changeLayerName(uint32_t idx, const QString& name);
 
 public:
     LayersWidget(QWidget* parent);
 
-    void appendLayer(QString name=QString());
-
-    int getCountLayers() const;
-    QAbstractButton* getCurBut();
-    QAbstractButton* getIdxBut(uint32_t idx);
-    uint32_t getCurButIdx();
-    QAbstractButton* getLastBut();
-
 signals:
-    void selectedLayer(uint32_t);
+    void layerSelected(uint32_t idx);
+    void renameClicked();
+    void addLayerClicked();
 };
-
-

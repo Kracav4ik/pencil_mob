@@ -20,18 +20,16 @@ private:
     LayersWidget* layersWidget;
     MessageReader reader;
     Painting painting;
+    int newLayerCounter = 1;
 
-    void addLayerExt(QString name);
-    void renameLayer(uint32_t idx, QString name);
+    bool isConnected();
 
 public:
     ClientMainWindow();
 
-    bool isConnected();
-
 public slots:
-    void addLayerSocket();
-    void renameLayerSocket();
+    void on_layersWidget_addLayerClicked();
+    void on_layersWidget_renameClicked();
     void on_socket_readyRead();
     void on_buttonSend_clicked();
     void on_buttonConnect_clicked();
@@ -40,7 +38,6 @@ public slots:
     void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
     void on_colorChooser_colorSelected(const QColor& color);
-
     void on_canvas_debugInfo(int linesCount, int paintTime);
     void strokeFinished(const Stroke& stroke);
 };

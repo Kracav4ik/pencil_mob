@@ -20,3 +20,13 @@ void Layer::addStroke(const Stroke& stroke) {
 int Layer::strokesCount() const {
     return strokes.size();
 }
+
+void Layer::setName(const QString& nam) {
+    name = nam;
+}
+
+const QString& Layer::getName() const {
+    return name;
+}
+
+Layer::Layer(const QString& name): name(name) {}

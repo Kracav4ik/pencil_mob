@@ -9,7 +9,7 @@ QColor randColor() {
 }
 
 Painting::Painting(QObject* parent)
-        : QObject(parent), penColor(randColor()), layers({new Layer()}) {}
+        : QObject(parent), penColor(randColor()) {}
 
 const QColor& Painting::getPenColor() const {
     return penColor;
@@ -49,8 +49,9 @@ int Painting::strokesCount() const {
     return size;
 }
 
-void Painting::addLayer() {
-    layers.append(new Layer());
+void Painting::addLayer(const QString& name) {
+    layers.append(new Layer(name));
+    emit layerAdded((uint32_t) (layers.size() - 1), name);
 }
 
 void Painting::selectLayer(uint32_t num) {
@@ -69,4 +70,13 @@ Painting::~Painting() {
 
 uint32_t Painting::getCurrentLayerId() const {
     return currentLayer;
+}
+
+void Painting::renameLayer(uint32_t idx, const QString& name) {
+    layers[idx]->setName(name);
+    emit layerNameChanged(idx, name);
+}
+
+const Layer* Painting::getCurrentLayer() const {
+    return layers[currentLayer];
 }

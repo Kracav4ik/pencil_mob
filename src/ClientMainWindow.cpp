@@ -6,7 +6,8 @@
 #include "widgets/LayersWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
-#include "Stroke.h"
+#include "Layer.h"
+#include <QInputDialog>
 
 void ClientMainWindow::on_buttonSend_clicked(){
     if(!isConnected()){
@@ -59,10 +60,11 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
     connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
-    connect(layersWidget->addLayer, SIGNAL(clicked()), this, SLOT(addLayerSocket())); // TODO: we should not know innards of layersWidget
-    connect(layersWidget->renameLayer, SIGNAL(clicked()), this, SLOT(renameLayerSocket())); // TODO: we should not know innards of layersWidget
-    connect(layersWidget, SIGNAL(selectedLayer(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
+    connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
+    connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
+    connect(&painting, SIGNAL(layerNameChanged(uint32_t, const QString&)), layersWidget, SLOT(changeLayerName(uint32_t, const QString&)));
 
+    on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
     show();
@@ -85,11 +87,11 @@ void ClientMainWindow::on_socket_readyRead() {
             }},
             {ADD_NEW_LAYER_MESSAGE, [this](const QByteArray& message){
                 AddNewLayerMessage m(message);
-                addLayerExt(m.layerName);
+                painting.addLayer(m.layerName);
             }},
             {RENAME_LAYER_MESSAGE, [this](const QByteArray& message){
                 RenameLayerMessage m(message);
-                renameLayer(m.idx, m.layerName);
+                painting.renameLayer(m.idx, m.layerName);
             }},
     });
 }
@@ -140,30 +142,29 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
 }
 
-void ClientMainWindow::addLayerExt(QString name=QString()) {
-    painting.addLayer();
-    layersWidget->appendLayer(name); // TODO: we should not know innards of layersWidget
-}
+void ClientMainWindow::on_layersWidget_addLayerClicked() {
+    QString name = QString("New layer %1").arg(newLayerCounter++);
+    painting.addLayer(name);
 
-void ClientMainWindow::renameLayer(uint32_t idx, QString name) {
-    layersWidget->getIdxBut(idx)->setText(name);
-}
-
-void ClientMainWindow::addLayerSocket() {
-    addLayerExt();
     if(!isConnected()){
         return;
     }
-    QString name = layersWidget->getLastBut()->text();
     client->write(AddNewLayerMessage(name).encodeMessage());
     client->flush();
 }
 
-void ClientMainWindow::renameLayerSocket() {
+void ClientMainWindow::on_layersWidget_renameClicked() {
+    const QString& oldName = painting.getCurrentLayer()->getName();
+    QString name = QInputDialog::getText(this, "Renaming layer", "Enter layer name:", QLineEdit::Normal, oldName);
+    if(name.isEmpty() || name == oldName){
+        return;
+    }
+
+    painting.renameLayer(painting.getCurrentLayerId(), name);
+
     if(!isConnected()){
         return;
     }
-    QString name = layersWidget->getCurBut()->text();
-    client->write(RenameLayerMessage(layersWidget->getCurButIdx(), name).encodeMessage());
+    client->write(RenameLayerMessage(painting.getCurrentLayerId(), name).encodeMessage());
     client->flush();
 }
