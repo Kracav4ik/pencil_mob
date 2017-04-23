@@ -32,6 +32,8 @@ public:
     Painting(QObject* parent);
     ~Painting();
 
+    void addStroke(uint32_t idx, const Stroke& stroke);
+
     const QColor& getPenColor() const;
     void setPenColor(const QColor& color);
 

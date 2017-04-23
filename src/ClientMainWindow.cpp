@@ -82,8 +82,7 @@ void ClientMainWindow::on_socket_readyRead() {
             }},
             {PATH_MESSAGE, [this](const QByteArray& message){
                 PathMessage m(message);
-                painting.selectLayer(m.layerId);
-                painting.addStroke(Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
+                painting.addStroke(m.layerId, Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
             }},
             {ADD_NEW_LAYER_MESSAGE, [this](const QByteArray& message){
                 AddNewLayerMessage m(message);

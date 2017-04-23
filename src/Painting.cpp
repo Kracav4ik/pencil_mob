@@ -21,8 +21,7 @@ void Painting::setPenColor(const QColor& color) {
 }
 
 void Painting::addStroke(const Stroke& stroke) {
-    layers[currentLayer]->addStroke(stroke);
-    emit changed();
+    addStroke(currentLayer, stroke);
 }
 
 QPicture Painting::getPicture(const QSize& size) const {
@@ -79,4 +78,9 @@ void Painting::renameLayer(uint32_t idx, const QString& name) {
 
 const Layer* Painting::getCurrentLayer() const {
     return layers[currentLayer];
+}
+
+void Painting::addStroke(uint32_t idx, const Stroke& stroke) {
+    layers[idx]->addStroke(stroke);
+    emit changed();
 }
