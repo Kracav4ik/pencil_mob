@@ -53,6 +53,9 @@ set(CLIENT_SOURCES
         widgets/layers.ui
         widgets/LayersWidget.cpp
         widgets/LayersWidget.h
+        widgets/layer_button.ui
+        widgets/LayerButtonWidget.cpp
+        widgets/LayerButtonWidget.h
         )
 
 set(SERVER_SOURCES
