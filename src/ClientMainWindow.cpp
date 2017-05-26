@@ -9,23 +9,6 @@
 #include "Layer.h"
 #include <QInputDialog>
 
-void ClientMainWindow::on_buttonSend_clicked(){
-    if(!isConnected()){
-        return;
-    }
-    if(lineEdit->text().isEmpty()){
-        return;
-    }
-    client->write(StringMessage(lineEdit->text()).encodeMessage());
-    client->flush();
-    lineEdit->setText("");
-}
-
-void ClientMainWindow::on_buttonConnect_clicked(){
-    buttonConnect->setEnabled(false);
-    client->connectToHost("localhost", 9000);
-}
-
 ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
@@ -127,19 +110,40 @@ void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
 }
 
 void ClientMainWindow::strokeFinished(const Stroke& stroke) {
-    if(!isConnected()){
-        return;
-    }
-    uint8_t r = (uint8_t) stroke.color.red();
-    uint8_t g = (uint8_t) stroke.color.green();
-    uint8_t b = (uint8_t) stroke.color.blue();
+    uint8_t r = static_cast<uint8_t>(stroke.color.red());
+    uint8_t g = static_cast<uint8_t>(stroke.color.green());
+    uint8_t b = static_cast<uint8_t>(stroke.color.blue());
     uint32_t layerId = painting.getCurrentLayerId();
-    client->write(PathMessage(r, g, b, layerId, stroke.isEraser, stroke.polygon).encodeMessage());
-    client->flush();
+
+    sendMessage<PathMessage>(r, g, b, layerId, stroke.isEraser, stroke.polygon);
 }
 
 bool ClientMainWindow::isConnected() {
     return buttonSend->isEnabled();
+}
+
+template<typename MsgClass, typename... ArgTypes>
+void ClientMainWindow::sendMessage(ArgTypes... args) {
+    if(!isConnected()){
+        return;
+    }
+
+    client->write(MsgClass(args...).encodeMessage());
+    client->flush();
+}
+
+void ClientMainWindow::on_buttonSend_clicked(){
+    if(lineEdit->text().isEmpty()){
+        return;
+    }
+
+    sendMessage<StringMessage>(lineEdit->text());
+    lineEdit->setText("");
+}
+
+void ClientMainWindow::on_buttonConnect_clicked(){
+    buttonConnect->setEnabled(false);
+    client->connectToHost("localhost", 9000);
 }
 
 void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
@@ -150,11 +154,7 @@ void ClientMainWindow::on_layersWidget_addLayerClicked() {
     QString name = QString("New layer %1").arg(newLayerCounter++);
     painting.addLayer(name);
 
-    if(!isConnected()){
-        return;
-    }
-    client->write(AddNewLayerMessage(name).encodeMessage());
-    client->flush();
+    sendMessage<AddNewLayerMessage>(name);
 }
 
 void ClientMainWindow::on_layersWidget_renameClicked() {
@@ -166,11 +166,7 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
 
     painting.renameLayer(painting.getCurrentLayerId(), name);
 
-    if(!isConnected()){
-        return;
-    }
-    client->write(RenameLayerMessage(painting.getCurrentLayerId(), name).encodeMessage());
-    client->flush();
+    sendMessage<RenameLayerMessage>(painting.getCurrentLayerId(), name);
 }
 
 void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
@@ -185,11 +181,7 @@ void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
     uint32_t newPos = static_cast<uint32_t>(index - 1);
     painting.moveLayer(uid, newPos);
 
-    if(!isConnected()){
-        return;
-    }
-    client->write(MoveLayerMessage(uid, newPos).encodeMessage());
-    client->flush();
+    sendMessage<MoveLayerMessage>(uid, newPos);
 }
 
 void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
@@ -204,9 +196,5 @@ void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
     uint32_t newPos = static_cast<uint32_t>(index + 1);
     painting.moveLayer(uid, newPos);
 
-    if(!isConnected()){
-        return;
-    }
-    client->write(MoveLayerMessage(uid, newPos).encodeMessage());
-    client->flush();
+    sendMessage<MoveLayerMessage>(uid, newPos);
 }

@@ -24,23 +24,27 @@ private:
 
     bool isConnected();
 
+    template<typename MsgClass, typename... ArgTypes>
+    void sendMessage(ArgTypes... args);
+
 public:
     ClientMainWindow();
 
 public slots:
-    void on_layersWidget_addLayerClicked();
-    void on_layersWidget_renameClicked();
-    void on_layersWidget_upButtonClicked(uint32_t uid);
-    void on_layersWidget_downButtonClicked(uint32_t uid);
     void on_socket_readyRead();
-    void on_buttonSend_clicked();
-    void on_buttonConnect_clicked();
     void on_socket_connected();
     void on_socket_error(QAbstractSocket::SocketError error);
     void on_socket_stateChanged(QAbstractSocket::SocketState state);
 
-    void on_colorChooser_colorSelected(const QColor& color);
     void on_canvas_debugInfo(int linesCount, int paintTime);
     void strokeFinished(const Stroke& stroke);
+    void on_buttonSend_clicked();
+    void on_buttonConnect_clicked();
+    void on_colorChooser_colorSelected(const QColor& color);
+
+    void on_layersWidget_addLayerClicked();
+    void on_layersWidget_renameClicked();
+    void on_layersWidget_upButtonClicked(uint32_t uid);
+    void on_layersWidget_downButtonClicked(uint32_t uid);
 };
 
