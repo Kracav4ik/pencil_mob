@@ -18,7 +18,7 @@ private:
     QVector<uint32_t> zOrder;
 
     uint32_t currentLayer = 0;
-    uint32_t nextLayerUid = 1;
+    uint32_t nextLayerUid = 1000;
     Tool* currentTool = nullptr;
 
     const Layer* getByUid(uint32_t uid) const;

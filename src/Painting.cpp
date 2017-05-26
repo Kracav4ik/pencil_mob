@@ -21,7 +21,7 @@ void Painting::setPenColor(const QColor& color) {
 }
 
 void Painting::addStroke(const Stroke& stroke) {
-    addStroke(currentLayer, stroke);
+    addStroke(getCurrentLayerId(), stroke);
 }
 
 QPicture Painting::getPicture(const QSize& size) const {
@@ -31,7 +31,7 @@ QPicture Painting::getPicture(const QSize& size) const {
     for (uint32_t uid : zOrder) {
         const Layer* layer = getByUid(uid);
         QImage img = layer->drawImg(size);
-        if (currentLayer == uid && currentTool) {
+        if (getCurrentLayerId() == uid && currentTool) {
             QPainter imgP(&img);
             currentTool->paint(imgP);
         }
@@ -52,6 +52,9 @@ void Painting::addLayer(const QString& name) {
     uint32_t uid = nextLayerUid++; 
     uidToLayer[uid] = new Layer(name);
     zOrder.append(uid);
+    if (uidToLayer.size() == 1) {
+        selectLayer(uid);
+    }
     emit layerAdded(uid, name);
 }
 
@@ -77,6 +80,9 @@ Painting::~Painting() {
 }
 
 uint32_t Painting::getCurrentLayerId() const {
+    if (currentLayer == 0) {
+        printf("getCurrentLayerId: currentLayer is zero, you are going to crash~ <3\n");
+    }
     return currentLayer;
 }
 
@@ -91,7 +97,7 @@ void Painting::renameLayer(uint32_t uid, const QString& name) {
 }
 
 const Layer* Painting::getCurrentLayer() const {
-    return getByUid(currentLayer);
+    return getByUid(getCurrentLayerId());
 }
 
 void Painting::addStroke(uint32_t uid, const Stroke& stroke) {
