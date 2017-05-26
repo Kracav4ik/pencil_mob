@@ -55,10 +55,10 @@ TEST(messages, decoding) {
     EXPECT_EQ(QString("abcde"), AddNewLayerMessage(BYTE_ARRAY("abcde")).layerName);
 
     RenameLayerMessage m3 = RenameLayerMessage(BYTE_ARRAY("\x00"));
-    EXPECT_EQ(0, m3.idx);
+    EXPECT_EQ(0, m3.uid);
     EXPECT_EQ(QString(""), m3.layerName);
 
     RenameLayerMessage m4 = RenameLayerMessage(BYTE_ARRAY("\x81\x8c\x00" "qwe"));
-    EXPECT_EQ(17920, m4.idx);
+    EXPECT_EQ(17920, m4.uid);
     EXPECT_EQ(QString("qwe"), m4.layerName);
 }

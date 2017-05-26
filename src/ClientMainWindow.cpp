@@ -63,6 +63,7 @@ ClientMainWindow::ClientMainWindow()
     connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
     connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
     connect(&painting, SIGNAL(layerNameChanged(uint32_t, const QString&)), layersWidget, SLOT(changeLayerName(uint32_t, const QString&)));
+    connect(&painting, SIGNAL(layerMoved(uint32_t, uint32_t)), layersWidget, SLOT(moveLayer(uint32_t, uint32_t)));
 
     on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
@@ -90,7 +91,7 @@ void ClientMainWindow::on_socket_readyRead() {
             }},
             {RENAME_LAYER_MESSAGE, [this](const QByteArray& message){
                 RenameLayerMessage m(message);
-                painting.renameLayer(m.idx, m.layerName);
+                painting.renameLayer(m.uid, m.layerName);
             }},
     });
 }
@@ -165,5 +166,25 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
         return;
     }
     client->write(RenameLayerMessage(painting.getCurrentLayerId(), name).encodeMessage());
+    client->flush();
+}
+
+void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
+    painting.moveLayerUp(uid);
+
+    if(!isConnected()){
+        return;
+    }
+    // TODO: send layer move message
+    client->flush();
+}
+
+void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
+    painting.moveLayerDown(uid);
+
+    if(!isConnected()){
+        return;
+    }
+    // TODO: send layer move message
     client->flush();
 }

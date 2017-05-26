@@ -1,30 +1,34 @@
 #pragma once
 
 #include <QDockWidget>
-#include <QButtonGroup>
+#include <QHash>
 
 #include "ui_layers.h"
+
+class LayerButtonWidget;
 
 class LayersWidget : public QDockWidget, private Ui::LayersWidget{
 Q_OBJECT
 private:
-    QButtonGroup layerButtons;
-
-    void layerButtonClicked(uint32_t idx);
+    QHash<uint32_t, LayerButtonWidget*> uidToLayer;
+    QVBoxLayout* getButtonsLayout();
 
 private slots:
     void on_renameLayer_clicked();
     void on_addLayer_clicked();
 
 public slots:
-    void appendLayer(uint32_t idx, const QString& name);
-    void changeLayerName(uint32_t idx, const QString& name);
+    void appendLayer(uint32_t uid, const QString& name);
+    void changeLayerName(uint32_t uid, const QString& name);
+    void moveLayer(uint32_t uid, uint32_t newPos);
 
 public:
     LayersWidget(QWidget* parent);
 
 signals:
-    void layerSelected(uint32_t idx);
+    void layerSelected(uint32_t uid);
     void renameClicked();
     void addLayerClicked();
+    void upButtonClicked(uint32_t uid);
+    void downButtonClicked(uint32_t uid);
 };

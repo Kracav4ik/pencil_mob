@@ -28,10 +28,10 @@ QPicture Painting::getPicture(const QSize& size) const {
     QPicture picture;
     QPainter p(&picture);
 
-    for (uint32_t i = 0; i < layers.size(); ++i) {
-        const Layer* layer = layers[i];
+    for (uint32_t uid : zOrder) {
+        const Layer* layer = getByUid(uid);
         QImage img = layer->drawImg(size);
-        if (currentLayer == i && currentTool) {
+        if (currentLayer == uid && currentTool) {
             QPainter imgP(&img);
             currentTool->paint(imgP);
         }
@@ -42,19 +42,47 @@ QPicture Painting::getPicture(const QSize& size) const {
 
 int Painting::strokesCount() const {
     int size = 0;
-    for (const Layer* layer: layers){
+    for (const Layer* layer: uidToLayer){
         size += layer->strokesCount();
     }
     return size;
 }
 
 void Painting::addLayer(const QString& name) {
-    layers.append(new Layer(name));
-    emit layerAdded((uint32_t) (layers.size() - 1), name);
+    uint32_t uid = nextLayerUid++; 
+    uidToLayer[uid] = new Layer(name);
+    zOrder.append(uid);
+    emit layerAdded(uid, name);
 }
 
-void Painting::selectLayer(uint32_t num) {
-    currentLayer = num;
+void Painting::selectLayer(uint32_t uid) {
+    currentLayer = uid;
+}
+
+void Painting::moveLayerDown(uint32_t uid) {
+    int index = zOrder.indexOf(uid);
+    if (index == -1) {
+        printf("moveLayerDown: Layer not found for uid %d\n", uid);
+        return;
+    }
+    if (index < zOrder.size() - 1) {
+        qSwap(zOrder[index], zOrder[index + 1]);
+        emit layerMoved(uid, (uint32_t) (index + 1));
+        emit changed();
+    }
+}
+
+void Painting::moveLayerUp(uint32_t uid) {
+    int index = zOrder.indexOf(uid);
+    if (index == -1) {
+        printf("moveLayerUp: Layer not found for uid %d\n", uid);
+        return;
+    }
+    if (index > 0) {
+        qSwap(zOrder[index], zOrder[index - 1]);
+        emit layerMoved(uid, (uint32_t) (index - 1));
+        emit changed();
+    }
 }
 
 void Painting::setCurrentTool(Tool* tool) {
@@ -62,7 +90,7 @@ void Painting::setCurrentTool(Tool* tool) {
 }
 
 Painting::~Painting() {
-    for (Layer* layer: layers) {
+    for (Layer* layer: uidToLayer) {
         delete layer;
     }
 }
@@ -71,16 +99,34 @@ uint32_t Painting::getCurrentLayerId() const {
     return currentLayer;
 }
 
-void Painting::renameLayer(uint32_t idx, const QString& name) {
-    layers[idx]->setName(name);
-    emit layerNameChanged(idx, name);
+void Painting::renameLayer(uint32_t uid, const QString& name) {
+    Layer* layer = getByUid(uid);
+    if (!layer) {
+        printf("renameLayer: Layer not found for uid %d\n", uid);
+        return;
+    }
+    layer->setName(name);
+    emit layerNameChanged(uid, name);
 }
 
 const Layer* Painting::getCurrentLayer() const {
-    return layers[currentLayer];
+    return getByUid(currentLayer);
 }
 
-void Painting::addStroke(uint32_t idx, const Stroke& stroke) {
-    layers[idx]->addStroke(stroke);
+void Painting::addStroke(uint32_t uid, const Stroke& stroke) {
+    Layer* layer = getByUid(uid);
+    if (!layer) {
+        printf("addStroke: Layer not found for uid %d\n", uid);
+        return;
+    }
+    layer->addStroke(stroke);
     emit changed();
+}
+
+const Layer* Painting::getByUid(uint32_t uid) const {
+    return uidToLayer[uid];
+}
+
+Layer* Painting::getByUid(uint32_t uid) {
+    return uidToLayer[uid];
 }

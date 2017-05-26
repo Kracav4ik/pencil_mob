@@ -119,16 +119,16 @@ struct AddNewLayerMessage : MessageBase{
 };
 
 struct RenameLayerMessage : MessageBase{
-    uint32_t idx;
+    uint32_t uid;
     QString layerName;
 
-    RenameLayerMessage(uint32_t idx, const QString& layerName)
-            : MessageBase(RENAME_LAYER_MESSAGE), idx(idx), layerName(layerName) {}
+    RenameLayerMessage(uint32_t uid, const QString& layerName)
+            : MessageBase(RENAME_LAYER_MESSAGE), uid(uid), layerName(layerName) {}
 
     QByteArray encodeMessage() const override {
         QByteArray array;
 
-        array.append(encode((uint32_t)idx));
+        array.append(encode((uint32_t)uid));
 
         array.append(layerName.toUtf8());
 
@@ -139,7 +139,7 @@ struct RenameLayerMessage : MessageBase{
             : MessageBase(RENAME_LAYER_MESSAGE) {
         QByteArray m = data;
 
-        idx = decodeAndShift(m);
+        uid = decodeAndShift(m);
 
         layerName = QString(m);
     }
