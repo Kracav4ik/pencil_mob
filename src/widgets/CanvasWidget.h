@@ -14,7 +14,7 @@ private:
     Painting* painting = nullptr;
 
 public:
-    CanvasWidget(QWidget *parent);
+    explicit CanvasWidget(QWidget *parent);
 
     void setPainting(Painting* p);
 

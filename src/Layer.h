@@ -17,5 +17,5 @@ public:
     int strokesCount() const;
 
     void addStroke(const Stroke& stroke);
-    Layer(const QString& name);
+    explicit Layer(const QString& name);
 };

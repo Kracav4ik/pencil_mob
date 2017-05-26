@@ -16,7 +16,7 @@ private:
     bool isUpdating = false;
 
 public:
-    ColorChooserWidget(QWidget* parent);
+    explicit ColorChooserWidget(QWidget* parent);
     void selectColor(const QColor& c);
 
 signals:

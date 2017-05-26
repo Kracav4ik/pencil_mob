@@ -7,7 +7,7 @@
 class CustomPaintWidget: public QWidget{
 Q_OBJECT
 public:
-    CustomPaintWidget(QWidget* parent);
+    explicit CustomPaintWidget(QWidget* parent);
     typedef std::function<void(const CustomPaintWidget&, QPainter&)> PaintFunction;
     void setPaintFunction(const PaintFunction& p);
 

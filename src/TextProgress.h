@@ -8,7 +8,7 @@ private:
     const int size;
 
 public:
-    TextProgress(int size) : size(qMax(size, 5)) {}
+    explicit TextProgress(int size) : size(qMax(size, 5)) {}
 
     QString get(){
         QString s(size, ' ');

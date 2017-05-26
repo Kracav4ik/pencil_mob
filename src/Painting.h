@@ -40,7 +40,7 @@ public slots:
     void setCurrentTool(Tool* tool);
 
 public:
-    Painting(QObject* parent);
+    explicit Painting(QObject* parent);
     ~Painting();
 
     void addStroke(uint32_t uid, const Stroke& stroke);

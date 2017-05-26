@@ -18,7 +18,7 @@ private:
     QButtonGroup toolButtons;
 
 public:
-    ToolSelectorWidget(QWidget* parent);
+    explicit ToolSelectorWidget(QWidget* parent);
 
     void selectTool(Tool* tool);
 

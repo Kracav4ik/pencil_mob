@@ -23,7 +23,7 @@ public slots:
     void moveLayer(uint32_t uid, uint32_t newPos);
 
 public:
-    LayersWidget(QWidget* parent);
+    explicit LayersWidget(QWidget* parent);
 
 signals:
     void layerSelected(uint32_t uid);

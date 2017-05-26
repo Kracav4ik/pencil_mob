@@ -12,7 +12,7 @@ struct Decoder{
     bool decoded = false;
 
     template <typename Array>
-    Decoder(const Array& bytes) {
+    explicit Decoder(const Array& bytes) {
         char byte;
 
         do {
@@ -65,9 +65,9 @@ public:
 struct MessageBase{
     const uint32_t type;
 
-    MessageBase(uint32_t type) : type(type) {}
+    explicit MessageBase(uint32_t type) : type(type) {}
 
     virtual QByteArray encodeMessage() const = 0;
 
-    virtual ~MessageBase() {}
+    virtual ~MessageBase() = default;
 };
