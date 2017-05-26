@@ -11,7 +11,7 @@ struct Stroke{
     bool isEraser;
     QPolygon polygon;
 
-    Stroke(const QColor& color, bool isEraser=false, const QPolygon& polygon=QPolygon());
+    explicit Stroke(const QColor& color, bool isEraser=false, const QPolygon& polygon=QPolygon());
 
     void paint(QPainter& painter) const;
 };
