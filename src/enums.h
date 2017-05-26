@@ -6,4 +6,5 @@ enum MessageType {
     PATH_MESSAGE,
     ADD_NEW_LAYER_MESSAGE,
     RENAME_LAYER_MESSAGE,
+    MOVE_LAYER_MESSAGE,
 };

@@ -93,6 +93,10 @@ void ClientMainWindow::on_socket_readyRead() {
                 RenameLayerMessage m(message);
                 painting.renameLayer(m.uid, m.layerName);
             }},
+            {MOVE_LAYER_MESSAGE, [this](const QByteArray& message){
+                MoveLayerMessage m(message);
+                painting.moveLayer(m.uid, m.newPos);
+            }},
     });
 }
 
@@ -170,21 +174,39 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
 }
 
 void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
-    painting.moveLayerUp(uid);
+    int index = painting.layerIndex(uid);
+    if (index == -1) {
+        printf("on_layersWidget_upButtonClicked: Layer not found for uid %d\n", uid);
+        return;
+    }
+    if (index <= 0) {
+        return;
+    }
+    uint32_t newPos = static_cast<uint32_t>(index - 1);
+    painting.moveLayer(uid, newPos);
 
     if(!isConnected()){
         return;
     }
-    // TODO: send layer move message
+    client->write(MoveLayerMessage(uid, newPos).encodeMessage());
     client->flush();
 }
 
 void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
-    painting.moveLayerDown(uid);
+    int index = painting.layerIndex(uid);
+    if (index == -1) {
+        printf("on_layersWidget_downButtonClicked: Layer not found for uid %d\n", uid);
+        return;
+    }
+    if (index >= painting.layersCount() - 1) {
+        return;
+    }
+    uint32_t newPos = static_cast<uint32_t>(index + 1);
+    painting.moveLayer(uid, newPos);
 
     if(!isConnected()){
         return;
     }
-    // TODO: send layer move message
+    client->write(MoveLayerMessage(uid, newPos).encodeMessage());
     client->flush();
 }

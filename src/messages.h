@@ -144,3 +144,30 @@ struct RenameLayerMessage : MessageBase{
         layerName = QString(m);
     }
 };
+
+struct MoveLayerMessage : MessageBase{
+    uint32_t uid;
+    uint32_t newPos;
+
+    MoveLayerMessage(uint32_t uid, uint32_t newPos)
+            : MessageBase(MOVE_LAYER_MESSAGE), uid(uid), newPos(newPos) {}
+
+    QByteArray encodeMessage() const override {
+        QByteArray array;
+
+        array.append(encode((uint32_t)uid));
+
+        array.append(encode((uint32_t)newPos));
+
+        return createM(type, array);
+    }
+
+    explicit MoveLayerMessage(const QByteArray& data)
+            : MessageBase(MOVE_LAYER_MESSAGE) {
+        QByteArray m = data;
+
+        uid = decodeAndShift(m);
+
+        newPos = decodeAndShift(m);
+    }
+};

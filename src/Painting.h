@@ -35,8 +35,7 @@ public slots:
     void addStroke(const Stroke& stroke);
     void addLayer(const QString& name);
     void selectLayer(uint32_t uid);
-    void moveLayerDown(uint32_t uid);
-    void moveLayerUp(uint32_t uid);
+    void moveLayer(uint32_t uid, uint32_t newPos);
     void setCurrentTool(Tool* tool);
 
 public:
@@ -56,6 +55,9 @@ public:
 
     const Layer* getCurrentLayer() const;
     uint32_t getCurrentLayerId() const;
+
+    int layersCount() const;
+    int layerIndex(uint32_t uid) const;
 };
 
 

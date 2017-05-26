@@ -59,30 +59,11 @@ void Painting::selectLayer(uint32_t uid) {
     currentLayer = uid;
 }
 
-void Painting::moveLayerDown(uint32_t uid) {
-    int index = zOrder.indexOf(uid);
-    if (index == -1) {
-        printf("moveLayerDown: Layer not found for uid %d\n", uid);
-        return;
-    }
-    if (index < zOrder.size() - 1) {
-        qSwap(zOrder[index], zOrder[index + 1]);
-        emit layerMoved(uid, (uint32_t) (index + 1));
-        emit changed();
-    }
-}
-
-void Painting::moveLayerUp(uint32_t uid) {
-    int index = zOrder.indexOf(uid);
-    if (index == -1) {
-        printf("moveLayerUp: Layer not found for uid %d\n", uid);
-        return;
-    }
-    if (index > 0) {
-        qSwap(zOrder[index], zOrder[index - 1]);
-        emit layerMoved(uid, (uint32_t) (index - 1));
-        emit changed();
-    }
+void Painting::moveLayer(uint32_t uid, uint32_t newPos) {
+    zOrder.removeOne(uid);
+    zOrder.insert(newPos, uid);
+    emit layerMoved(uid, newPos);
+    emit changed();
 }
 
 void Painting::setCurrentTool(Tool* tool) {
@@ -129,4 +110,12 @@ const Layer* Painting::getByUid(uint32_t uid) const {
 
 Layer* Painting::getByUid(uint32_t uid) {
     return uidToLayer[uid];
+}
+
+int Painting::layersCount() const {
+    return uidToLayer.size();
+}
+
+int Painting::layerIndex(uint32_t uid) const {
+    return zOrder.indexOf(uid);
 }

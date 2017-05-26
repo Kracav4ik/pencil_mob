@@ -24,6 +24,12 @@ TEST(messages, encoding) {
     EXPECT_EQ(BYTE_ARRAY("\x05\x05\x00" "qwe"), RenameLayerMessage(0, QString("qwe")).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x06\x05\x81\x00" "qwe"), RenameLayerMessage(128, QString("qwe")).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x07\x05\x81\x8c\x00" "qwe"), RenameLayerMessage(17920, QString("qwe")).encodeMessage());
+
+    EXPECT_EQ(BYTE_ARRAY("\x03\x06\x00\x00"), MoveLayerMessage(0, 0).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x04\x06\x81\x00\x00"), MoveLayerMessage(128, 0).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x04\x06\x00\x81\x00"), MoveLayerMessage(0, 128).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x06\x81\x00\x81\x8c\x00"), MoveLayerMessage(128, 17920).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x06\x81\x8c\x00\x81\x00"), MoveLayerMessage(17920, 128).encodeMessage());
 }
 
 TEST(messages, decoding) {
@@ -33,32 +39,52 @@ TEST(messages, decoding) {
     EXPECT_EQ(QString(""), SetClientNameMessage(BYTE_ARRAY("")).name);
     EXPECT_EQ(QString("abcde"), SetClientNameMessage(BYTE_ARRAY("abcde")).name);
 
-    PathMessage m1(BYTE_ARRAY("\x01\x02\x03\x00\x01\x00"));
-    EXPECT_EQ(1, m1.r);
-    EXPECT_EQ(2, m1.g);
-    EXPECT_EQ(3, m1.b);
-    EXPECT_EQ(0, m1.layerId);
-    EXPECT_TRUE(m1.isEraser);
-    QVector<QPoint> p1;
-    EXPECT_EQ(p1, m1.points);
+    {
+        PathMessage m(BYTE_ARRAY("\x01\x02\x03\x00\x01\x00"));
+        EXPECT_EQ(1, m.r);
+        EXPECT_EQ(2, m.g);
+        EXPECT_EQ(3, m.b);
+        EXPECT_EQ(0, m.layerId);
+        EXPECT_TRUE(m.isEraser);
+        QVector<QPoint> p;
+        EXPECT_EQ(p, m.points);
+    }
 
-    PathMessage m2(BYTE_ARRAY("\xf1\xf2\xf3\x81\x00\x00\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"));
-    EXPECT_EQ(241, m2.r);
-    EXPECT_EQ(242, m2.g);
-    EXPECT_EQ(243, m2.b);
-    EXPECT_EQ(128, m2.layerId);
-    EXPECT_FALSE(m2.isEraser);
-    QVector<QPoint> p2{{10, 20}, {100, 200}, {10000, 20000}};
-    EXPECT_EQ(p2, m2.points);
+    {
+        PathMessage m(BYTE_ARRAY("\xf1\xf2\xf3\x81\x00\x00\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"));
+        EXPECT_EQ(241, m.r);
+        EXPECT_EQ(242, m.g);
+        EXPECT_EQ(243, m.b);
+        EXPECT_EQ(128, m.layerId);
+        EXPECT_FALSE(m.isEraser);
+        QVector<QPoint> p{{10, 20}, {100, 200}, {10000, 20000}};
+        EXPECT_EQ(p, m.points);
+    }
 
     EXPECT_EQ(QString(""), AddNewLayerMessage(BYTE_ARRAY("")).layerName);
     EXPECT_EQ(QString("abcde"), AddNewLayerMessage(BYTE_ARRAY("abcde")).layerName);
 
-    RenameLayerMessage m3 = RenameLayerMessage(BYTE_ARRAY("\x00"));
-    EXPECT_EQ(0, m3.uid);
-    EXPECT_EQ(QString(""), m3.layerName);
+    {
+        RenameLayerMessage m(BYTE_ARRAY("\x00"));
+        EXPECT_EQ(0, m.uid);
+        EXPECT_EQ(QString(""), m.layerName);
+    }
 
-    RenameLayerMessage m4 = RenameLayerMessage(BYTE_ARRAY("\x81\x8c\x00" "qwe"));
-    EXPECT_EQ(17920, m4.uid);
-    EXPECT_EQ(QString("qwe"), m4.layerName);
+    {
+        RenameLayerMessage m(BYTE_ARRAY("\x81\x8c\x00" "qwe"));
+        EXPECT_EQ(17920, m.uid);
+        EXPECT_EQ(QString("qwe"), m.layerName);
+    }
+
+    {
+        MoveLayerMessage m(BYTE_ARRAY("\x00\x00"));
+        EXPECT_EQ(0, m.uid);
+        EXPECT_EQ(0, m.newPos);
+    }
+
+    {
+        MoveLayerMessage m(BYTE_ARRAY("\x81\x00\x81\x8c\x00"));
+        EXPECT_EQ(128, m.uid);
+        EXPECT_EQ(17920, m.newPos);
+    }
 }
