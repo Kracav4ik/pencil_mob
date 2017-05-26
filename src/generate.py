@@ -223,14 +223,14 @@ class MsgClass:
 struct %(cls)s : MessageBase{
     %(decl_field)s
 
-    %(cls)s(%(decl_ctor)s)
+    %(explicit_ctor)s%(cls)s(%(decl_ctor)s)
             : MessageBase(%(cls_caps)s)%(ctor_init)s {}
 
     QByteArray encodeMessage() const override {
 %(encode)s
     }
 
-    %(cls)s(const QByteArray& data)
+    explicit %(cls)s(const QByteArray& data)
             : MessageBase(%(cls_caps)s) {
 %(decode)s
     }
@@ -240,6 +240,7 @@ struct %(cls)s : MessageBase{
             'cls_caps': self.cls_caps(),
             'decl_field': '\n    '.join(f.decl_field() for f in self.fields),
             'decl_ctor': ', '.join(f.decl_ctor() for f in self.fields),
+            'explicit_ctor': 'explicit ' if len(self.fields) == 1 else '',
             'ctor_init': ''.join(f.ctor_init() for f in self.fields),
             'encode': self.gen_encode(),
             'decode': self.gen_decode()

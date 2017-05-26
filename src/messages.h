@@ -11,14 +11,14 @@
 struct StringMessage : MessageBase{
     QString str;
 
-    StringMessage(const QString& str)
+    explicit StringMessage(const QString& str)
             : MessageBase(STRING_MESSAGE), str(str) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, str.toUtf8());
     }
 
-    StringMessage(const QByteArray& data)
+    explicit StringMessage(const QByteArray& data)
             : MessageBase(STRING_MESSAGE) {
         str = QString(data);
     }
@@ -27,14 +27,14 @@ struct StringMessage : MessageBase{
 struct SetClientNameMessage : MessageBase{
     QString name;
 
-    SetClientNameMessage(const QString& name)
+    explicit SetClientNameMessage(const QString& name)
             : MessageBase(SET_CLIENT_NAME_MESSAGE), name(name) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, name.toUtf8());
     }
 
-    SetClientNameMessage(const QByteArray& data)
+    explicit SetClientNameMessage(const QByteArray& data)
             : MessageBase(SET_CLIENT_NAME_MESSAGE) {
         name = QString(data);
     }
@@ -73,7 +73,7 @@ struct PathMessage : MessageBase{
         return createM(type, array);
     }
 
-    PathMessage(const QByteArray& data)
+    explicit PathMessage(const QByteArray& data)
             : MessageBase(PATH_MESSAGE) {
         QByteArray m = data;
 
@@ -105,14 +105,14 @@ struct PathMessage : MessageBase{
 struct AddNewLayerMessage : MessageBase{
     QString layerName;
 
-    AddNewLayerMessage(const QString& layerName)
+    explicit AddNewLayerMessage(const QString& layerName)
             : MessageBase(ADD_NEW_LAYER_MESSAGE), layerName(layerName) {}
 
     QByteArray encodeMessage() const override {
         return createM(type, layerName.toUtf8());
     }
 
-    AddNewLayerMessage(const QByteArray& data)
+    explicit AddNewLayerMessage(const QByteArray& data)
             : MessageBase(ADD_NEW_LAYER_MESSAGE) {
         layerName = QString(data);
     }
@@ -135,7 +135,7 @@ struct RenameLayerMessage : MessageBase{
         return createM(type, array);
     }
 
-    RenameLayerMessage(const QByteArray& data)
+    explicit RenameLayerMessage(const QByteArray& data)
             : MessageBase(RENAME_LAYER_MESSAGE) {
         QByteArray m = data;
 
