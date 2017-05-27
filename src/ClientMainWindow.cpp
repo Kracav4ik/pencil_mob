@@ -46,6 +46,8 @@ ClientMainWindow::ClientMainWindow()
     connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
     connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
     connect(&painting, SIGNAL(layerNameChanged(uint32_t, const QString&)), layersWidget, SLOT(changeLayerName(uint32_t, const QString&)));
+    connect(&painting, SIGNAL(layerRemoved(uint32_t)), layersWidget, SLOT(deleteLayer(uint32_t)));
+    connect(&painting, SIGNAL(layerSelected(uint32_t)), layersWidget, SLOT(selectLayer(uint32_t)));
     connect(&painting, SIGNAL(layerMoved(uint32_t, uint32_t)), layersWidget, SLOT(moveLayer(uint32_t, uint32_t)));
 
     on_layersWidget_addLayerClicked();
@@ -110,6 +112,9 @@ void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
 }
 
 void ClientMainWindow::strokeFinished(const Stroke& stroke) {
+    if (!painting.hasLayers()) {
+        return; // TODO: disable tools instead
+    }
     uint8_t r = static_cast<uint8_t>(stroke.color.red());
     uint8_t g = static_cast<uint8_t>(stroke.color.green());
     uint8_t b = static_cast<uint8_t>(stroke.color.blue());
@@ -157,7 +162,20 @@ void ClientMainWindow::on_layersWidget_addLayerClicked() {
     sendMessage<AddNewLayerMessage>(name);
 }
 
+void ClientMainWindow::on_layersWidget_removeLayerClicked() {
+    painting.removeLayer();
+
+    // TODO sendMessage<DeleteLayerMessage>(...);
+
+    if (!painting.hasLayers()) {
+        on_layersWidget_addLayerClicked();
+    }
+}
+
 void ClientMainWindow::on_layersWidget_renameClicked() {
+    if (!painting.hasLayers()) {
+        return; // TODO: disable button instead
+    }
     const QString& oldName = painting.getCurrentLayer()->getName();
     QString name = QInputDialog::getText(this, "Renaming layer", "Enter layer name:", QLineEdit::Normal, oldName);
     if(name.isEmpty() || name == oldName){

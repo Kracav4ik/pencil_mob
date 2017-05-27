@@ -21,6 +21,9 @@ void Painting::setPenColor(const QColor& color) {
 }
 
 void Painting::addStroke(const Stroke& stroke) {
+    if (!hasLayers()) {
+        return; // TODO this should be error; tools should be disabled
+    }
     addStroke(getCurrentLayerId(), stroke);
 }
 
@@ -52,18 +55,60 @@ void Painting::addLayer(const QString& name) {
     uint32_t uid = nextLayerUid++; 
     uidToLayer[uid] = new Layer(name);
     zOrder.append(uid);
+    emit layerAdded(uid, name);
     if (uidToLayer.size() == 1) {
         selectLayer(uid);
     }
-    emit layerAdded(uid, name);
 }
 
 void Painting::selectLayer(uint32_t uid) {
+    if (uid != NO_LAYER) {
+        if (!zOrder.contains(uid)) {
+            printf("selectLayer: layer to select %d not found in zOrder list\n", uid);
+            return;
+        }
+        if (!uidToLayer.contains(uid)) {
+            printf("selectLayer: layer to select %d not found in uidToLayer map\n", uid);
+            return;
+        }
+    }
     currentLayer = uid;
+    emit layerSelected(currentLayer);
+}
+
+void Painting::removeLayer() {
+    uint32_t uid = currentLayer;
+    int currentPos = zOrder.indexOf(uid);
+    if (currentPos == -1) {
+        printf("removeLayer: currentLayer %d not found in zOrder list\n", uid);
+        return;
+    }
+    zOrder.removeOne(uid);
+    Layer* layer = uidToLayer.take(uid);
+    if (!layer) {
+        printf("removeLayer: currentLayer %d not found in uidToLayer map\n", uid);
+        return;
+    }
+    delete layer;
+
+    if (zOrder.empty()) {
+        selectLayer(NO_LAYER);
+    } else {
+        selectLayer(zOrder[qMin(currentPos, zOrder.size() - 1)]);
+    }
+    emit layerRemoved(uid);
+    emit changed();
 }
 
 void Painting::moveLayer(uint32_t uid, uint32_t newPos) {
-    zOrder.removeOne(uid);
+    if (newPos >= zOrder.size()) {
+        printf("moveLayer: newPos %d is too big for zOrder list of size %d\n", newPos, zOrder.size());
+        return;
+    }
+    if (!zOrder.removeOne(uid)) {
+        printf("moveLayer: layer %d not found in zOrder list\n", uid);
+        return;
+    }
     zOrder.insert(newPos, uid);
     emit layerMoved(uid, newPos);
     emit changed();
@@ -80,7 +125,7 @@ Painting::~Painting() {
 }
 
 uint32_t Painting::getCurrentLayerId() const {
-    if (currentLayer == 0) {
+    if (currentLayer == NO_LAYER) {
         printf("getCurrentLayerId: currentLayer is zero, you are going to crash~ <3\n");
     }
     return currentLayer;
@@ -124,4 +169,8 @@ int Painting::layersCount() const {
 
 int Painting::layerIndex(uint32_t uid) const {
     return zOrder.indexOf(uid);
+}
+
+bool Painting::hasLayers() const {
+    return layersCount() > 0;
 }

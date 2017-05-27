@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="allowedAreas">
-   <set>Qt::RightDockWidgetArea</set>
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
   </property>
   <property name="windowTitle">
    <string>Layers</string>
@@ -31,6 +31,20 @@
        <widget class="QPushButton" name="renameLayer">
         <property name="text">
          <string>Rename</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="duplicateLayer">
+        <property name="text">
+         <string>Duplicate</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="removeLayer">
+        <property name="text">
+         <string>Remove</string>
         </property>
        </widget>
       </item>

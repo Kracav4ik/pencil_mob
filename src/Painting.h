@@ -17,7 +17,8 @@ private:
     QHash<uint32_t, Layer*> uidToLayer;
     QVector<uint32_t> zOrder;
 
-    uint32_t currentLayer = 0;
+    static const uint32_t NO_LAYER = 0;
+    uint32_t currentLayer = NO_LAYER;
     uint32_t nextLayerUid = 1000;
     Tool* currentTool = nullptr;
 
@@ -30,6 +31,8 @@ signals:
     void layerNameChanged(uint32_t uid, const QString& name);
     void layerAdded(uint32_t uid, const QString& name);
     void layerMoved(uint32_t uid, uint32_t newPos);
+    void layerRemoved(uint32_t uid);
+    void layerSelected(uint32_t uid);
 
 public slots:
     void addStroke(const Stroke& stroke);
@@ -52,12 +55,14 @@ public:
     int strokesCount() const;
 
     void renameLayer(uint32_t uid, const QString& name);
+    void removeLayer();
 
     const Layer* getCurrentLayer() const;
     uint32_t getCurrentLayerId() const;
 
     int layersCount() const;
     int layerIndex(uint32_t uid) const;
+    bool hasLayers() const;
 };
 
 

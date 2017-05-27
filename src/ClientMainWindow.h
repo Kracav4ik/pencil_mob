@@ -44,6 +44,7 @@ public slots:
 
     void on_layersWidget_addLayerClicked();
     void on_layersWidget_renameClicked();
+    void on_layersWidget_removeLayerClicked();
     void on_layersWidget_upButtonClicked(uint32_t uid);
     void on_layersWidget_downButtonClicked(uint32_t uid);
 };
