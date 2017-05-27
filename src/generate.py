@@ -39,6 +39,10 @@ class Type:
             result = 'array.append(%s);' % result
         return result
 
+    @staticmethod
+    def decoded_readonly():
+        return False
+
 
 class StringType(Type):
     def __init__(self, name):
@@ -49,6 +53,10 @@ class StringType(Type):
 
     def encode_simple(self, var_name):
         return '%s.toUtf8()' % var_name
+
+    @staticmethod
+    def decoded_readonly():
+        return True
 
 
 class StructType(Type):
@@ -197,32 +205,41 @@ class MsgClass:
 
     def gen_encode(self):
         snippets = []
-        assert self.fields
         if len(self.fields) > 1:
             snippets.append('QByteArray array;')
             for f in self.fields:
                 snippets.append(f.encode_lines(False))
             snippets.append('return createM(type, array);')
-        else:
+        elif len(self.fields) == 1:
             snippets.append('return createM(type, %s);' % self.fields[0].encode_lines(True))
+        else:
+            snippets.append('return createM(type, {});')
         return '\n\n'.join('        ' + s for s in snippets)
 
     def gen_decode(self):
         snippets = []
-        if len(self.fields) > 1:
+        if len(self.fields) > 1 or not self.fields[0].type.decoded_readonly():
             snippets.append('QByteArray m = data;')
             array_name = 'm'
-        else:
+        elif len(self.fields) == 1:
             array_name = 'data'
         for f in self.fields:
             snippets.append(f.decode_lines(array_name))
         return '\n\n'.join('        ' + s for s in snippets)
 
     def write_to(self, f):
+        if self.fields:
+            decl_field = '''
+    %s
+''' % '\n    '.join(f.decl_field() for f in self.fields)
+            decode_body = '''
+%s
+    ''' % self.gen_decode()
+        else:
+            decl_field = ''
+            decode_body = ''
         f.write('''
-struct %(cls)s : MessageBase{
-    %(decl_field)s
-
+struct %(cls)s : MessageBase{%(decl_field)s
     %(explicit_ctor)s%(cls)s(%(decl_ctor)s)
             : MessageBase(%(cls_caps)s)%(ctor_init)s {}
 
@@ -231,19 +248,17 @@ struct %(cls)s : MessageBase{
     }
 
     explicit %(cls)s(const QByteArray& data)
-            : MessageBase(%(cls_caps)s) {
-%(decode)s
-    }
+            : MessageBase(%(cls_caps)s) {%(decode)s}
 };
 ''' % {
             'cls': self.name,
             'cls_caps': self.cls_caps(),
-            'decl_field': '\n    '.join(f.decl_field() for f in self.fields),
+            'decl_field': decl_field,
             'decl_ctor': ', '.join(f.decl_ctor() for f in self.fields),
             'explicit_ctor': 'explicit ' if len(self.fields) == 1 else '',
             'ctor_init': ''.join(f.ctor_init() for f in self.fields),
             'encode': self.gen_encode(),
-            'decode': self.gen_decode()
+            'decode': decode_body,
         })
 
 
