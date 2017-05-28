@@ -34,6 +34,12 @@ TEST(messages, encoding) {
     EXPECT_EQ(BYTE_ARRAY("\x02\x07\x00"), RemoveLayerMessage(0).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x03\x07\x81\x00"), RemoveLayerMessage(128).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x04\x07\x81\x8c\x00"), RemoveLayerMessage(17920).encodeMessage());
+
+    EXPECT_EQ(BYTE_ARRAY("\x03\x08\x00\x00"), CopyLayerMessage(0, 0).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x04\x08\x81\x00\x00"), CopyLayerMessage(128, 0).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x04\x08\x00\x81\x00"), CopyLayerMessage(0, 128).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x08\x81\x00\x81\x8c\x00"), CopyLayerMessage(128, 17920).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x06\x08\x81\x8c\x00\x81\x00"), CopyLayerMessage(17920, 128).encodeMessage());
 }
 
 TEST(messages, decoding) {
@@ -95,4 +101,16 @@ TEST(messages, decoding) {
     EXPECT_EQ(0, RemoveLayerMessage(BYTE_ARRAY("\x00")).uid);
     EXPECT_EQ(128, RemoveLayerMessage(BYTE_ARRAY("\x81\x00")).uid);
     EXPECT_EQ(17920, RemoveLayerMessage(BYTE_ARRAY("\x81\x8c\x00")).uid);
+
+    {
+        CopyLayerMessage m(BYTE_ARRAY("\x00\x00"));
+        EXPECT_EQ(0, m.fromUid);
+        EXPECT_EQ(0, m.toUid);
+    }
+
+    {
+        CopyLayerMessage m(BYTE_ARRAY("\x81\x00\x81\x8c\x00"));
+        EXPECT_EQ(128, m.fromUid);
+        EXPECT_EQ(17920, m.toUid);
+    }
 }

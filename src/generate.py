@@ -277,6 +277,7 @@ msg_classes = [
     MsgClass('RenameLayerMessage', [Field(tuint32, 'uid'), Field(tstring, 'layerName')]),
     MsgClass('MoveLayerMessage', [Field(tuint32, 'uid'), Field(tuint32, 'newPos')]),
     MsgClass('RemoveLayerMessage', [Field(tuint32, 'uid')]),
+    MsgClass('CopyLayerMessage', [Field(tuint32, 'fromUid'), Field(tuint32, 'toUid')]),
 ]
 
 

@@ -51,7 +51,7 @@ int Painting::strokesCount() const {
     return size;
 }
 
-void Painting::addLayer(const QString& name) {
+uint32_t Painting::addLayer(const QString& name) {
     uint32_t uid = nextLayerUid++; 
     uidToLayer[uid] = new Layer(name);
     zOrder.append(uid);
@@ -59,6 +59,7 @@ void Painting::addLayer(const QString& name) {
     if (uidToLayer.size() == 1) {
         selectLayer(uid);
     }
+    return uid;
 }
 
 void Painting::selectLayer(uint32_t uid) {
@@ -112,6 +113,21 @@ void Painting::moveLayer(uint32_t uid, uint32_t newPos) {
     }
     zOrder.insert(newPos, uid);
     emit layerMoved(uid, newPos);
+    emit changed();
+}
+
+void Painting::copyFromLayer(uint32_t fromUid, uint32_t toUid) {
+    Layer* fromLayer = getByUid(fromUid);
+    if (!fromLayer) {
+        printf("copyFromLayer: target layer %d not found in uidToLayer map\n", fromUid);
+        return;
+    }
+    Layer* toLayer = getByUid(toUid);
+    if (!toLayer) {
+        printf("copyFromLayer: source layer %d not found in uidToLayer map\n", toUid);
+        return;
+    }
+    toLayer->copyFrom(*fromLayer);
     emit changed();
 }
 

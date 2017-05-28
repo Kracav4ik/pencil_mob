@@ -189,3 +189,30 @@ struct RemoveLayerMessage : MessageBase{
         uid = decodeAndShift(m);
     }
 };
+
+struct CopyLayerMessage : MessageBase{
+    uint32_t fromUid;
+    uint32_t toUid;
+
+    CopyLayerMessage(uint32_t fromUid, uint32_t toUid)
+            : MessageBase(COPY_LAYER_MESSAGE), fromUid(fromUid), toUid(toUid) {}
+
+    QByteArray encodeMessage() const override {
+        QByteArray array;
+
+        array.append(encode((uint32_t)fromUid));
+
+        array.append(encode((uint32_t)toUid));
+
+        return createM(type, array);
+    }
+
+    explicit CopyLayerMessage(const QByteArray& data)
+            : MessageBase(COPY_LAYER_MESSAGE) {
+        QByteArray m = data;
+
+        fromUid = decodeAndShift(m);
+
+        toUid = decodeAndShift(m);
+    }
+};

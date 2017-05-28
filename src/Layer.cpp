@@ -30,3 +30,7 @@ const QString& Layer::getName() const {
 }
 
 Layer::Layer(const QString& name): name(name) {}
+
+void Layer::copyFrom(const Layer& other) {
+    strokes = other.strokes;
+}

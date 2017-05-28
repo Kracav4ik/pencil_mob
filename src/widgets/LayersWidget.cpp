@@ -60,6 +60,10 @@ void LayersWidget::on_removeLayer_clicked(){
     emit removeLayerClicked();
 }
 
+void LayersWidget::on_duplicateLayer_clicked() {
+    emit duplicateLayerClicked();
+}
+
 QVBoxLayout* LayersWidget::getButtonsLayout() {
     return reinterpret_cast<QVBoxLayout*>(layers->layout());
 }

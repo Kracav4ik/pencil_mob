@@ -18,4 +18,6 @@ public:
 
     void addStroke(const Stroke& stroke);
     explicit Layer(const QString& name);
+
+    void copyFrom(const Layer& other);
 };

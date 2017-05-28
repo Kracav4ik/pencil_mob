@@ -33,12 +33,14 @@ signals:
     void layerMoved(uint32_t uid, uint32_t newPos);
     void layerRemoved(uint32_t uid);
     void layerSelected(uint32_t uid);
+    void layerDuplicated(uint32_t uid);
 
 public slots:
     void addStroke(const Stroke& stroke);
-    void addLayer(const QString& name);
+    uint32_t addLayer(const QString& name);
     void selectLayer(uint32_t uid);
     void moveLayer(uint32_t uid, uint32_t newPos);
+    void copyFromLayer(uint32_t fromUid, uint32_t toUid);
     void setCurrentTool(Tool* tool);
 
 public:

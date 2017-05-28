@@ -59,6 +59,7 @@ void ServerMainWindow::readyToRead() {
             {ADD_NEW_LAYER_MESSAGE, multicastFunc(ADD_NEW_LAYER_MESSAGE, socket)},
             {MOVE_LAYER_MESSAGE, multicastFunc(MOVE_LAYER_MESSAGE, socket)},
             {REMOVE_LAYER_MESSAGE, multicastFunc(REMOVE_LAYER_MESSAGE, socket)},
+            {COPY_LAYER_MESSAGE, multicastFunc(COPY_LAYER_MESSAGE, socket)},
     });
 
 }

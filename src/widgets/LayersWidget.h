@@ -17,6 +17,7 @@ private slots:
     void on_renameLayer_clicked();
     void on_addLayer_clicked();
     void on_removeLayer_clicked();
+    void on_duplicateLayer_clicked();
 
 public slots:
     void appendLayer(uint32_t uid, const QString& name);
@@ -33,6 +34,7 @@ signals:
     void renameClicked();
     void addLayerClicked();
     void removeLayerClicked();
+    void duplicateLayerClicked();
     void upButtonClicked(uint32_t uid);
     void downButtonClicked(uint32_t uid);
 };

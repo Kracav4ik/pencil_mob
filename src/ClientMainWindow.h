@@ -42,9 +42,10 @@ public slots:
     void on_buttonConnect_clicked();
     void on_colorChooser_colorSelected(const QColor& color);
 
-    void on_layersWidget_addLayerClicked();
+    uint32_t on_layersWidget_addLayerClicked();
     void on_layersWidget_renameClicked();
     void on_layersWidget_removeLayerClicked();
+    void on_layersWidget_duplicateLayerClicked();
     void on_layersWidget_upButtonClicked(uint32_t uid);
     void on_layersWidget_downButtonClicked(uint32_t uid);
 };

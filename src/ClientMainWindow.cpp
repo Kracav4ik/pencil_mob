@@ -86,6 +86,10 @@ void ClientMainWindow::on_socket_readyRead() {
                 RemoveLayerMessage m(message);
                 painting.removeLayer(m.uid);
             }},
+            {COPY_LAYER_MESSAGE, [this](const QByteArray& message){
+                CopyLayerMessage m(message);
+                painting.copyFromLayer(m.fromUid, m.toUid);
+            }},
     });
 }
 
@@ -159,11 +163,12 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
 }
 
-void ClientMainWindow::on_layersWidget_addLayerClicked() {
+uint32_t ClientMainWindow::on_layersWidget_addLayerClicked() {
     QString name = QString("New layer %1").arg(newLayerCounter++);
-    painting.addLayer(name);
+    uint32_t uid = painting.addLayer(name);
 
     sendMessage<AddNewLayerMessage>(name);
+    return uid;
 }
 
 void ClientMainWindow::on_layersWidget_removeLayerClicked() {
@@ -178,6 +183,17 @@ void ClientMainWindow::on_layersWidget_removeLayerClicked() {
     if (!painting.hasLayers()) {
         on_layersWidget_addLayerClicked();
     }
+}
+
+void ClientMainWindow::on_layersWidget_duplicateLayerClicked() {
+    if (!painting.hasLayers()) {
+        return; // TODO: disable button instead
+    }
+    uint32_t toUid = on_layersWidget_addLayerClicked();
+    uint32_t fromUid = painting.getCurrentLayerId();
+    painting.copyFromLayer(fromUid, toUid);
+
+    sendMessage<CopyLayerMessage>(fromUid, toUid);
 }
 
 void ClientMainWindow::on_layersWidget_renameClicked() {
