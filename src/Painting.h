@@ -55,7 +55,7 @@ public:
     int strokesCount() const;
 
     void renameLayer(uint32_t uid, const QString& name);
-    void removeLayer();
+    void removeLayer(uint32_t uid);
 
     const Layer* getCurrentLayer() const;
     uint32_t getCurrentLayerId() const;

@@ -82,6 +82,10 @@ void ClientMainWindow::on_socket_readyRead() {
                 MoveLayerMessage m(message);
                 painting.moveLayer(m.uid, m.newPos);
             }},
+            {REMOVE_LAYER_MESSAGE, [this](const QByteArray& message){
+                RemoveLayerMessage m(message);
+                painting.removeLayer(m.uid);
+            }},
     });
 }
 
@@ -163,9 +167,13 @@ void ClientMainWindow::on_layersWidget_addLayerClicked() {
 }
 
 void ClientMainWindow::on_layersWidget_removeLayerClicked() {
-    painting.removeLayer();
+    if (!painting.hasLayers()) {
+        return; // TODO: disable button instead
+    }
+    uint32_t uid = painting.getCurrentLayerId();
+    painting.removeLayer(uid);
 
-    // TODO sendMessage<DeleteLayerMessage>(...);
+    sendMessage<RemoveLayerMessage>(uid);
 
     if (!painting.hasLayers()) {
         on_layersWidget_addLayerClicked();

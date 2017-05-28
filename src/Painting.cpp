@@ -76,8 +76,7 @@ void Painting::selectLayer(uint32_t uid) {
     emit layerSelected(currentLayer);
 }
 
-void Painting::removeLayer() {
-    uint32_t uid = currentLayer;
+void Painting::removeLayer(uint32_t uid) {
     int currentPos = zOrder.indexOf(uid);
     if (currentPos == -1) {
         printf("removeLayer: currentLayer %d not found in zOrder list\n", uid);
@@ -91,10 +90,12 @@ void Painting::removeLayer() {
     }
     delete layer;
 
-    if (zOrder.empty()) {
-        selectLayer(NO_LAYER);
-    } else {
-        selectLayer(zOrder[qMin(currentPos, zOrder.size() - 1)]);
+    if (uid == getCurrentLayerId()) {
+        if (zOrder.empty()) {
+            selectLayer(NO_LAYER);
+        } else {
+            selectLayer(zOrder[qMin(currentPos, zOrder.size() - 1)]);
+        }
     }
     emit layerRemoved(uid);
     emit changed();

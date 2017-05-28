@@ -11,17 +11,11 @@ LayersWidget::LayersWidget(QWidget* parent)
 void LayersWidget::appendLayer(uint32_t uid, const QString& name) {
     LayerButtonWidget* button = new LayerButtonWidget(this, name);
     uidToLayer[uid] = button;
-//    if (uidToLayer.size() == 1) {
-//        button->setSelected(true);
-//    }
 
     QVBoxLayout* boxLayout = getButtonsLayout();
     boxLayout->insertWidget(boxLayout->count() - 1, button);
 
     connect(button, &LayerButtonWidget::clicked, [this, uid]() {
-//        for (uint32_t buttonUid : uidToLayer.keys()) {
-//            uidToLayer[buttonUid]->setSelected(buttonUid == uid);
-//        }
         emit layerSelected(uid);
     });
     connect(button, &LayerButtonWidget::upButtonClicked, [this, uid]() {

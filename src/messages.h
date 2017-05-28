@@ -171,3 +171,21 @@ struct MoveLayerMessage : MessageBase{
         newPos = decodeAndShift(m);
     }
 };
+
+struct RemoveLayerMessage : MessageBase{
+    uint32_t uid;
+
+    explicit RemoveLayerMessage(uint32_t uid)
+            : MessageBase(REMOVE_LAYER_MESSAGE), uid(uid) {}
+
+    QByteArray encodeMessage() const override {
+        return createM(type, encode((uint32_t)uid));
+    }
+
+    explicit RemoveLayerMessage(const QByteArray& data)
+            : MessageBase(REMOVE_LAYER_MESSAGE) {
+        QByteArray m = data;
+
+        uid = decodeAndShift(m);
+    }
+};
