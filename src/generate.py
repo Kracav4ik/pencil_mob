@@ -61,34 +61,43 @@ class StringType(Type):
 
 class StructType(Type):
     def __init__(self, name, fields):
+        """
+        :type fields: list[Field]
+        """
         super().__init__(name)
         self.fields = fields
 
     def decode(self, var_name, array_name):
-        return '\n'.join('        %s %s' % (field.type.name, field.decode_lines(array_name)) for field in self.fields)
+        return '\n        '.join('%s.%s' % (var_name, field.decode_lines(array_name)) for field in self.fields)
 
     def encode(self, simple, var_name):
-        return '\n'.join('            ' + field.encode_lines(False, var_name) for field in self.fields)
+        return '\n        '.join(field.encode_lines(False, var_name) for field in self.fields)
 
 
 class ListType(Type):
     def __init__(self, name, item_type):
+        """
+        :type item_type: StructType
+        """
         super().__init__(name)
         self.item_type = item_type
 
     def decode(self, var_name, array_name):
         counter = Field(tuint32, '%sCount' % var_name, False)
         s = '\n        '.join([counter.decl_field(), counter.decode_lines(array_name)])
+        subdecode = ''.join('''
+            %s %s;
+            %s
+''' % (f.type.name, f.name, f.decode_lines(array_name)) for f in self.item_type.fields)
+        self.item_type.decode(var_name, array_name)
         s += '''
-        for (int _ = 0; _ < %(counter_name)s; ++_) {
-%(subdecode)s
-
+        for (int _ = 0; _ < %(counter_name)s; ++_) {%(subdecode)s
             %(var_name)s << %(item_type)s(%(params)s);
         }''' % {
             'var_name': var_name,
             'counter_name': counter.name,
             'item_type': self.item_type.name,
-            'subdecode': self.item_type.decode(var_name, array_name),
+            'subdecode': subdecode,
             'params': ', '.join(f.name for f in self.item_type.fields),
         }
         return s
@@ -97,14 +106,15 @@ class ListType(Type):
         counter = Field(tuint32, 'size')
         s = counter.encode_lines(False, var_name)
         item_name = '%sItem' % var_name
+        subencode = self.item_type.encode(False, item_name).replace('\n', '\n    ')
         s += '''
         for (%(item_type)s %(item_name)s : %(var_name)s) {
-%(subdecode)s
+            %(subencode)s
         }''' % {
             'var_name': var_name,
             'item_type': self.item_type.for_param(),
             'item_name': item_name,
-            'subdecode': self.item_type.encode(False, item_name),
+            'subencode': subencode,
         }
         return s
 

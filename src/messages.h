@@ -94,8 +94,11 @@ struct PathMessage : MessageBase{
         uint32_t pointsCount;
         pointsCount = decodeAndShift(m);
         for (int _ = 0; _ < pointsCount; ++_) {
-        uint32_t x = decodeAndShift(m);
-        uint32_t y = decodeAndShift(m);
+            uint32_t x;
+            x = decodeAndShift(m);
+
+            uint32_t y;
+            y = decodeAndShift(m);
 
             points << QPoint(x, y);
         }
