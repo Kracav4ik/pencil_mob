@@ -87,7 +87,7 @@
   <customwidget>
    <class>CanvasWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/canvaswidget.h</header>
+   <header>widgets/CanvasWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

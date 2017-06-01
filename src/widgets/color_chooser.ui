@@ -563,7 +563,7 @@
   <customwidget>
    <class>CustomPaintWidget</class>
    <extends>QWidget</extends>
-   <header location="global">widgets/custompaintwidget.h</header>
+   <header location="global">widgets/CustomPaintWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
