@@ -41,7 +41,7 @@ ClientMainWindow::ClientMainWindow()
     }
     connect(toolSelector, SIGNAL(toolSelected(Tool*)), &painting, SLOT(setCurrentTool(Tool*)));
     connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
-    connect(canvas, SIGNAL(drag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
+    connect(canvas, SIGNAL(leftDrag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
     connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
     connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
@@ -239,4 +239,14 @@ void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
     painting.moveLayer(uid, newPos);
 
     sendMessage<MoveLayerMessage>(uid, newPos);
+}
+
+void ClientMainWindow::on_canvas_mouseWheel(float delta) {
+    canvas->zoomCamera(1 + delta/10.f);
+    canvas->update();
+}
+
+void ClientMainWindow::on_canvas_rightDrag(const QPointF& delta) {
+    canvas->moveCamera(delta);
+    canvas->update();
 }

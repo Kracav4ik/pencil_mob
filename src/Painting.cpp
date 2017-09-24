@@ -27,20 +27,17 @@ void Painting::addStroke(const Stroke& stroke) {
     addStroke(getCurrentLayerId(), stroke);
 }
 
-QPicture Painting::getPicture(const QSize& size) const {
-    QPicture picture;
-    QPainter p(&picture);
-
+void Painting::drawPicture(QPainter& p, const QSize& size, const QPointF& translation) const {
     for (uint32_t uid : zOrder) {
         const Layer* layer = getByUid(uid);
-        QImage img = layer->drawImg(size);
+        QImage img = layer->drawImg(size, translation);
         if (getCurrentLayerId() == uid && currentTool) {
             QPainter imgP(&img);
+            imgP.translate(translation);
             currentTool->paint(imgP);
         }
         p.drawImage(QPoint(), img);
     }
-    return picture;
 }
 
 int Painting::strokesCount() const {

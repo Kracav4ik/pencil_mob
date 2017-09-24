@@ -1,11 +1,12 @@
 #include "Layer.h"
 #include <QPainter>
 
-QImage Layer::drawImg(const QSize& size) const {
+QImage Layer::drawImg(const QSize& size, const QPointF& translation) const {
     QImage img(size, QImage::Format_ARGB32_Premultiplied);
     img.fill(Qt::transparent);
     {
         QPainter p(&img);
+        p.translate(translation);
         for (const Stroke& stroke : strokes) {
             stroke.paint(p);
         }

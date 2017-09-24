@@ -80,5 +80,7 @@ public slots:
     void on_layersWidget_upButtonClicked(uint32_t uid);
     //! Move the current layer down in z-order by one.
     void on_layersWidget_downButtonClicked(uint32_t uid);
+    void on_canvas_mouseWheel(float delta);
+    void on_canvas_rightDrag(const QPointF& delta);
 };
 

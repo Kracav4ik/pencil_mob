@@ -121,10 +121,11 @@ public:
     //! \param color New pen color
     void setPenColor(const QColor& color);
 
-    //! Returns the picture with given size.
+    //! Paints the picture with layers of given size.
+    //! \param p The painter ro paint with.
     //! \param size The picture size.
-    //! \return The picture.
-    QPicture getPicture(const QSize& size) const;
+    //! \param translation Translation to apply during painting.
+    void drawPicture(QPainter& p, const QSize& size, const QPointF& translation) const;
 
     //! Returns count of strokes.
     //! \return count of strokes.
@@ -159,5 +160,3 @@ public:
     //! Checks if layers.
     bool hasLayers() const;
 };
-
-
