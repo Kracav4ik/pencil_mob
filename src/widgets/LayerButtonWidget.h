@@ -16,8 +16,6 @@ private slots:
     void on_downButton_clicked();
 
 protected:
-     //! An overloaded function that catches the mouse press event on the widget to start drawing.
-     //! \param event Qt event for mouse press.
     void mousePressEvent(QMouseEvent* event) override;
 
 public:

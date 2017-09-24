@@ -11,7 +11,7 @@ class Tool: public QObject {
 Q_OBJECT
 public:
     //! Delete tool.
-    virtual ~Tool();
+    virtual ~Tool() = default;
 
     //! Beginning of the mouse drag.
     virtual void beginDrag();

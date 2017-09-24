@@ -14,5 +14,3 @@ public:
      //! \param tool
     ToolSelectorButton(ToolSelectorWidget* parent, const QString& text, Tool* tool);
 };
-
-

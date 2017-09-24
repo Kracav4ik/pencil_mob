@@ -33,21 +33,9 @@ signals:
 
 
 protected:
-     //! An overloaded function that catches an event, the widget needs to be redrawn.
-     //! \param event Qt event for painting
     void paintEvent(QPaintEvent *event) override;
 
-    //! An overloaded function that catches the event by releasing the mouse on the widget to stop drawing.
-    //! \param event Qt event for mouse release
     void mouseReleaseEvent(QMouseEvent* event) override;
-
-    //! An overloaded function that catches the mouse press event on the widget to start drawing.
-    //! \param event Qt event for mouse press
     void mousePressEvent(QMouseEvent *event) override;
-
-    //! An overloaded function that catches a mouse move on the widget to draw.
-    //! \param event Qt event for mouse move.
     void mouseMoveEvent(QMouseEvent *event) override;
 };
-
-
