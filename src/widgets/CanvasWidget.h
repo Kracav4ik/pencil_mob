@@ -20,10 +20,17 @@ private:
     //! Current mouse position in screen coordinates.
     QPointF curMousePos;
 
+    //! Zooms to given scale around given position.
+    //! \param s given scale.
+    //! \param pos given position.
+    void zoomAround(float s, const QPointF& pos);
+
 public slots:
     //! Zoom camera around mouse pos by multiplying scale by s.
     //! \param s value to multiply by (usually you'd want (1+delta) or 1/(1+delta), where delta is close to 0).
     void zoomCamera(float s);
+    //! Resets to base zoom (scale = 1).
+    void resetZoomCamera();
     //! Move camera by specified shift.
     //! \param delta shift that is added to current translation.
     void moveCamera(const QPointF& delta);
@@ -58,6 +65,9 @@ signals:
     //! Continued movement of the mouse.
     //! \param pos The position of the mouse.
     void leftDrag(const QPoint& pos);
+
+    //!Emitted when zoom was changed.
+    void zoomChanged(float z);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

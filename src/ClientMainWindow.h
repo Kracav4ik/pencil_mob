@@ -10,6 +10,7 @@
 class ColorChooserWidget;
 class ToolSelectorWidget;
 class LayersWidget;
+class MessagesWidget;
 
 //! Client which we're starting.
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
@@ -23,6 +24,8 @@ private:
     ToolSelectorWidget* toolSelector;
     //! Widget with layers.
     LayersWidget* layersWidget;
+    //! Widget with messages.
+    MessagesWidget* messages;
     //! Reader of message between client and server.
     MessageReader reader;
     //! The main part is where all the drawing takes place.
@@ -82,5 +85,7 @@ public slots:
     void on_layersWidget_downButtonClicked(uint32_t uid);
     void on_canvas_mouseWheel(float delta);
     void on_canvas_rightDrag(const QPointF& delta);
+    void on_canvas_zoomChanged(float z);
+    void on_resetZoom_clicked();
 };
 

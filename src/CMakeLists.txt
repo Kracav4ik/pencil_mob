@@ -58,6 +58,9 @@ set(CLIENT_SOURCES
         widgets/LayerButtonWidget.h
         Camera.cpp
         Camera.h
+        widgets/MessagesWidget.cpp
+        widgets/MessagesWidget.h
+        widgets/messages.ui
         )
 
 set(SERVER_SOURCES

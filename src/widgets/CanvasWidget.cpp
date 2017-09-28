@@ -57,16 +57,25 @@ void CanvasWidget::paintEvent(QPaintEvent *event) {
 }
 
 void CanvasWidget::zoomCamera(float s) {
+    zoomAround(s, curMousePos);
+}
+
+void CanvasWidget::zoomAround(float s, const QPointF& pos) {
     // adjust scale factor with regard to possible clamping inside camera
     float oldScale = camera.getScale();
     camera.setScale(oldScale * s);
     s = camera.getScale() / oldScale;
 
     // first, move (0, 0) of the level to specified pos
-    QPointF delta = curMousePos - camera.getTranslation();
+    QPointF delta = pos - camera.getTranslation();
     // then move (0, 0) of the level back with respect to scale change
     delta -= delta * s;
     moveCamera(delta);
+    emit zoomChanged(camera.getScale());
+}
+
+void CanvasWidget::resetZoomCamera() {
+    zoomAround(1/camera.getScale(), QPointF(rect().width()/2, rect().height()/2));
 }
 
 void CanvasWidget::moveCamera(const QPointF& delta) {

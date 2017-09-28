@@ -4,6 +4,7 @@
 #include "widgets/ColorChooserWidget.h"
 #include "widgets/ToolSelectorWidget.h"
 #include "widgets/LayersWidget.h"
+#include "widgets/MessagesWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
 #include "Layer.h"
@@ -13,6 +14,7 @@ ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
         , toolSelector(new ToolSelectorWidget(this))
+        , messages(new MessagesWidget(this))
         , layersWidget(new LayersWidget(this))
         , painting(this)
 {
@@ -26,9 +28,12 @@ ClientMainWindow::ClientMainWindow()
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
     addDockWidget(Qt::LeftDockWidgetArea, layersWidget);
+    addDockWidget(Qt::BottomDockWidgetArea, messages);
     menuView->addAction(colorChooser->toggleViewAction());
     menuView->addAction(toolSelector->toggleViewAction());
     menuView->addAction(layersWidget->toggleViewAction());
+    menuView->addAction(messages->toggleViewAction());
+    messages->hide();
     canvas->setPainting(&painting);
 
     // connect() hell
@@ -60,7 +65,7 @@ void ClientMainWindow::on_socket_readyRead() {
     reader.processBytes(client->readAll(), {
             {STRING_MESSAGE, [this](const QByteArray& message){
                 StringMessage m(message);
-                textEdit->append(m.str);
+                messages->append(m.str);
             }},
             {SET_CLIENT_NAME_MESSAGE, [this](const QByteArray& message){
                 SetClientNameMessage m(message);
@@ -248,5 +253,14 @@ void ClientMainWindow::on_canvas_mouseWheel(float delta) {
 
 void ClientMainWindow::on_canvas_rightDrag(const QPointF& delta) {
     canvas->moveCamera(delta);
+    canvas->update();
+}
+
+void ClientMainWindow::on_canvas_zoomChanged(float z) {
+    zoom->setText(QString("x%1").arg(z, 0, ' ', 2));
+}
+
+void ClientMainWindow::on_resetZoom_clicked() {
+    canvas->resetZoomCamera();
     canvas->update();
 }
