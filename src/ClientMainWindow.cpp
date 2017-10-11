@@ -10,6 +10,8 @@
 #include "Layer.h"
 #include <QInputDialog>
 
+static const float SCALE_FACTOR = powf(2, 0.25);
+
 ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
@@ -247,7 +249,11 @@ void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
 }
 
 void ClientMainWindow::on_canvas_mouseWheel(float delta) {
-    canvas->zoomCamera(1 + delta/10.f);
+    if (delta > 0) {
+        canvas->zoomCamera(SCALE_FACTOR);
+    } else {
+        canvas->zoomCamera(1/SCALE_FACTOR);
+    }
     canvas->update();
 }
 
@@ -257,7 +263,13 @@ void ClientMainWindow::on_canvas_rightDrag(const QPointF& delta) {
 }
 
 void ClientMainWindow::on_canvas_zoomChanged(float z) {
-    zoom->setText(QString("x%1").arg(z, 0, ' ', 2));
+    QString text;
+    if (z >= 1) {
+        text = QString("%1%").arg(int(z*100));
+    } else {
+        text = QString("%1%").arg(z*100, 0, 'g', 3);
+    }
+    zoom->setText(text);
 }
 
 void ClientMainWindow::on_resetZoom_clicked() {

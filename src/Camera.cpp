@@ -2,12 +2,14 @@
 
 #include <QPainter>
 
+static const float MAX_SCALE = 8;
+
 float Camera::getScale() const {
     return scale;
 }
 
 void Camera::setScale(float s) {
-    scale = qBound(.1f, s, 10.f);
+    scale = qBound(1/MAX_SCALE, s, 2*MAX_SCALE);
 }
 
 const QPointF& Camera::getTranslation() const {
