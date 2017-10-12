@@ -70,7 +70,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>x1.00</string>
+         <string>100%</string>
         </property>
        </widget>
       </item>
