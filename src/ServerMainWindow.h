@@ -11,9 +11,10 @@
 struct ClientInfo{
     //! Client name.
     QString name;
+    uint32_t user;
 
     //! Create information about client.
-    ClientInfo(const QString &name) : name(name) {}
+    ClientInfo(const QString& name, uint32_t user): name(name), user(user) {}
 };
 
 //! Server for sending message between clients.
@@ -25,13 +26,7 @@ private:
     //! Map from client socket to information about client.
     QMap<QTcpSocket*, ClientInfo*> clients;
     //! Reader of message between client and server.
-    MessageReader reader;
-
-    //! Send all clients except sender.
-    //! \param messageType Message type that was sended.
-    //! \param ignoreSocket Sender.
-    //! \return Function for handle.
-    HandlePair::CallbackType multicastFunc(uint32_t messageType, QTcpSocket* ignoreSocket=nullptr);
+    ServerMessageReader reader;
 
 public:
     //! Start server.
@@ -45,4 +40,3 @@ public slots:
     //! If client disconnect.
     void clientDisconnected();
 };
-

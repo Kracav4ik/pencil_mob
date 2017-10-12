@@ -1,6 +1,4 @@
 #include "ClientMainWindow.h"
-#include "transport.h"
-#include "enums.h"
 #include "widgets/ColorChooserWidget.h"
 #include "widgets/ToolSelectorWidget.h"
 #include "widgets/LayersWidget.h"
@@ -64,40 +62,39 @@ ClientMainWindow::ClientMainWindow()
 }
 
 void ClientMainWindow::on_socket_readyRead() {
-    reader.processBytes(client->readAll(), {
-            {STRING_MESSAGE, [this](const QByteArray& message){
-                StringMessage m(message);
-                messages->append(m.str);
-            }},
-            {SET_CLIENT_NAME_MESSAGE, [this](const QByteArray& message){
-                SetClientNameMessage m(message);
-                setWindowTitle("Name is " + m.name);
-            }},
-            {PATH_MESSAGE, [this](const QByteArray& message){
-                PathMessage m(message);
-                painting.addStroke(m.layerId, Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
-            }},
-            {ADD_NEW_LAYER_MESSAGE, [this](const QByteArray& message){
-                AddNewLayerMessage m(message);
-                painting.addLayer(m.layerName);
-            }},
-            {RENAME_LAYER_MESSAGE, [this](const QByteArray& message){
-                RenameLayerMessage m(message);
-                painting.renameLayer(m.uid, m.layerName);
-            }},
-            {MOVE_LAYER_MESSAGE, [this](const QByteArray& message){
-                MoveLayerMessage m(message);
-                painting.moveLayer(m.uid, m.newPos);
-            }},
-            {REMOVE_LAYER_MESSAGE, [this](const QByteArray& message){
-                RemoveLayerMessage m(message);
-                painting.removeLayer(m.uid);
-            }},
-            {COPY_LAYER_MESSAGE, [this](const QByteArray& message){
-                CopyLayerMessage m(message);
-                painting.copyFromLayer(m.fromUid, m.toUid);
-            }},
-    });
+    reader.processBytes(client->readAll(), *this);
+}
+
+void ClientMainWindow::handleStringMessage(uint32_t user, const StringMessage& m) {
+    messages->append(m.str);
+}
+
+void ClientMainWindow::handleSetClientNameMessage(uint32_t user, const SetClientNameMessage& m) {
+    setWindowTitle("Name is " + m.name);
+}
+
+void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
+    painting.addStroke(m.layerId, Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
+}
+
+void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) {
+    painting.addLayer(m.layerName);
+}
+
+void ClientMainWindow::handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) {
+    painting.renameLayer(m.uid, m.layerName);
+}
+
+void ClientMainWindow::handleMoveLayerMessage(uint32_t user, const MoveLayerMessage& m) {
+    painting.moveLayer(m.uid, m.newPos);
+}
+
+void ClientMainWindow::handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) {
+    painting.removeLayer(m.uid);
+}
+
+void ClientMainWindow::handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) {
+    painting.copyFromLayer(m.fromUid, m.toUid);
 }
 
 void ClientMainWindow::on_socket_connected() {

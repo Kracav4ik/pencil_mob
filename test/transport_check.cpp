@@ -94,73 +94,63 @@ enum {
     MESSAGE_4,
     MESSAGE_5
 };
-struct TestMessageHandler : MessageHandler {
+TEST(transport, server_reader) {
     QList<int> codes;
     QList<QByteArray> messages;
-    using MessageHandler::MessageHandler;
-
-    void append(int code, const QByteArray& message) {
-        codes << code;
+    auto h = [&](uint32_t messageType, const QByteArray& message) {
+        codes << messageType;
         messages << message;
-    }
-    int size() const {
-        return messages.size();
-    }
-};
-TEST(transport, reader) {
-    TestMessageHandler h = {
-            {MESSAGE_1, [&h](const QByteArray& message){ h.append(MESSAGE_1, message); }},
-            {MESSAGE_2, [&h](const QByteArray& message){ h.append(MESSAGE_2, message); }},
-            {MESSAGE_3, [&h](const QByteArray& message){ h.append(MESSAGE_3, message); }},
-            {MESSAGE_4, [&h](const QByteArray& message){ h.append(MESSAGE_4, message); }},
-            {MESSAGE_5, [&h](const QByteArray& message){ h.append(MESSAGE_5, message); }}
     };
 
     QByteArray d1(130, '1');
-    QByteArray m1 = createM(MESSAGE_1, d1);
+    QByteArray m1 = createAnonymousMessage(MESSAGE_1, d1);
 
     QByteArray d2(3, (char)'\xfe');
-    QByteArray m2 = createM(MESSAGE_2, d2);
+    QByteArray m2 = createAnonymousMessage(MESSAGE_2, d2);
 
     QByteArray d3(10, '3');
-    QByteArray m3 = createM(MESSAGE_3, d3);
+    QByteArray m3 = createAnonymousMessage(MESSAGE_3, d3);
 
     QByteArray d4(17000, (char)'\xfc');
-    QByteArray m4 = createM(MESSAGE_4, d4);
+    QByteArray m4 = createAnonymousMessage(MESSAGE_4, d4);
 
     QByteArray d5;
-    QByteArray m5 = createM(MESSAGE_5, d5);
+    QByteArray m5 = createAnonymousMessage(MESSAGE_5, d5);
 
-    MessageReader r;
+    ServerMessageReader r;
     r.processBytes(m1.left(1), h);
-    EXPECT_EQ(0, h.size());
+    EXPECT_EQ(0, codes.size());
     r.processBytes(m1.mid(1, 1), h);
-    EXPECT_EQ(0, h.size());
+    EXPECT_EQ(0, codes.size());
     r.processBytes(m1.mid(2, m1.size() - 3), h);
-    EXPECT_EQ(0, h.size());
+    EXPECT_EQ(0, codes.size());
     r.processBytes(m1.right(1), h);
-    EXPECT_EQ(1, h.size());
-    EXPECT_EQ(MESSAGE_1, h.codes[0]);
-    EXPECT_EQ(d1, h.messages[0]);
+    EXPECT_EQ(1, codes.size());
+    EXPECT_EQ(MESSAGE_1, codes[0]);
+    EXPECT_EQ(d1, messages[0]);
 
     r.processBytes(m2 + m3 + m4.left(1), h);
-    EXPECT_EQ(3, h.size());
-    EXPECT_EQ(MESSAGE_2, h.codes[1]);
-    EXPECT_EQ(d2, h.messages[1]);
-    EXPECT_EQ(MESSAGE_3, h.codes[2]);
-    EXPECT_EQ(d3, h.messages[2]);
+    EXPECT_EQ(3, codes.size());
+    EXPECT_EQ(MESSAGE_2, codes[1]);
+    EXPECT_EQ(d2, messages[1]);
+    EXPECT_EQ(MESSAGE_3, codes[2]);
+    EXPECT_EQ(d3, messages[2]);
     r.processBytes(m4.mid(1, 1), h);
-    EXPECT_EQ(3, h.size());
+    EXPECT_EQ(3, codes.size());
     r.processBytes(m4.mid(2, 1), h);
-    EXPECT_EQ(3, h.size());
+    EXPECT_EQ(3, codes.size());
     r.processBytes(m4.mid(3, 10), h);
-    EXPECT_EQ(3, h.size());
+    EXPECT_EQ(3, codes.size());
     r.processBytes(m4.mid(13, m4.size() - 14), h);
-    EXPECT_EQ(3, h.size());
+    EXPECT_EQ(3, codes.size());
     r.processBytes(m4.right(1) + m5, h);
-    EXPECT_EQ(5, h.size());
-    EXPECT_EQ(MESSAGE_4, h.codes[3]);
-    EXPECT_EQ(d4, h.messages[3]);
-    EXPECT_EQ(MESSAGE_5, h.codes[4]);
-    EXPECT_EQ(d5, h.messages[4]);
+    EXPECT_EQ(5, codes.size());
+    EXPECT_EQ(MESSAGE_4, codes[3]);
+    EXPECT_EQ(d4, messages[3]);
+    EXPECT_EQ(MESSAGE_5, codes[4]);
+    EXPECT_EQ(d5, messages[4]);
+}
+
+TEST(transport, client_reader) {
+    // TODO: create checks for client reader
 }

@@ -6,6 +6,7 @@
 
 #include "ui_pencil_mob.h"
 #include "transport.h"
+#include "MessageHandler.h"
 
 class ColorChooserWidget;
 class ToolSelectorWidget;
@@ -13,7 +14,7 @@ class LayersWidget;
 class MessagesWidget;
 
 //! Client which we're starting.
-class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow {
+class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow, private MessageHandler {
 Q_OBJECT
 private:
     //! Socket pointer for connect to server.
@@ -27,7 +28,7 @@ private:
     //! Widget with messages.
     MessagesWidget* messages;
     //! Reader of message between client and server.
-    MessageReader reader;
+    ClientMessageReader reader;
     //! The main part is where all the drawing takes place.
     Painting painting;
     //! Something kind of counter.
@@ -36,6 +37,15 @@ private:
     //! Check connected or not.
     //! \return Answer.
     bool isConnected();
+
+    void handleStringMessage(uint32_t user, const StringMessage& m) override;
+    void handleSetClientNameMessage(uint32_t user, const SetClientNameMessage& m) override;
+    void handlePathMessage(uint32_t user, const PathMessage& m) override;
+    void handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) override;
+    void handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) override;
+    void handleMoveLayerMessage(uint32_t user, const MoveLayerMessage& m) override;
+    void handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) override;
+    void handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) override;
 
     //! Something kind of magic.
     template<typename MsgClass, typename... ArgTypes>

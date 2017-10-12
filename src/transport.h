@@ -11,7 +11,7 @@ QByteArray encode(uint32_t value);
 
 //! A class for decoding numbers over a network.
 struct Decoder{
-    //! Number decoder.
+    //! Number decoded.
     uint32_t number = 0;
     //! Count of bytes.
     int count = 0;
@@ -44,48 +44,16 @@ struct Decoder{
 //! \return Decoded number.
 uint32_t decodeAndShift(QByteArray& array);
 
-//! Pair of a message type and a callback to handle messages of this type.
-struct HandlePair {
-    //! std::function wrapper over the callback
-    typedef std::function<void(const QByteArray&)> CallbackType;
-
-    //! The type of the message.
-    uint32_t type;
-    //! The callback to handle messages of this type.
-    CallbackType callback;
-
-    //!  Create handlePair.
-    //! \param type The type of the message.
-    //! \param callback The callback to handle messages of this type.
-    HandlePair(uint32_t type, const CallbackType& callback);
-};
-
-//! Class to handle messages of different type.
-class MessageHandler {
-private:
-    //! A list of message type - callback pairs.
-    std::vector<HandlePair> handlePairs;
-
-public:
-    //! Create MessageHandler from std::initializer_list.
-    //! \param handlePairs A list of message type - callback pairs.
-    MessageHandler(std::initializer_list<HandlePair> handlePairs);
-
-    //! Handle unwrapped message (without leading length and type bytes).
-    //! \param type Type of the message.
-    //! \param message Message bytes.
-    void handle(uint32_t type, const QByteArray& message) const;
-};
-
 //! Wraps message bytes by prepending it with 7-bit encoded type and then 7-bit encoded total length.
 //! \param type Type of the message.
 //! \param data Message bytes.
 //! \return Wrapped message.
-QByteArray createM(uint32_t type, QByteArray data);
+QByteArray createAnonymousMessage(uint32_t type, const QByteArray& data);
+QByteArray createUserMessage(uint32_t user, uint32_t type, const QByteArray& data);
 
 //! One-line debug print of a QByteArray with format "[prefix] [hexadecimal bytes]".
 //! \param array The array to print.
-//! @param prefix The prefix at the beginning.
+//! \param prefix The prefix at the beginning.
 void print_debug(const QByteArray& array, const char* prefix);
 
 //! Reader of a message.
@@ -94,15 +62,26 @@ private:
     //! The message bytes.
     QByteArray unread;
 
+protected:
+    typedef std::function<void (const QByteArray& message)> MessageHandlerFunc;
+    void processBytes(const QByteArray& bytes, const MessageHandlerFunc& handler);
+};
+
+class ServerMessageReader : public MessageReader {
 public:
-    //! Handle the message with the handler.
-    //! \param message Message that be handle.
-    //! \param handler Handler for message.
-    void processBytes(const QByteArray& message, const MessageHandler& handler);
+    typedef std::function<void (uint32_t messageType, const QByteArray& message)> AnonymousMessageHandlerFunc;
+
+    void processBytes(const QByteArray& bytes, const AnonymousMessageHandlerFunc& handler);
+};
+
+class MessageHandler;
+class ClientMessageReader : public MessageReader {
+public:
+    void processBytes(const QByteArray& bytes, MessageHandler& handler);
 };
 
 //! Abstract base class for messages.
-struct MessageBase{
+struct MessageBase {
     //! Message type.
     const uint32_t type;
 
@@ -110,9 +89,16 @@ struct MessageBase{
     //! \param type Message type.
     explicit MessageBase(uint32_t type) : type(type) {}
 
-    //! Encode message.
-    virtual QByteArray encodeMessage() const = 0;
+    QByteArray encodeMessage(uint32_t user) const {
+        return createUserMessage(user, type, encodeMessageBody());
+    }
 
-    //! Virtual destructor for correct and deletion.
+    QByteArray encodeMessage() const {
+        return createAnonymousMessage(type, encodeMessageBody());
+    }
+
+    //! Encode message.
+    virtual QByteArray encodeMessageBody() const = 0;
+
     virtual ~MessageBase() = default;
 };

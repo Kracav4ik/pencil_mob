@@ -1,5 +1,7 @@
 #include "transport.h"
 
+#include "MessageHandler.h"
+
 QByteArray encode(uint32_t value) {
     QByteArray array;
     bool last_byte = true;
@@ -24,14 +26,22 @@ uint32_t decodeAndShift(QByteArray& array) {
     return decoder.number;
 }
 
-QByteArray createM(uint32_t type, QByteArray data) {
-    QByteArray out;
-    out.append(encode(type));
-    out.append(data);
-    out.prepend(encode((uint32_t) out.length()));
-//    print_debug(out, "<SND>");
-    return out;
+QByteArray createMessage(QByteArray prefix, uint32_t type, const QByteArray& data) {
+    prefix.append(encode(type));
+    prefix.append(data);
+    prefix.prepend(encode((uint32_t) prefix.length()));
+//    print_debug(prefix, "<SND>");
+    return prefix;
 }
+
+QByteArray createAnonymousMessage(uint32_t type, const QByteArray& data) {
+    return createMessage({}, type, data);
+}
+
+QByteArray createUserMessage(uint32_t user, uint32_t type, const QByteArray& data) {
+    return createMessage(encode(user), type, data);
+}
+
 
 void print_debug(const QByteArray& array, const char* prefix) {
     printf("%s", prefix);
@@ -41,41 +51,51 @@ void print_debug(const QByteArray& array, const char* prefix) {
     printf("\n");
 }
 
-MessageHandler::MessageHandler(std::initializer_list<HandlePair> handlePairs)
-        : handlePairs(handlePairs) {}
-
-void MessageHandler::handle(uint32_t type, const QByteArray& message) const {
-    for(HandlePair pair : handlePairs){
-        if(type == pair.type){
-            pair.callback(message);
-        }
-    }
-}
-
-HandlePair::HandlePair(uint32_t type, const CallbackType& callback)
-        : type(type), callback(callback) {}
-
-void MessageReader::processBytes(const QByteArray& message, const MessageHandler& handler) {
-    QByteArray preMsg = unread + message;
+void MessageReader::processBytes(const QByteArray& bytes, const MessageHandlerFunc& handler) {
+    unread += bytes;
     while (true) {
-        Decoder sizeDecoder(preMsg);
-        if (!sizeDecoder.decoded){
+        Decoder sizeDecoder(unread);
+        if (!sizeDecoder.decoded) {
             break;
         }
         uint32_t size = sizeDecoder.number;
 
-        QByteArray messageContents = preMsg.mid(sizeDecoder.count);
-        Decoder typeDecoder(messageContents);
-        if (!typeDecoder.decoded){
+        if (unread.size() < sizeDecoder.count + size) {
             break;
         }
-        uint32_t type = typeDecoder.number;
 
-        if (size > messageContents.size()) {
-            break;
-        }
-        handler.handle(type, messageContents.left(size).mid(typeDecoder.count));
-        preMsg = messageContents.mid(size);
+        QByteArray messageBody = unread.mid(sizeDecoder.count, size);
+        handler(messageBody);
+        unread = unread.mid(sizeDecoder.count + size);
     }
-    unread = preMsg;
+}
+
+void processAnonymousMessage(const QByteArray& message, const ServerMessageReader::AnonymousMessageHandlerFunc& handler) {
+    Decoder typeDecoder(message);
+    if (!typeDecoder.decoded) {
+        return;
+    }
+    uint32_t type = typeDecoder.number;
+
+    handler(type, message.mid(typeDecoder.count));
+}
+
+void ServerMessageReader::processBytes(const QByteArray& bytes, const AnonymousMessageHandlerFunc& handler) {
+    MessageReader::processBytes(bytes, [&](const QByteArray& message){
+        processAnonymousMessage(message, handler);
+    });
+}
+
+void ClientMessageReader::processBytes(const QByteArray& bytes, MessageHandler& handler) {
+    MessageReader::processBytes(bytes, [&](const QByteArray& message){
+        Decoder userDecoder(message);
+        if (!userDecoder.decoded) {
+            return;
+        }
+        uint32_t user = userDecoder.number;
+
+        processAnonymousMessage(message.mid(userDecoder.count), [&](uint32_t type, const QByteArray& msg){
+            handler.handle(user, type, msg);
+        });
+    });
 }

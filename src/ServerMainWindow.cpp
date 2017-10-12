@@ -1,18 +1,18 @@
 #include <QTime>
 #include "ServerMainWindow.h"
-#include "transport.h"
 #include "enums.h"
 #include "messages.h"
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
     QTcpSocket* clientSocket = srv.nextPendingConnection();
-    static int i = 1;
-    QString name = QString("player %1").arg(i++);
-    clients[clientSocket] = new ClientInfo(name);
+    static uint32_t userCounter = 1;
+    uint32_t user = userCounter++;
+    QString name = QString("player %1").arg(user);
+    clients[clientSocket] = new ClientInfo(name, user);
     connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
     connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
-    clientSocket->write(SetClientNameMessage(name).encodeMessage());
+    clientSocket->write(SetClientNameMessage(name).encodeMessage(user));
     clientSocket->flush();
 }
 
@@ -23,45 +23,34 @@ ServerMainWindow::ServerMainWindow() {
     show();
 }
 
-HandlePair::CallbackType ServerMainWindow::multicastFunc(uint32_t messageType, QTcpSocket* ignoreSocket) {
-    return [this, messageType, ignoreSocket](const QByteArray& message) {
-        QByteArray answer = createM(messageType, message);
-        for (QTcpSocket* clientSocket : clients.keys()) {
-            if(clientSocket == ignoreSocket){
-                continue;
-            }
-            clientSocket->write(answer);
-            clientSocket->flush();
-        }
-    };
-}
-
 void ServerMainWindow::readyToRead() {
-    QTcpSocket* socket = (QTcpSocket *) sender();
-    int available = (int) socket->bytesAvailable();
-    QByteArray data = socket->readAll();
-    reader.processBytes(data, {
-            {STRING_MESSAGE, [this, available, socket](const QByteArray& message) {
-                StringMessage m(message);
-                QString dataStr = m.str;
-                printf("Got data: %i bytes\n%s\n", available, message.data());
-                QString s = "[" + QTime::currentTime().toString() + "] <" + clients[socket]->name + "> " + dataStr;
-                textEdit->append(s);
+    QTcpSocket* senderSocket = (QTcpSocket *) sender();
+    int available = (int) senderSocket->bytesAvailable();
+    QByteArray data = senderSocket->readAll();
+    reader.processBytes(data, [this, available, senderSocket](uint32_t messageType, const QByteArray& message){
+        if (messageType == STRING_MESSAGE) {
+            StringMessage m(message);
+            QString dataStr = m.str;
+            printf("Got data: %i bytes\n%s\n", available, message.data());
+            QString s = "[" + QTime::currentTime().toString() + "] <" + clients[senderSocket]->name + "> " + dataStr;
+            textEdit->append(s);
 
-                QByteArray answer = StringMessage(s).encodeMessage();
-                for (QTcpSocket* clientSocket : clients.keys()) {
-                    clientSocket->write(answer);
-                    clientSocket->flush();
+            QByteArray answer = StringMessage(s).encodeMessage(clients[senderSocket]->user);
+            for (QTcpSocket* clientSocket : clients.keys()) {
+                clientSocket->write(answer);
+                clientSocket->flush();
+            }
+        } else {
+            QByteArray answer = createUserMessage(clients[senderSocket]->user, messageType, message);
+            for (QTcpSocket* clientSocket : clients.keys()) {
+                if(clientSocket == senderSocket){
+                    continue;
                 }
-            }},
-            {PATH_MESSAGE, multicastFunc(PATH_MESSAGE, socket)},
-            {RENAME_LAYER_MESSAGE, multicastFunc(RENAME_LAYER_MESSAGE, socket)},
-            {ADD_NEW_LAYER_MESSAGE, multicastFunc(ADD_NEW_LAYER_MESSAGE, socket)},
-            {MOVE_LAYER_MESSAGE, multicastFunc(MOVE_LAYER_MESSAGE, socket)},
-            {REMOVE_LAYER_MESSAGE, multicastFunc(REMOVE_LAYER_MESSAGE, socket)},
-            {COPY_LAYER_MESSAGE, multicastFunc(COPY_LAYER_MESSAGE, socket)},
+                clientSocket->write(answer);
+                clientSocket->flush();
+            }
+        }
     });
-
 }
 
 void ServerMainWindow::clientDisconnected() {

@@ -3,7 +3,9 @@
 
 #define BYTE_ARRAY(STRING) QByteArray(STRING, sizeof(STRING) - 1)
 
-TEST(messages, encoding) {
+// TODO: add user messages encoding/decoding tests
+
+TEST(messages, encoding_anonymous) {
     EXPECT_EQ(BYTE_ARRAY("\x01\x01"), StringMessage(QString("")).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x06\x01" "abcde"), StringMessage(QString("abcde")).encodeMessage());
 
@@ -42,7 +44,7 @@ TEST(messages, encoding) {
     EXPECT_EQ(BYTE_ARRAY("\x06\x08\x81\x8c\x00\x81\x00"), CopyLayerMessage(17920, 128).encodeMessage());
 }
 
-TEST(messages, decoding) {
+TEST(messages, decoding_anonymous) {
     EXPECT_EQ(QString(""), StringMessage(BYTE_ARRAY("")).str);
     EXPECT_EQ(QString("abcde"), StringMessage(BYTE_ARRAY("abcde")).str);
 

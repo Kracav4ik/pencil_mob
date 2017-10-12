@@ -219,11 +219,11 @@ class MsgClass:
             snippets.append('QByteArray array;')
             for f in self.fields:
                 snippets.append(f.encode_lines(False))
-            snippets.append('return createM(type, array);')
+            snippets.append('return array;')
         elif len(self.fields) == 1:
-            snippets.append('return createM(type, %s);' % self.fields[0].encode_lines(True))
+            snippets.append('return %s;' % self.fields[0].encode_lines(True))
         else:
-            snippets.append('return createM(type, {});')
+            snippets.append('return {};')
         return '\n\n'.join('        ' + s for s in snippets)
 
     def gen_decode(self):
@@ -253,7 +253,7 @@ struct %(cls)s : MessageBase{%(decl_field)s
     %(explicit_ctor)s%(cls)s(%(decl_ctor)s)
             : MessageBase(%(cls_caps)s)%(ctor_init)s {}
 
-    QByteArray encodeMessage() const override {
+    QByteArray encodeMessageBody() const override {
 %(encode)s
     }
 
@@ -301,6 +301,7 @@ def main():
         f.write('\n')
         for cls in msg_classes:
             cls.write_to(f)
+
     with open('enums.h', 'w') as f:
         names = [msg.cls_caps() for msg in msg_classes]
         names[0] += ' = 1'
@@ -310,6 +311,46 @@ enum MessageType {
     %s,
 };
 ''' % ',\n    '.join(names))
+
+    with open('MessageHandler.h', 'w') as f:
+        f.write('''#pragma once
+
+#include <stdint.h>
+
+class QByteArray;
+
+%(cls_fwd)s
+
+class MessageHandler {
+public:
+    void handle(uint32_t user, uint32_t messageType, const QByteArray& message);
+
+protected:
+    %(virt)s
+
+    virtual ~MessageHandler() = default;
+};
+''' % {
+            'cls_fwd': '\n'.join('class %s;' % msg.name for msg in msg_classes),
+            'virt': '\n    '.join('virtual void handle%(name)s(uint32_t user, const %(name)s& m) = 0;' % {'name': msg.name} for msg in msg_classes),
+        })
+
+    with open('MessageHandler.cpp', 'w') as f:
+        f.write('''#include "MessageHandler.h"
+
+#include "enums.h"
+#include "messages.h"
+
+void MessageHandler::handle(uint32_t user, uint32_t messageType, const QByteArray& message) {
+    switch (messageType) {%s
+    }
+}
+''' % ''.join('''
+        case %(NAME)s: {
+            %(name)s msg(message);
+            handle%(name)s(user, msg);
+            break;
+        }''' % {'name': msg.name, 'NAME': msg.cls_caps()} for msg in msg_classes))
 
 if __name__ == '__main__':
     main()

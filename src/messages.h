@@ -14,8 +14,8 @@ struct StringMessage : MessageBase{
     explicit StringMessage(const QString& str)
             : MessageBase(STRING_MESSAGE), str(str) {}
 
-    QByteArray encodeMessage() const override {
-        return createM(type, str.toUtf8());
+    QByteArray encodeMessageBody() const override {
+        return str.toUtf8();
     }
 
     explicit StringMessage(const QByteArray& data)
@@ -30,8 +30,8 @@ struct SetClientNameMessage : MessageBase{
     explicit SetClientNameMessage(const QString& name)
             : MessageBase(SET_CLIENT_NAME_MESSAGE), name(name) {}
 
-    QByteArray encodeMessage() const override {
-        return createM(type, name.toUtf8());
+    QByteArray encodeMessageBody() const override {
+        return name.toUtf8();
     }
 
     explicit SetClientNameMessage(const QByteArray& data)
@@ -51,7 +51,7 @@ struct PathMessage : MessageBase{
     PathMessage(uint8_t r, uint8_t g, uint8_t b, uint32_t layerId, bool isEraser, const QVector<QPoint>& points)
             : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), layerId(layerId), isEraser(isEraser), points(points) {}
 
-    QByteArray encodeMessage() const override {
+    QByteArray encodeMessageBody() const override {
         QByteArray array;
 
         array.append(r);
@@ -70,7 +70,7 @@ struct PathMessage : MessageBase{
             array.append(encode((uint32_t)pointsItem.y()));
         }
 
-        return createM(type, array);
+        return array;
     }
 
     explicit PathMessage(const QByteArray& data)
@@ -111,8 +111,8 @@ struct AddNewLayerMessage : MessageBase{
     explicit AddNewLayerMessage(const QString& layerName)
             : MessageBase(ADD_NEW_LAYER_MESSAGE), layerName(layerName) {}
 
-    QByteArray encodeMessage() const override {
-        return createM(type, layerName.toUtf8());
+    QByteArray encodeMessageBody() const override {
+        return layerName.toUtf8();
     }
 
     explicit AddNewLayerMessage(const QByteArray& data)
@@ -128,14 +128,14 @@ struct RenameLayerMessage : MessageBase{
     RenameLayerMessage(uint32_t uid, const QString& layerName)
             : MessageBase(RENAME_LAYER_MESSAGE), uid(uid), layerName(layerName) {}
 
-    QByteArray encodeMessage() const override {
+    QByteArray encodeMessageBody() const override {
         QByteArray array;
 
         array.append(encode((uint32_t)uid));
 
         array.append(layerName.toUtf8());
 
-        return createM(type, array);
+        return array;
     }
 
     explicit RenameLayerMessage(const QByteArray& data)
@@ -155,14 +155,14 @@ struct MoveLayerMessage : MessageBase{
     MoveLayerMessage(uint32_t uid, uint32_t newPos)
             : MessageBase(MOVE_LAYER_MESSAGE), uid(uid), newPos(newPos) {}
 
-    QByteArray encodeMessage() const override {
+    QByteArray encodeMessageBody() const override {
         QByteArray array;
 
         array.append(encode((uint32_t)uid));
 
         array.append(encode((uint32_t)newPos));
 
-        return createM(type, array);
+        return array;
     }
 
     explicit MoveLayerMessage(const QByteArray& data)
@@ -181,8 +181,8 @@ struct RemoveLayerMessage : MessageBase{
     explicit RemoveLayerMessage(uint32_t uid)
             : MessageBase(REMOVE_LAYER_MESSAGE), uid(uid) {}
 
-    QByteArray encodeMessage() const override {
-        return createM(type, encode((uint32_t)uid));
+    QByteArray encodeMessageBody() const override {
+        return encode((uint32_t)uid);
     }
 
     explicit RemoveLayerMessage(const QByteArray& data)
@@ -200,14 +200,14 @@ struct CopyLayerMessage : MessageBase{
     CopyLayerMessage(uint32_t fromUid, uint32_t toUid)
             : MessageBase(COPY_LAYER_MESSAGE), fromUid(fromUid), toUid(toUid) {}
 
-    QByteArray encodeMessage() const override {
+    QByteArray encodeMessageBody() const override {
         QByteArray array;
 
         array.append(encode((uint32_t)fromUid));
 
         array.append(encode((uint32_t)toUid));
 
-        return createM(type, array);
+        return array;
     }
 
     explicit CopyLayerMessage(const QByteArray& data)
