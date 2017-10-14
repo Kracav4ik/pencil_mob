@@ -6,6 +6,7 @@
 //! This is the layer on which we draw with tools.
 class Layer {
 private:
+    uint32_t user;
     //! List of strokes, see class Stroke for details.
     QList<Stroke> strokes;
     //! Layer name.
@@ -14,6 +15,8 @@ private:
 public:
     //! Gets layer name.
     const QString& getName() const;
+    uint32_t getUser() const;
+
     //! Sets new layer name.
     //! \param name New layer name.
     void setName(const QString& name);
@@ -34,7 +37,7 @@ public:
 
     //! Creates layer.
     //! \param name layer name.
-    explicit Layer(const QString& name);
+    Layer(uint32_t user, const QString& name);
 
     //! Copies the strokes of another layer.
     //! \param other another layer.

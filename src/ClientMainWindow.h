@@ -12,6 +12,7 @@ class ColorChooserWidget;
 class ToolSelectorWidget;
 class LayersWidget;
 class MessagesWidget;
+class ListOfVisibleUsersWidget;
 
 //! Client which we're starting.
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow, private MessageHandler {
@@ -25,6 +26,7 @@ private:
     ToolSelectorWidget* toolSelector;
     //! Widget with layers.
     LayersWidget* layersWidget;
+    ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
     //! Widget with messages.
     MessagesWidget* messages;
     //! Reader of message between client and server.

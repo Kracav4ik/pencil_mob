@@ -61,6 +61,12 @@ set(CLIENT_SOURCES
         widgets/MessagesWidget.cpp
         widgets/MessagesWidget.h
         widgets/messages.ui
+        widgets/ListOfVisibleUsersWidget.cpp
+        widgets/ListOfVisibleUsersWidget.h
+        widgets/users.ui
+        widgets/UserWidget.cpp
+        widgets/UserWidget.h
+        widgets/user.ui
         )
 
 set(SERVER_SOURCES

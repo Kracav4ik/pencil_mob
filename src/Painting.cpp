@@ -30,6 +30,9 @@ void Painting::addStroke(const Stroke& stroke) {
 void Painting::drawPicture(QPainter& p, const QSize& size, const QPointF& translation) const {
     for (uint32_t uid : zOrder) {
         const Layer* layer = getByUid(uid);
+        if (!userToVisible[layer->getUser()]) {
+            continue;
+        }
         QImage img = layer->drawImg(size, translation);
         if (getCurrentLayerId() == uid && currentTool) {
             QPainter imgP(&img);
@@ -48,9 +51,12 @@ int Painting::strokesCount() const {
     return size;
 }
 
-uint32_t Painting::addLayer(const QString& name) {
+uint32_t Painting::addLayer(uint32_t user, const QString& name) {
     uint32_t uid = nextLayerUid++; 
-    uidToLayer[uid] = new Layer(name);
+    uidToLayer[uid] = new Layer(user, name);
+    if (!userToVisible.keys().contains(user)) {
+        userToVisible[user] = true;
+    }
     zOrder.append(uid);
     emit layerAdded(uid, name);
     if (uidToLayer.size() == 1) {
@@ -187,4 +193,13 @@ int Painting::layerIndex(uint32_t uid) const {
 
 bool Painting::hasLayers() const {
     return layersCount() > 0;
+}
+
+void Painting::changingUserVisible(uint32_t user, bool visible) {
+    userToVisible[user] = visible;
+    emit changed();
+}
+
+bool Painting::containsUser(uint32_t user) {
+    return userToVisible.contains(user);
 }

@@ -18,6 +18,7 @@ private:
 
     //! Map from uid layer to layer.
     QHash<uint32_t, Layer*> uidToLayer;
+    QHash<uint32_t, bool> userToVisible;
     //! Layers z-order.
     QVector<uint32_t> zOrder;
 
@@ -82,8 +83,9 @@ public slots:
     //! Create new layer in current painting.
     //! \param name Layer name.
     //! \return Uid of the created new layer.
-    uint32_t addLayer(const QString& name);
+    uint32_t addLayer(uint32_t user, const QString& name);
 
+    void changingUserVisible(uint32_t user, bool visible);
     //! Selects layer with given uid.
     //! \param uid
     void selectLayer(uint32_t uid);
@@ -159,4 +161,6 @@ public:
 
     //! Checks if layers.
     bool hasLayers() const;
+
+    bool containsUser(uint32_t user);
 };

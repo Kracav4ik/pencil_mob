@@ -2,6 +2,7 @@
 #include "widgets/ColorChooserWidget.h"
 #include "widgets/ToolSelectorWidget.h"
 #include "widgets/LayersWidget.h"
+#include "widgets/ListOfVisibleUsersWidget.h"
 #include "widgets/MessagesWidget.h"
 #include "messages.h"
 #include "TextProgress.h"
@@ -14,6 +15,7 @@ ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
         , toolSelector(new ToolSelectorWidget(this))
+        , listOfVisibleUsersWidget(new ListOfVisibleUsersWidget(this))
         , messages(new MessagesWidget(this))
         , layersWidget(new LayersWidget(this))
         , painting(this)
@@ -21,15 +23,18 @@ ClientMainWindow::ClientMainWindow()
     client->setObjectName("socket");
     colorChooser->setObjectName("colorChooser");
     toolSelector->setObjectName("toolSelector");
+    listOfVisibleUsersWidget->setObjectName("listOfVisibleUsersWidget");
     layersWidget->setObjectName("layersWidget");
     painting.setObjectName("painting");
     setupUi(this);
 
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
+    addDockWidget(Qt::RightDockWidgetArea, listOfVisibleUsersWidget);
     addDockWidget(Qt::LeftDockWidgetArea, layersWidget);
     addDockWidget(Qt::BottomDockWidgetArea, messages);
     menuView->addAction(colorChooser->toggleViewAction());
+    menuView->addAction(listOfVisibleUsersWidget->toggleViewAction());
     menuView->addAction(toolSelector->toggleViewAction());
     menuView->addAction(layersWidget->toggleViewAction());
     menuView->addAction(messages->toggleViewAction());
@@ -49,6 +54,7 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, SIGNAL(leftDrag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
     connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
     connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
+    connect(listOfVisibleUsersWidget, SIGNAL(changedUserVisible(uint32_t, bool)), &painting, SLOT(changingUserVisible(uint32_t, bool)));
     connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
     connect(&painting, SIGNAL(layerNameChanged(uint32_t, const QString&)), layersWidget, SLOT(changeLayerName(uint32_t, const QString&)));
     connect(&painting, SIGNAL(layerRemoved(uint32_t)), layersWidget, SLOT(deleteLayer(uint32_t)));
@@ -78,7 +84,10 @@ void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
 }
 
 void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) {
-    painting.addLayer(m.layerName);
+    if (!painting.containsUser(user)){
+        listOfVisibleUsersWidget->addUser(user);
+    }
+    painting.addLayer(user, m.layerName);
 }
 
 void ClientMainWindow::handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) {
@@ -169,7 +178,7 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
 
 uint32_t ClientMainWindow::on_layersWidget_addLayerClicked() {
     QString name = QString("New layer %1").arg(newLayerCounter++);
-    uint32_t uid = painting.addLayer(name);
+    uint32_t uid = painting.addLayer(0, name);
 
     sendMessage<AddNewLayerMessage>(name);
     return uid;
