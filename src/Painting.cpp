@@ -54,7 +54,7 @@ int Painting::strokesCount() const {
 uint32_t Painting::addLayer(uint32_t user, const QString& name) {
     uint32_t uid = nextLayerUid++; 
     uidToLayer[uid] = new Layer(user, name);
-    if (!userToVisible.keys().contains(user)) {
+    if (!containsUser(user)) {
         userToVisible[user] = true;
     }
     zOrder.append(uid);
@@ -202,4 +202,17 @@ void Painting::changingUserVisible(uint32_t user, bool visible) {
 
 bool Painting::containsUser(uint32_t user) {
     return userToVisible.contains(user);
+}
+
+QList<Layer*> Painting::getLayers() const {
+    return uidToLayer.values();
+}
+
+bool Painting::containsLayer(uint32_t user, const QString& name) {
+    for (Layer* layer : uidToLayer.values()) {
+        if (layer->getUser() == user && layer->getName() == name) {
+            return true;
+        }
+    }
+    return false;
 }

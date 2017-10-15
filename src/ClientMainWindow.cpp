@@ -108,6 +108,9 @@ void ClientMainWindow::handleCopyLayerMessage(uint32_t user, const CopyLayerMess
 
 void ClientMainWindow::on_socket_connected() {
     buttonSend->setEnabled(true);
+    for (const Layer* layer :painting.getLayers()) {
+        sendMessage<AddNewLayerMessage>(layer->getName());
+    }
     printf("Connected\n");
 }
 

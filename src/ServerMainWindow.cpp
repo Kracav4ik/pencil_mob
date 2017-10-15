@@ -2,6 +2,7 @@
 #include "ServerMainWindow.h"
 #include "enums.h"
 #include "messages.h"
+#include "Layer.h"
 
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
@@ -14,9 +15,20 @@ void ServerMainWindow::acceptConnection() {
     connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
     clientSocket->write(SetClientNameMessage(name).encodeMessage(user));
     clientSocket->flush();
+
+    if (painting.hasLayers()) {
+        for (const Layer* layer : painting.getLayers()) {
+            if (layer->getUser() == clients[clientSocket]->user) {
+                continue;
+            }
+            QByteArray answer = createUserMessage(layer->getUser(), ADD_NEW_LAYER_MESSAGE, AddNewLayerMessage(layer->getName()).encodeMessage());
+            clientSocket->write(answer);
+            clientSocket->flush();
+        }
+    }
 }
 
-ServerMainWindow::ServerMainWindow() {
+ServerMainWindow::ServerMainWindow(): painting(this) {
     setupUi(this);
     connect(&srv, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
     srv.listen(QHostAddress::Any, 9000);
@@ -41,6 +53,13 @@ void ServerMainWindow::readyToRead() {
                 clientSocket->flush();
             }
         } else {
+            if (messageType == ADD_NEW_LAYER_MESSAGE) {
+                AddNewLayerMessage m(message);
+                if (!painting.containsLayer(clients[senderSocket]->user, m.layerName)) {
+                    painting.addLayer(clients[senderSocket]->user, m.layerName);
+                }
+            }
+
             QByteArray answer = createUserMessage(clients[senderSocket]->user, messageType, message);
             for (QTcpSocket* clientSocket : clients.keys()) {
                 if(clientSocket == senderSocket){

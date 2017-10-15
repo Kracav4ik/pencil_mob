@@ -16,9 +16,23 @@ find_package(Qt5Network REQUIRED)
 set(CLIENT_NAME "pencil_mob")
 set(SERVER_NAME "pencil_mob_server")
 
-set(COMMON_SOURCES transport.cpp transport.h enums.h messages.h MessageHandler.h MessageHandler.cpp)
+set(COMMON_SOURCES
+        transport.cpp
+        transport.h
+        enums.h
+        messages.h
+        MessageHandler.h
+        MessageHandler.cpp
+        Painting.cpp
+        Painting.h
+        Stroke.cpp
+        Stroke.h
+        Layer.cpp
+        Layer.h
+    )
+
 add_library(pencil_mob_common ${COMMON_SOURCES})
-target_link_libraries(pencil_mob_common Qt5::Core)
+target_link_libraries(pencil_mob_common Qt5::Core Qt5::Widgets)
 
 set(CLIENT_SOURCES
         main_client.cpp
@@ -33,8 +47,6 @@ set(CLIENT_SOURCES
         widgets/CustomPaintWidget.cpp
         widgets/CustomPaintWidget.h
         TextProgress.h
-        Painting.cpp
-        Painting.h
         widgets/tool_selector.ui
         widgets/ToolSelectorWidget.cpp
         widgets/ToolSelectorWidget.h
@@ -46,10 +58,6 @@ set(CLIENT_SOURCES
         widgets/ToolSelectorButton.h
         tools/EraserTool.cpp
         tools/EraserTool.h
-        Layer.cpp
-        Layer.h
-        Stroke.cpp
-        Stroke.h
         widgets/layers.ui
         widgets/LayersWidget.cpp
         widgets/LayersWidget.h

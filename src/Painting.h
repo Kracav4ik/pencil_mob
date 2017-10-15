@@ -106,7 +106,7 @@ public slots:
 
 public:
     //! Create painting.
-    //! \param parent 
+    //! \param parent
     explicit Painting(QObject* parent);
     ~Painting();
 
@@ -150,6 +150,8 @@ public:
     //! \return The current layer uid.
     uint32_t getCurrentLayerId() const;
 
+    QList<Layer*> getLayers() const ;
+
     //! Returns count of layers.
     //! \return count of layers.
     int layersCount() const;
@@ -163,4 +165,6 @@ public:
     bool hasLayers() const;
 
     bool containsUser(uint32_t user);
+
+    bool containsLayer(uint32_t user, const QString& name);
 };

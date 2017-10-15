@@ -6,6 +6,7 @@
 
 #include "ui_pencil_mob_server.h"
 #include "transport.h"
+#include "Painting.h"
 
 //! Information about client.
 struct ClientInfo{
@@ -27,6 +28,8 @@ private:
     QMap<QTcpSocket*, ClientInfo*> clients;
     //! Reader of message between client and server.
     ServerMessageReader reader;
+
+    Painting painting;
 
 public:
     //! Start server.
