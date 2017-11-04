@@ -3,6 +3,7 @@ sys_includes = [
     'QByteArray',
     'QPoint',
     'QVector',
+    'QColor',
 ]
 includes = [
     'enums.h',
@@ -27,7 +28,7 @@ class Type:
     def for_field(self):
         return self.name
 
-    def decode(self, var_name, array_name):
+    def decode(self, var_name, array_name, use_setter):
         return '/* TODO: decode %s %s here from %s */' % (self.name, var_name, array_name)
 
     def encode_simple(self, var_name):
@@ -47,16 +48,23 @@ class Type:
         return False
 
     @staticmethod
-    def assign(var_name, value):
-        return '%s = %s;' % (var_name, value)
+    def setter_name(name):
+        return name[0].upper() + name[1:]
+
+    @staticmethod
+    def assign(var_name, value, use_setter):
+        if use_setter:
+            return 'set%s(%s);' % (Type.setter_name(var_name), value)
+        else:
+            return '%s = %s;' % (var_name, value)
 
 
 class StringType(Type):
     def __init__(self, name):
         super().__init__(name)
 
-    def decode(self, var_name, array_name):
-        return self.assign(var_name, '%s(%s)' % (self.name, array_name))
+    def decode(self, var_name, array_name, use_setter):
+        return self.assign(var_name, '%s(%s)' % (self.name, array_name), use_setter)
 
     def encode_simple(self, var_name):
         return '%s.toUtf8()' % var_name
@@ -74,8 +82,9 @@ class StructType(Type):
         super().__init__(name)
         self.fields = fields
 
-    def decode(self, var_name, array_name):
-        return '\n        '.join('%s.%s' % (var_name, field.decode_lines(array_name)) for field in self.fields)
+    def decode(self, var_name, array_name, use_setter):
+        assert not use_setter, 'use_setter is not supported for struct type %s' % self
+        return '\n        '.join('%s.%s' % (var_name, field.decode_lines(array_name, True)) for field in self.fields)
 
     def encode(self, simple, var_name):
         return '\n        '.join(field.encode_lines(False, var_name) for field in self.fields)
@@ -89,8 +98,9 @@ class ListType(Type):
         super().__init__(name)
         self.item_type = item_type
 
-    def decode(self, var_name, array_name):
-        counter = Field(tuint32, '%sCount' % var_name, False)
+    def decode(self, var_name, array_name, use_setter):
+        assert not use_setter, 'use_setter is not supported for list type %s' % self
+        counter = Field(tuint32, '%sCount' % var_name)
         s = '\n        '.join([counter.decl_field(), counter.decode_lines(array_name)])
         subdecode = ''.join('''
             %s %s;
@@ -129,8 +139,8 @@ class VaryingIntType(Type):
     def __init__(self, name):
         super().__init__(name, True)
 
-    def decode(self, var_name, array_name):
-        return self.assign(var_name, 'decodeAndShift(%s)' % array_name)
+    def decode(self, var_name, array_name, use_setter):
+        return self.assign(var_name, 'decodeAndShift(%s)' % array_name, use_setter)
 
     def encode_simple(self, var_name):
         return 'encode(static_cast<%s>(%s))' % (self.name, var_name)
@@ -140,8 +150,8 @@ class FixedIntType(Type):
     def __init__(self, name):
         super().__init__(name, True)
 
-    def decode(self, var_name, array_name):
-        assignment = self.assign(var_name, 'static_cast<%s>(%s[0])' % (self.name, array_name))
+    def decode(self, var_name, array_name, use_setter):
+        assignment = self.assign(var_name, 'static_cast<%s>(%s[0])' % (self.name, array_name), use_setter)
         return "%(assignment)s\n        %(array_name)s = %(array_name)s.mid(1);" % {
             'assignment': assignment,
             'array_name': array_name,
@@ -155,8 +165,8 @@ class BoolType(Type):
     def __init__(self, name):
         super().__init__(name, True)
 
-    def decode(self, var_name, array_name):
-        assignment = self.assign(var_name, "%s[0] != '\\0'" % array_name)
+    def decode(self, var_name, array_name, use_setter):
+        assignment = self.assign(var_name, "%s[0] != '\\0'" % array_name, use_setter)
         return "%(assignment)s\n        %(array_name)s = %(array_name)s.mid(1);" % {
             'assignment': assignment,
             'array_name': array_name,
@@ -173,14 +183,13 @@ tstring = StringType('QString')
 
 
 class Field:
-    def __init__(self, type, name, use_parens=True):
+    def __init__(self, type, name):
         """
         :type type: Type
         :type name: str
         """
         self.type = type
         self.name = name
-        self.use_parens = use_parens
 
     def __str__(self):
         return '%s %s' % (self.type, self.name)
@@ -194,21 +203,22 @@ class Field:
     def ctor_init(self):
         return ', %s(%s)' % (self.name, self.name)
 
-    def encode_lines(self, simple, qualifier=None):
+    def encode_lines(self, simple, qualifier=None, use_getter=True):
         if qualifier:
             name = '%s.%s' % (qualifier, self.name)
-            if self.use_parens:
+            if use_getter:
                 name += '()'
         else:
             name = self.name
 
         return self.type.encode(simple, name)
 
-    def decode_lines(self, array_name):
-        return self.type.decode(self.name, array_name)
+    def decode_lines(self, array_name, use_setter=False):
+        return self.type.decode(self.name, array_name, use_setter)
 
 
 tpointvector = ListType('QVector<QPoint>', StructType('QPoint', [Field(tuint32, 'x'), Field(tuint32, 'y')]))
+tcolor = StructType('QColor', [Field(tuint8, 'red'), Field(tuint8, 'green'), Field(tuint8, 'blue')])
 
 
 class MsgClass:
@@ -286,9 +296,7 @@ msg_classes = [
     MsgClass('StringMessage', [Field(tstring, 'str')]),
     MsgClass('SetClientNameMessage', [Field(tstring, 'name')]),
     MsgClass('PathMessage', [
-        Field(tuint8, 'r'),
-        Field(tuint8, 'g'),
-        Field(tuint8, 'b'),
+        Field(tcolor, 'color'),
         Field(tuint32, 'layerId'),
         Field(tbool, 'isEraser'),
         Field(tpointvector, 'points')

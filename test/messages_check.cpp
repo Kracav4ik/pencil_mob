@@ -12,11 +12,11 @@ TEST(messages, encoding_anonymous) {
     EXPECT_EQ(BYTE_ARRAY("\x01\x02"), SetClientNameMessage(QString("")).encodeMessage());
     EXPECT_EQ(BYTE_ARRAY("\x06\x02" "abcde"), SetClientNameMessage(QString("abcde")).encodeMessage());
 
-    EXPECT_EQ(BYTE_ARRAY("\x08\x03\x01\x02\x03\x81\x00\x00\x00"), PathMessage(1, 2, 3, 128, false, {}).encodeMessage());
-    EXPECT_EQ(BYTE_ARRAY("\x09\x03\x01\x02\x03\x81\x8c\x00\x01\x00"), PathMessage(1, 2, 3, 17920, true, {}).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x08\x03\x01\x02\x03\x81\x00\x00\x00"), PathMessage(QColor(1, 2, 3), 128, false, {}).encodeMessage());
+    EXPECT_EQ(BYTE_ARRAY("\x09\x03\x01\x02\x03\x81\x8c\x00\x01\x00"), PathMessage(QColor(1, 2, 3), 17920, true, {}).encodeMessage());
     EXPECT_EQ(
             BYTE_ARRAY("\x11\x03\xf1\xf2\xf3\x00\x01\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"),
-            PathMessage(241, 242, 243, 0, true, {{10, 20}, {100, 200}, {10000, 20000}}).encodeMessage()
+            PathMessage(QColor(241, 242, 243), 0, true, {{10, 20}, {100, 200}, {10000, 20000}}).encodeMessage()
     );
 
     EXPECT_EQ(BYTE_ARRAY("\x01\x04"), AddNewLayerMessage(QString()).encodeMessage());
@@ -53,9 +53,9 @@ TEST(messages, decoding_anonymous) {
 
     {
         PathMessage m(BYTE_ARRAY("\x01\x02\x03\x00\x01\x00"));
-        EXPECT_EQ(1, m.r);
-        EXPECT_EQ(2, m.g);
-        EXPECT_EQ(3, m.b);
+        EXPECT_EQ(1, m.color.red());
+        EXPECT_EQ(2, m.color.green());
+        EXPECT_EQ(3, m.color.blue());
         EXPECT_EQ(0, m.layerId);
         EXPECT_TRUE(m.isEraser);
         QVector<QPoint> p;
@@ -64,9 +64,9 @@ TEST(messages, decoding_anonymous) {
 
     {
         PathMessage m(BYTE_ARRAY("\xf1\xf2\xf3\x81\x00\x00\x03\x0a\x14\x64\x81\x48\xce\x10\x81\x9c\x20"));
-        EXPECT_EQ(241, m.r);
-        EXPECT_EQ(242, m.g);
-        EXPECT_EQ(243, m.b);
+        EXPECT_EQ(241, m.color.red());
+        EXPECT_EQ(242, m.color.green());
+        EXPECT_EQ(243, m.color.blue());
         EXPECT_EQ(128, m.layerId);
         EXPECT_FALSE(m.isEraser);
         QVector<QPoint> p{{10, 20}, {100, 200}, {10000, 20000}};

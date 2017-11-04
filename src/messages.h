@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QPoint>
 #include <QVector>
+#include <QColor>
 
 #include "enums.h"
 #include "transport.h"
@@ -41,24 +42,20 @@ struct SetClientNameMessage : MessageBase{
 };
 
 struct PathMessage : MessageBase{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    QColor color;
     uint32_t layerId;
     bool isEraser;
     QVector<QPoint> points;
 
-    PathMessage(uint8_t r, uint8_t g, uint8_t b, uint32_t layerId, bool isEraser, const QVector<QPoint>& points)
-            : MessageBase(PATH_MESSAGE), r(r), g(g), b(b), layerId(layerId), isEraser(isEraser), points(points) {}
+    PathMessage(const QColor& color, uint32_t layerId, bool isEraser, const QVector<QPoint>& points)
+            : MessageBase(PATH_MESSAGE), color(color), layerId(layerId), isEraser(isEraser), points(points) {}
 
     QByteArray encodeMessageBody() const override {
         QByteArray array;
 
-        array.append(static_cast<uint8_t>(r));
-
-        array.append(static_cast<uint8_t>(g));
-
-        array.append(static_cast<uint8_t>(b));
+        array.append(static_cast<uint8_t>(color.red()));
+        array.append(static_cast<uint8_t>(color.green()));
+        array.append(static_cast<uint8_t>(color.blue()));
 
         array.append(encode(static_cast<uint32_t>(layerId)));
 
@@ -77,13 +74,11 @@ struct PathMessage : MessageBase{
             : MessageBase(PATH_MESSAGE) {
         QByteArray m = data;
 
-        r = static_cast<uint8_t>(m[0]);
+        color.setRed(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
-
-        g = static_cast<uint8_t>(m[0]);
+        color.setGreen(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
-
-        b = static_cast<uint8_t>(m[0]);
+        color.setBlue(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
 
         layerId = decodeAndShift(m);

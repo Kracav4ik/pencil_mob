@@ -80,7 +80,7 @@ void ClientMainWindow::handleSetClientNameMessage(uint32_t user, const SetClient
 }
 
 void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
-    painting.addStroke(m.layerId, Stroke(QColor(m.r, m.g, m.b), m.isEraser, m.points));
+    painting.addStroke(m.layerId, Stroke(m.color, m.isEraser, m.points));
 }
 
 void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) {
@@ -139,12 +139,9 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     if (!painting.hasLayers()) {
         return; // TODO: disable tools instead
     }
-    uint8_t r = static_cast<uint8_t>(stroke.color.red());
-    uint8_t g = static_cast<uint8_t>(stroke.color.green());
-    uint8_t b = static_cast<uint8_t>(stroke.color.blue());
     uint32_t layerId = painting.getCurrentLayerId();
 
-    sendMessage<PathMessage>(r, g, b, layerId, stroke.isEraser, stroke.polygon);
+    sendMessage<PathMessage>(stroke.color, layerId, stroke.isEraser, stroke.polygon);
 }
 
 bool ClientMainWindow::isConnected() {
