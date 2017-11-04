@@ -4,6 +4,10 @@
 #include "messages.h"
 #include "Layer.h"
 
+QString addTime(const QString& s) {
+    return QString("[%1] %2").arg(QTime::currentTime().toString(), s);
+}
+
 void ServerMainWindow::acceptConnection() {
     printf("NEW CONNECTION ACCEPTED!!! \n");
     QTcpSocket* clientSocket = srv.nextPendingConnection();
@@ -13,7 +17,10 @@ void ServerMainWindow::acceptConnection() {
     clients[clientSocket] = new ClientInfo(name, user);
     connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
     connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
-    clientSocket->write(SetClientNameMessage(name).encodeMessage(user));
+    SetClientNameMessage nameMessage = SetClientNameMessage(name);
+    QString debugLine = QString("send initial %1 to '%2'").arg(getMessageTypeString(nameMessage.type), name);
+    debugEdit->append(addTime(debugLine));
+    clientSocket->write(nameMessage.encodeMessage(user));
     clientSocket->flush();
 
     if (painting.hasLayers()) {
@@ -21,8 +28,10 @@ void ServerMainWindow::acceptConnection() {
             if (layer->getUser() == clients[clientSocket]->user) {
                 continue;
             }
-            QByteArray answer = createUserMessage(layer->getUser(), ADD_NEW_LAYER_MESSAGE, AddNewLayerMessage(layer->getName()).encodeMessage());
-            clientSocket->write(answer);
+            AddNewLayerMessage layerMessage = AddNewLayerMessage(layer->getName());
+            QString layerLine = QString("send initial %1 to '%2'").arg(getMessageTypeString(layerMessage.type), name);
+            debugEdit->append(addTime(layerLine));
+            clientSocket->write(layerMessage.encodeMessage(layer->getUser()));
             clientSocket->flush();
         }
     }
@@ -37,34 +46,43 @@ ServerMainWindow::ServerMainWindow(): painting(this) {
 
 void ServerMainWindow::readyToRead() {
     QTcpSocket* senderSocket = (QTcpSocket *) sender();
-    int available = (int) senderSocket->bytesAvailable();
     QByteArray data = senderSocket->readAll();
-    reader.processBytes(data, [this, available, senderSocket](uint32_t messageType, const QByteArray& message){
+    reader.processBytes(data, [this, senderSocket](uint32_t messageType, const QByteArray& message){
+        QString messageTypeString = getMessageTypeString(messageType);
+        const QString& senderName = clients[senderSocket]->name;
+        QString debugLine = QString("%1 from client '%2'").arg(messageTypeString, senderName);
+        debugEdit->append(addTime(debugLine));
+        uint32_t senderUid = clients[senderSocket]->user;
         if (messageType == STRING_MESSAGE) {
             StringMessage m(message);
             QString dataStr = m.str;
-            printf("Got data: %i bytes\n%s\n", available, message.data());
-            QString s = "[" + QTime::currentTime().toString() + "] <" + clients[senderSocket]->name + "> " + dataStr;
-            textEdit->append(s);
+            QString chatLine = QString("<%1> %2").arg(senderName, dataStr);
+            chatEdit->append(addTime(chatLine));
 
-            QByteArray answer = StringMessage(s).encodeMessage(clients[senderSocket]->user);
+            QByteArray answer = StringMessage(chatLine).encodeMessage(senderUid);
             for (QTcpSocket* clientSocket : clients.keys()) {
+                QString bcastLine = QString("broadcasting %1 to '%2'").arg(messageTypeString, senderName);
+                debugEdit->append(addTime(bcastLine));
                 clientSocket->write(answer);
                 clientSocket->flush();
             }
         } else {
             if (messageType == ADD_NEW_LAYER_MESSAGE) {
                 AddNewLayerMessage m(message);
-                if (!painting.containsLayer(clients[senderSocket]->user, m.layerName)) {
-                    painting.addLayer(clients[senderSocket]->user, m.layerName);
+                if (!painting.containsLayer(senderUid, m.layerName)) {
+                    painting.addLayer(senderUid, m.layerName);
+                } else {
+                    debugEdit->append(QString("WTF?! already contain layer '%1' from user id %2").arg(m.layerName).arg(senderUid));
                 }
             }
 
-            QByteArray answer = createUserMessage(clients[senderSocket]->user, messageType, message);
+            QByteArray answer = createUserMessage(senderUid, messageType, message);
             for (QTcpSocket* clientSocket : clients.keys()) {
                 if(clientSocket == senderSocket){
                     continue;
                 }
+                QString bcastLine = QString("broadcasting %1 to '%2'").arg(messageTypeString, senderName);
+                debugEdit->append(addTime(bcastLine));
                 clientSocket->write(answer);
                 clientSocket->flush();
             }
