@@ -324,11 +324,25 @@ def main():
         names = [msg.cls_caps() for msg in msg_classes]
         names[0] += ' = 1'
         f.write('''#pragma once
+#include <cstdint>
 
 enum MessageType {
     %s,
 };
+
+const char* getMessageTypeString(uint32_t type);
 ''' % ',\n    '.join(names))
+
+    with open('enums.cpp', 'w') as f:
+        f.write('''#include "enums.h"
+
+const char* getMessageTypeString(uint32_t type) {
+    switch (type) {
+        %s
+    }
+    return "<invalid>";
+}
+''' % '\n        '.join('case %s: return "%s";' % (msg.cls_caps(), msg.name) for msg in msg_classes))
 
     with open('MessageHandler.h', 'w') as f:
         f.write('''#pragma once

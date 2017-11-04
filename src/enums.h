@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 enum MessageType {
     STRING_MESSAGE = 1,
@@ -10,3 +11,5 @@ enum MessageType {
     REMOVE_LAYER_MESSAGE,
     COPY_LAYER_MESSAGE,
 };
+
+const char* getMessageTypeString(uint32_t type);

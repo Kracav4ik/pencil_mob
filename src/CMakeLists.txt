@@ -29,6 +29,7 @@ set(COMMON_SOURCES
         Stroke.h
         Layer.cpp
         Layer.h
+        enums.cpp
     )
 
 add_library(pencil_mob_common ${COMMON_SOURCES})
