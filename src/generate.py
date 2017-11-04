@@ -39,9 +39,16 @@ class Type:
             result = 'array.append(%s);' % result
         return result
 
+    def __str__(self):
+        return self.name
+
     @staticmethod
     def decoded_readonly():
         return False
+
+    @staticmethod
+    def assign(var_name, value):
+        return '%s = %s;' % (var_name, value)
 
 
 class StringType(Type):
@@ -49,7 +56,7 @@ class StringType(Type):
         super().__init__(name)
 
     def decode(self, var_name, array_name):
-        return '%s = %s(%s);' % (var_name, self.name, array_name)
+        return self.assign(var_name, '%s(%s)' % (self.name, array_name))
 
     def encode_simple(self, var_name):
         return '%s.toUtf8()' % var_name
@@ -89,7 +96,6 @@ class ListType(Type):
             %s %s;
             %s
 ''' % (f.type.name, f.name, f.decode_lines(array_name)) for f in self.item_type.fields)
-        self.item_type.decode(var_name, array_name)
         s += '''
         for (int _ = 0; _ < %(counter_name)s; ++_) {%(subdecode)s
             %(var_name)s << %(item_type)s(%(params)s);
@@ -124,10 +130,10 @@ class VaryingIntType(Type):
         super().__init__(name, True)
 
     def decode(self, var_name, array_name):
-        return '%s = decodeAndShift(%s);' % (var_name, array_name)
+        return self.assign(var_name, 'decodeAndShift(%s)' % array_name)
 
     def encode_simple(self, var_name):
-        return 'encode((%s)%s)' % (self.name, var_name)
+        return 'encode(static_cast<%s>(%s))' % (self.name, var_name)
 
 
 class FixedIntType(Type):
@@ -135,14 +141,14 @@ class FixedIntType(Type):
         super().__init__(name, True)
 
     def decode(self, var_name, array_name):
-        return "%(var_name)s = (%(type_name)s)%(array_name)s[0];\n        %(array_name)s = %(array_name)s.mid(1);" % {
+        assignment = self.assign(var_name, 'static_cast<%s>(%s[0])' % (self.name, array_name))
+        return "%(assignment)s\n        %(array_name)s = %(array_name)s.mid(1);" % {
+            'assignment': assignment,
             'array_name': array_name,
-            'type_name': self.name,
-            'var_name': var_name,
         }
 
     def encode_simple(self, var_name):
-        return var_name
+        return 'static_cast<%s>(%s)' % (self.name, var_name)
 
 
 class BoolType(Type):
@@ -150,13 +156,14 @@ class BoolType(Type):
         super().__init__(name, True)
 
     def decode(self, var_name, array_name):
-        return "%(var_name)s = %(array_name)s[0] != '\\0';\n        %(array_name)s = %(array_name)s.mid(1);" % {
+        assignment = self.assign(var_name, "%s[0] != '\\0'" % array_name)
+        return "%(assignment)s\n        %(array_name)s = %(array_name)s.mid(1);" % {
+            'assignment': assignment,
             'array_name': array_name,
-            'var_name': var_name,
         }
 
     def encode_simple(self, var_name):
-        return '(char)(%s ? 1 : 0)' % var_name
+        return 'static_cast<char>(%s ? 1 : 0)' % var_name
 
 
 tuint8 = FixedIntType('uint8_t')
@@ -174,6 +181,9 @@ class Field:
         self.type = type
         self.name = name
         self.use_parens = use_parens
+
+    def __str__(self):
+        return '%s %s' % (self.type, self.name)
 
     def decl_ctor(self):
         return '%s %s' % (self.type.for_param(), self.name)
@@ -315,7 +325,7 @@ enum MessageType {
     with open('MessageHandler.h', 'w') as f:
         f.write('''#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 class QByteArray;
 
