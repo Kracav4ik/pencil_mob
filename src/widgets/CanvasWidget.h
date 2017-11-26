@@ -35,6 +35,8 @@ public slots:
     //! \param delta shift that is added to current translation.
     void moveCamera(const QPointF& delta);
 
+    void updateWidget();
+
 public:
     //! Create widget.
     //! \param parent parent widget

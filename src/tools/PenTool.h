@@ -3,8 +3,6 @@
 #include "tools/Tool.h"
 #include <QColor>
 
-class Stroke;
-
 //! Pen. The main tool for drawing.
 class PenTool: public Tool {
 Q_OBJECT
@@ -25,9 +23,4 @@ public slots:
     //! Sets pen color.
     //! \param color New color that will be set.
     void setPenColor(const QColor& color);
-
-signals:
-    //! Tells painting thats stroke was finished.
-    //! \param stroke
-    void strokeFinished(const Stroke& stroke);
 };

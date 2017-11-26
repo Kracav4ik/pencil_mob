@@ -42,25 +42,25 @@ ClientMainWindow::ClientMainWindow()
     canvas->setPainting(&painting);
 
     // connect() hell
-    connect(&painting, SIGNAL(changed()), canvas, SLOT(update()));
-    connect(&painting, SIGNAL(penColorChanged(const QColor&)), &toolSelector->penTool, SLOT(setPenColor(const QColor&)));
+    connect(&painting, &Painting::changed, canvas, &CanvasWidget::updateWidget);
+    connect(&painting, &Painting::penColorChanged, &toolSelector->penTool, &PenTool::setPenColor);
     for (Tool* tool : toolSelector->allTools()) {
-        connect(tool, SIGNAL(strokeFinished(const Stroke&)), &painting, SLOT(addStroke(const Stroke&)));
-        connect(tool, SIGNAL(strokeFinished(const Stroke&)), this, SLOT(strokeFinished(const Stroke&)));
-        connect(tool, SIGNAL(needRepaint()), canvas, SLOT(update()));
+        connect(tool, &Tool::strokeFinished, &painting, &Painting::addOwnStroke);
+        connect(tool, &Tool::strokeFinished, this, &strokeFinished);
+        connect(tool, &Tool::needRepaint, canvas, &CanvasWidget::updateWidget);
     }
-    connect(toolSelector, SIGNAL(toolSelected(Tool*)), &painting, SLOT(setCurrentTool(Tool*)));
-    connect(canvas, SIGNAL(beginDrag()), toolSelector, SLOT(beginDrag()));
-    connect(canvas, SIGNAL(leftDrag(const QPoint&)), toolSelector, SLOT(drag(const QPoint&)));
-    connect(canvas, SIGNAL(endDrag()), toolSelector, SLOT(endDrag()));
-    connect(layersWidget, SIGNAL(layerSelected(uint32_t)), &painting, SLOT(selectLayer(uint32_t)));
-    connect(listOfVisibleUsersWidget, SIGNAL(changedUserVisible(uint32_t, bool)), &painting, SLOT(changingUserVisible(uint32_t, bool)));
-    connect(&painting, SIGNAL(layerAdded(uint32_t, const QString&)), layersWidget, SLOT(appendLayer(uint32_t, const QString&)));
-    connect(&painting, SIGNAL(layerNameChanged(uint32_t, const QString&)), layersWidget, SLOT(changeLayerName(uint32_t, const QString&)));
-    connect(&painting, SIGNAL(layerRemoved(uint32_t)), layersWidget, SLOT(deleteLayer(uint32_t)));
-    connect(&painting, SIGNAL(layerSelected(uint32_t)), layersWidget, SLOT(selectLayer(uint32_t)));
-    connect(&painting, SIGNAL(layerMoved(uint32_t, uint32_t)), layersWidget, SLOT(moveLayer(uint32_t, uint32_t)));
-    connect(&painting, SIGNAL(userAdded(uint32_t)), listOfVisibleUsersWidget, SLOT(addUser(uint32_t)));
+    connect(toolSelector, &ToolSelectorWidget::toolSelected, &painting, &Painting::setCurrentTool);
+    connect(canvas, &CanvasWidget::beginDrag, toolSelector, &ToolSelectorWidget::beginDrag);
+    connect(canvas, &CanvasWidget::leftDrag, toolSelector, &ToolSelectorWidget::drag);
+    connect(canvas, &CanvasWidget::endDrag, toolSelector, &ToolSelectorWidget::endDrag);
+    connect(layersWidget, &LayersWidget::layerSelected, &painting, &Painting::selectLayer);
+    connect(listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::changedUserVisible, &painting, &Painting::changingUserVisible);
+    connect(&painting, &Painting::layerAdded, layersWidget, &LayersWidget::appendLayer);
+    connect(&painting, &Painting::layerNameChanged, layersWidget, &LayersWidget::changeLayerName);
+    connect(&painting, &Painting::layerRemoved, layersWidget, &LayersWidget::deleteLayer);
+    connect(&painting, &Painting::layerSelected, layersWidget, &LayersWidget::selectLayer);
+    connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
+    connect(&painting, &Painting::userAdded, listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::addUser);
 
     on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();

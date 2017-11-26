@@ -22,9 +22,9 @@ void Painting::setPenColor(const QColor& color) {
     emit penColorChanged(penColor);
 }
 
-void Painting::addStroke(const Stroke& stroke) {
+void Painting::addOwnStroke(const Stroke& stroke) {
     if (!hasOwnLayers()) {
-        qDebug() << "Error: addStroke() called for painting with no own layers";
+        qDebug() << "Error: addOwnStroke() called for painting with no own layers";
         return; // TODO this should be error; tools should be disabled
     }
     addStroke(getCurrentLayerId(), stroke);

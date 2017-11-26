@@ -56,12 +56,12 @@ ColorChooserWidget::ColorChooserWidget(QWidget* parent): QDockWidget(parent) {
         painter.drawImage(QPoint(), img);
     });
 
-    connect(editR, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
-    connect(editG, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
-    connect(editB, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
-    connect(editH, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
-    connect(editS, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
-    connect(editL, SIGNAL(textChanged(const QString&)), SLOT(updateColor()));
+    connect(editR, &QLineEdit::textChanged, this, &updateColor);
+    connect(editG, &QLineEdit::textChanged, this, &updateColor);
+    connect(editB, &QLineEdit::textChanged, this, &updateColor);
+    connect(editH, &QLineEdit::textChanged, this, &updateColor);
+    connect(editS, &QLineEdit::textChanged, this, &updateColor);
+    connect(editL, &QLineEdit::textChanged, this, &updateColor);
 }
 
 template<typename T>

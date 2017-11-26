@@ -2,8 +2,6 @@
 
 #include "Tool.h"
 
-class Stroke;
-
 //! Eraser that erases.
 class EraserTool: public Tool {
 Q_OBJECT
@@ -18,9 +16,4 @@ public:
     void endDrag() override;
 
     void paint(QPainter& painter) override;
-
-signals:
-    //! Tells painting thats stroke was finished.
-    //! \param stroke The stroke who was finished.
-    void strokeFinished(const Stroke& stroke);
 };

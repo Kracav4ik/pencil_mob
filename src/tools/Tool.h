@@ -5,14 +5,12 @@
 
 class QPainter;
 class QPoint;
+class Stroke;
 
 //! Abstract class for inheritance of tools.
 class Tool: public QObject {
 Q_OBJECT
 public:
-    //! Delete tool.
-    virtual ~Tool() = default;
-
     //! Beginning of the mouse drag.
     virtual void beginDrag();
     //! Drag of the mouse.
@@ -27,4 +25,7 @@ public:
 signals:
     //! It is called if you need to repaint.
     void needRepaint();
+    //! Tells painting thats stroke was finished.
+    //! \param stroke
+    void strokeFinished(const Stroke& stroke);
 };

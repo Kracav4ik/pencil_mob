@@ -15,8 +15,8 @@ void ServerMainWindow::acceptConnection() {
     uint32_t user = userCounter++;
     QString name = QString("player %1").arg(user);
     clients[clientSocket] = new ClientInfo(name, user);
-    connect(clientSocket, SIGNAL(readyRead()),this, SLOT(readyToRead()));
-    connect(clientSocket, SIGNAL(disconnected()),this, SLOT(clientDisconnected()));
+    connect(clientSocket, &QTcpSocket::readyRead,this, &readyToRead);
+    connect(clientSocket, &QTcpSocket::disconnected,this, &clientDisconnected);
     SetClientInfoMessage nameMessage = SetClientInfoMessage(name);
     QString debugLine = QString("send initial %1 to '%2'").arg(getMessageTypeString(nameMessage.type), name);
     debugEdit->append(addTime(debugLine));
@@ -40,7 +40,7 @@ void ServerMainWindow::acceptConnection() {
 
 ServerMainWindow::ServerMainWindow(): painting(this) {
     setupUi(this);
-    connect(&srv, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
+    connect(&srv, &QTcpServer::newConnection, this, &acceptConnection);
     srv.listen(QHostAddress::Any, 9000);
     show();
 }

@@ -100,7 +100,7 @@ signals:
 public slots:
     //! Add stroke to the selected layer of the current painting.
     //! \param stroke Stroke to add.
-    void addStroke(const Stroke& stroke);
+    void addOwnStroke(const Stroke& stroke);
 
     //! Create new layer in current painting.
     //! \param name Layer name.

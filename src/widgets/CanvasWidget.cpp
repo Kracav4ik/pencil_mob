@@ -93,3 +93,7 @@ void CanvasWidget::setPainting(Painting* p) {
 void CanvasWidget::wheelEvent(QWheelEvent* event) {
     emit mouseWheel(event->angleDelta().y()/120.f);
 }
+
+void CanvasWidget::updateWidget() {
+    update();
+}
