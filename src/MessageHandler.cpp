@@ -10,9 +10,9 @@ void MessageHandler::handle(uint32_t user, uint32_t messageType, const QByteArra
             handleStringMessage(user, msg);
             break;
         }
-        case SET_CLIENT_NAME_MESSAGE: {
-            SetClientNameMessage msg(message);
-            handleSetClientNameMessage(user, msg);
+        case SET_CLIENT_INFO_MESSAGE: {
+            SetClientInfoMessage msg(message);
+            handleSetClientInfoMessage(user, msg);
             break;
         }
         case PATH_MESSAGE: {
@@ -43,6 +43,11 @@ void MessageHandler::handle(uint32_t user, uint32_t messageType, const QByteArra
         case COPY_LAYER_MESSAGE: {
             CopyLayerMessage msg(message);
             handleCopyLayerMessage(user, msg);
+            break;
+        }
+        case LAYER_CONTENTS_MESSAGE: {
+            LayerContentsMessage msg(message);
+            handleLayerContentsMessage(user, msg);
             break;
         }
     }

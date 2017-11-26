@@ -5,9 +5,11 @@
 #include <QPoint>
 #include <QVector>
 #include <QColor>
+#include <QPolygon>
 
 #include "enums.h"
 #include "transport.h"
+#include "Stroke.h"
 
 struct StringMessage : MessageBase{
     QString str;
@@ -25,18 +27,18 @@ struct StringMessage : MessageBase{
     }
 };
 
-struct SetClientNameMessage : MessageBase{
+struct SetClientInfoMessage : MessageBase{
     QString name;
 
-    explicit SetClientNameMessage(const QString& name)
-            : MessageBase(SET_CLIENT_NAME_MESSAGE), name(name) {}
+    explicit SetClientInfoMessage(const QString& name)
+            : MessageBase(SET_CLIENT_INFO_MESSAGE), name(name) {}
 
     QByteArray encodeMessageBody() const override {
         return name.toUtf8();
     }
 
-    explicit SetClientNameMessage(const QByteArray& data)
-            : MessageBase(SET_CLIENT_NAME_MESSAGE) {
+    explicit SetClientInfoMessage(const QByteArray& data)
+            : MessageBase(SET_CLIENT_INFO_MESSAGE) {
         name = QString(data);
     }
 };
@@ -101,32 +103,43 @@ struct PathMessage : MessageBase{
 };
 
 struct AddNewLayerMessage : MessageBase{
+    uint32_t layerId;
     QString layerName;
 
-    explicit AddNewLayerMessage(const QString& layerName)
-            : MessageBase(ADD_NEW_LAYER_MESSAGE), layerName(layerName) {}
-
-    QByteArray encodeMessageBody() const override {
-        return layerName.toUtf8();
-    }
-
-    explicit AddNewLayerMessage(const QByteArray& data)
-            : MessageBase(ADD_NEW_LAYER_MESSAGE) {
-        layerName = QString(data);
-    }
-};
-
-struct RenameLayerMessage : MessageBase{
-    uint32_t uid;
-    QString layerName;
-
-    RenameLayerMessage(uint32_t uid, const QString& layerName)
-            : MessageBase(RENAME_LAYER_MESSAGE), uid(uid), layerName(layerName) {}
+    AddNewLayerMessage(uint32_t layerId, const QString& layerName)
+            : MessageBase(ADD_NEW_LAYER_MESSAGE), layerId(layerId), layerName(layerName) {}
 
     QByteArray encodeMessageBody() const override {
         QByteArray array;
 
-        array.append(encode(static_cast<uint32_t>(uid)));
+        array.append(encode(static_cast<uint32_t>(layerId)));
+
+        array.append(layerName.toUtf8());
+
+        return array;
+    }
+
+    explicit AddNewLayerMessage(const QByteArray& data)
+            : MessageBase(ADD_NEW_LAYER_MESSAGE) {
+        QByteArray m = data;
+
+        layerId = decodeAndShift(m);
+
+        layerName = QString(m);
+    }
+};
+
+struct RenameLayerMessage : MessageBase{
+    uint32_t layerId;
+    QString layerName;
+
+    RenameLayerMessage(uint32_t layerId, const QString& layerName)
+            : MessageBase(RENAME_LAYER_MESSAGE), layerId(layerId), layerName(layerName) {}
+
+    QByteArray encodeMessageBody() const override {
+        QByteArray array;
+
+        array.append(encode(static_cast<uint32_t>(layerId)));
 
         array.append(layerName.toUtf8());
 
@@ -137,23 +150,23 @@ struct RenameLayerMessage : MessageBase{
             : MessageBase(RENAME_LAYER_MESSAGE) {
         QByteArray m = data;
 
-        uid = decodeAndShift(m);
+        layerId = decodeAndShift(m);
 
         layerName = QString(m);
     }
 };
 
 struct MoveLayerMessage : MessageBase{
-    uint32_t uid;
+    uint32_t layerId;
     uint32_t newPos;
 
-    MoveLayerMessage(uint32_t uid, uint32_t newPos)
-            : MessageBase(MOVE_LAYER_MESSAGE), uid(uid), newPos(newPos) {}
+    MoveLayerMessage(uint32_t layerId, uint32_t newPos)
+            : MessageBase(MOVE_LAYER_MESSAGE), layerId(layerId), newPos(newPos) {}
 
     QByteArray encodeMessageBody() const override {
         QByteArray array;
 
-        array.append(encode(static_cast<uint32_t>(uid)));
+        array.append(encode(static_cast<uint32_t>(layerId)));
 
         array.append(encode(static_cast<uint32_t>(newPos)));
 
@@ -164,43 +177,46 @@ struct MoveLayerMessage : MessageBase{
             : MessageBase(MOVE_LAYER_MESSAGE) {
         QByteArray m = data;
 
-        uid = decodeAndShift(m);
+        layerId = decodeAndShift(m);
 
         newPos = decodeAndShift(m);
     }
 };
 
 struct RemoveLayerMessage : MessageBase{
-    uint32_t uid;
+    uint32_t layerId;
 
-    explicit RemoveLayerMessage(uint32_t uid)
-            : MessageBase(REMOVE_LAYER_MESSAGE), uid(uid) {}
+    explicit RemoveLayerMessage(uint32_t layerId)
+            : MessageBase(REMOVE_LAYER_MESSAGE), layerId(layerId) {}
 
     QByteArray encodeMessageBody() const override {
-        return encode(static_cast<uint32_t>(uid));
+        return encode(static_cast<uint32_t>(layerId));
     }
 
     explicit RemoveLayerMessage(const QByteArray& data)
             : MessageBase(REMOVE_LAYER_MESSAGE) {
         QByteArray m = data;
 
-        uid = decodeAndShift(m);
+        layerId = decodeAndShift(m);
     }
 };
 
 struct CopyLayerMessage : MessageBase{
-    uint32_t fromUid;
-    uint32_t toUid;
+    uint32_t fromUserId;
+    uint32_t fromLayerId;
+    uint32_t toLayerId;
 
-    CopyLayerMessage(uint32_t fromUid, uint32_t toUid)
-            : MessageBase(COPY_LAYER_MESSAGE), fromUid(fromUid), toUid(toUid) {}
+    CopyLayerMessage(uint32_t fromUserId, uint32_t fromLayerId, uint32_t toLayerId)
+            : MessageBase(COPY_LAYER_MESSAGE), fromUserId(fromUserId), fromLayerId(fromLayerId), toLayerId(toLayerId) {}
 
     QByteArray encodeMessageBody() const override {
         QByteArray array;
 
-        array.append(encode(static_cast<uint32_t>(fromUid)));
+        array.append(encode(static_cast<uint32_t>(fromUserId)));
 
-        array.append(encode(static_cast<uint32_t>(toUid)));
+        array.append(encode(static_cast<uint32_t>(fromLayerId)));
+
+        array.append(encode(static_cast<uint32_t>(toLayerId)));
 
         return array;
     }
@@ -209,8 +225,82 @@ struct CopyLayerMessage : MessageBase{
             : MessageBase(COPY_LAYER_MESSAGE) {
         QByteArray m = data;
 
-        fromUid = decodeAndShift(m);
+        fromUserId = decodeAndShift(m);
 
-        toUid = decodeAndShift(m);
+        fromLayerId = decodeAndShift(m);
+
+        toLayerId = decodeAndShift(m);
+    }
+};
+
+struct LayerContentsMessage : MessageBase{
+    uint32_t layerId;
+    QVector<Stroke> strokes;
+    QString layerName;
+
+    LayerContentsMessage(uint32_t layerId, const QVector<Stroke>& strokes, const QString& layerName)
+            : MessageBase(LAYER_CONTENTS_MESSAGE), layerId(layerId), strokes(strokes), layerName(layerName) {}
+
+    QByteArray encodeMessageBody() const override {
+        QByteArray array;
+
+        array.append(encode(static_cast<uint32_t>(layerId)));
+
+        array.append(encode(static_cast<uint32_t>(strokes.size())));
+        for (const Stroke& strokesItem : strokes) {
+            array.append(static_cast<uint8_t>(strokesItem.color.red()));
+            array.append(static_cast<uint8_t>(strokesItem.color.green()));
+            array.append(static_cast<uint8_t>(strokesItem.color.blue()));
+            array.append(static_cast<char>(strokesItem.isEraser ? 1 : 0));
+            array.append(encode(static_cast<uint32_t>(strokesItem.polygon.size())));
+            for (const QPoint& strokesItem_polygonItem : strokesItem.polygon) {
+                array.append(encode(static_cast<uint32_t>(strokesItem_polygonItem.x())));
+                array.append(encode(static_cast<uint32_t>(strokesItem_polygonItem.y())));
+            }
+        }
+
+        array.append(layerName.toUtf8());
+
+        return array;
+    }
+
+    explicit LayerContentsMessage(const QByteArray& data)
+            : MessageBase(LAYER_CONTENTS_MESSAGE) {
+        QByteArray m = data;
+
+        layerId = decodeAndShift(m);
+
+        uint32_t strokesCount;
+        strokesCount = decodeAndShift(m);
+        for (int _ = 0; _ < strokesCount; ++_) {
+            QColor color;
+            color.setRed(static_cast<uint8_t>(m[0]));
+        m = m.mid(1);
+        color.setGreen(static_cast<uint8_t>(m[0]));
+        m = m.mid(1);
+        color.setBlue(static_cast<uint8_t>(m[0]));
+        m = m.mid(1);
+
+            bool isEraser;
+            isEraser = m[0] != '\0';
+        m = m.mid(1);
+
+            QPolygon polygon;
+            uint32_t polygonCount;
+        polygonCount = decodeAndShift(m);
+        for (int _ = 0; _ < polygonCount; ++_) {
+            uint32_t x;
+            x = decodeAndShift(m);
+
+            uint32_t y;
+            y = decodeAndShift(m);
+
+            polygon << QPoint(x, y);
+        }
+
+            strokes << Stroke(color, isEraser, polygon);
+        }
+
+        layerName = QString(m);
     }
 };

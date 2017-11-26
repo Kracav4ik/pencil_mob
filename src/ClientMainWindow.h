@@ -26,7 +26,6 @@ private:
     ToolSelectorWidget* toolSelector;
     //! Widget with layers.
     LayersWidget* layersWidget;
-    ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
     //! Widget with messages.
     MessagesWidget* messages;
     //! Reader of message between client and server.
@@ -36,18 +35,20 @@ private:
     //! Something kind of counter.
     int newLayerCounter = 1;
 
+    ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
     //! Check connected or not.
     //! \return Answer.
     bool isConnected();
 
     void handleStringMessage(uint32_t user, const StringMessage& m) override;
-    void handleSetClientNameMessage(uint32_t user, const SetClientNameMessage& m) override;
+    void handleSetClientInfoMessage(uint32_t user, const SetClientInfoMessage& m) override;
     void handlePathMessage(uint32_t user, const PathMessage& m) override;
     void handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) override;
     void handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) override;
     void handleMoveLayerMessage(uint32_t user, const MoveLayerMessage& m) override;
     void handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) override;
     void handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) override;
+    void handleLayerContentsMessage(uint32_t user, const LayerContentsMessage& m) override;
 
     //! Something kind of magic.
     template<typename MsgClass, typename... ArgTypes>
@@ -84,7 +85,7 @@ public slots:
 
     //! Adds a new layer to painting from layersWidget.
     //! \return The layer uid.
-    uint32_t on_layersWidget_addLayerClicked();
+    LayerId on_layersWidget_addLayerClicked();
     //! Renames the current layer on widget.
     void on_layersWidget_renameClicked();
     //! Removes the current layer on widget.

@@ -16,3 +16,7 @@ void Stroke::paint(QPainter& painter) const {
     painter.setPen(pen);
     painter.drawPolyline(polygon);
 }
+
+QDebug operator<<(QDebug debug, const Stroke& stroke) {
+    return debug << "color is" << stroke.color << "\n points is" << stroke.polygon.toList();
+}

@@ -4,10 +4,12 @@ sys_includes = [
     'QPoint',
     'QVector',
     'QColor',
+    'QPolygon',
 ]
 includes = [
     'enums.h',
     'transport.h',
+    'Stroke.h',
 ]
 
 
@@ -75,19 +77,20 @@ class StringType(Type):
 
 
 class StructType(Type):
-    def __init__(self, name, fields):
+    def __init__(self, name, fields, getters_setters=True):
         """
         :type fields: list[Field]
         """
         super().__init__(name)
         self.fields = fields
+        self.getters_setters = getters_setters
 
     def decode(self, var_name, array_name, use_setter):
         assert not use_setter, 'use_setter is not supported for struct type %s' % self
-        return '\n        '.join('%s.%s' % (var_name, field.decode_lines(array_name, True)) for field in self.fields)
+        return '\n        '.join('%s.%s' % (var_name, field.decode_lines(array_name, self.getters_setters)) for field in self.fields)
 
     def encode(self, simple, var_name):
-        return '\n        '.join(field.encode_lines(False, var_name) for field in self.fields)
+        return '\n        '.join(field.encode_lines(False, var_name, self.getters_setters) for field in self.fields)
 
 
 class ListType(Type):
@@ -121,7 +124,7 @@ class ListType(Type):
     def encode(self, simple, var_name):
         counter = Field(tuint32, 'size')
         s = counter.encode_lines(False, var_name)
-        item_name = '%sItem' % var_name
+        item_name = ('%sItem' % var_name).replace('.', '_')
         subencode = self.item_type.encode(False, item_name).replace('\n', '\n    ')
         s += '''
         for (%(item_type)s %(item_name)s : %(var_name)s) {
@@ -183,13 +186,13 @@ tstring = StringType('QString')
 
 
 class Field:
-    def __init__(self, type, name):
+    def __init__(self, field_type, field_name):
         """
-        :type type: Type
-        :type name: str
+        :type field_type: Type
+        :type field_name: str
         """
-        self.type = type
-        self.name = name
+        self.type = field_type
+        self.name = field_name
 
     def __str__(self):
         return '%s %s' % (self.type, self.name)
@@ -217,8 +220,12 @@ class Field:
         return self.type.decode(self.name, array_name, use_setter)
 
 
-tpointvector = ListType('QVector<QPoint>', StructType('QPoint', [Field(tuint32, 'x'), Field(tuint32, 'y')]))
+tpoint = StructType('QPoint', [Field(tuint32, 'x'), Field(tuint32, 'y')])
+tpointvector = ListType('QVector<QPoint>', tpoint)
 tcolor = StructType('QColor', [Field(tuint8, 'red'), Field(tuint8, 'green'), Field(tuint8, 'blue')])
+tpolygon = ListType('QPolygon', tpoint)
+trtroke = StructType('Stroke', [Field(tcolor, 'color'), Field(tbool, 'isEraser'), Field(tpolygon, 'polygon')], False)
+tpointstroke = ListType('QVector<Stroke>', trtroke)
 
 
 class MsgClass:
@@ -294,18 +301,19 @@ struct %(cls)s : MessageBase{%(decl_field)s
 
 msg_classes = [
     MsgClass('StringMessage', [Field(tstring, 'str')]),
-    MsgClass('SetClientNameMessage', [Field(tstring, 'name')]),
+    MsgClass('SetClientInfoMessage', [Field(tstring, 'name')]),
     MsgClass('PathMessage', [
         Field(tcolor, 'color'),
         Field(tuint32, 'layerId'),
         Field(tbool, 'isEraser'),
         Field(tpointvector, 'points')
     ]),
-    MsgClass('AddNewLayerMessage', [Field(tstring, 'layerName')]),
-    MsgClass('RenameLayerMessage', [Field(tuint32, 'uid'), Field(tstring, 'layerName')]),
-    MsgClass('MoveLayerMessage', [Field(tuint32, 'uid'), Field(tuint32, 'newPos')]),
-    MsgClass('RemoveLayerMessage', [Field(tuint32, 'uid')]),
-    MsgClass('CopyLayerMessage', [Field(tuint32, 'fromUid'), Field(tuint32, 'toUid')]),
+    MsgClass('AddNewLayerMessage', [Field(tuint32, 'layerId'), Field(tstring, 'layerName')]),
+    MsgClass('RenameLayerMessage', [Field(tuint32, 'layerId'), Field(tstring, 'layerName')]),
+    MsgClass('MoveLayerMessage', [Field(tuint32, 'layerId'), Field(tuint32, 'newPos')]),
+    MsgClass('RemoveLayerMessage', [Field(tuint32, 'layerId')]),
+    MsgClass('CopyLayerMessage', [Field(tuint32, 'fromUserId'), Field(tuint32, 'fromLayerId'), Field(tuint32, 'toLayerId')]),
+    MsgClass('LayerContentsMessage', [Field(tuint32, 'layerId'), Field(tpointstroke, 'strokes'), Field(tstring, 'layerName')]),
 ]
 
 

@@ -3,11 +3,32 @@
 #include <QPicture>
 #include <QVector>
 #include <QHash>
+#include <QDebug>
 
 class Tool;
 class Layer;
 class Stroke;
 class ClientMainWindow;
+
+struct LayerId {
+    uint32_t user = 0;
+    uint32_t layer = 0;
+
+    LayerId() = default;
+    LayerId(uint32_t user, uint32_t layer): user(user), layer(layer) {}
+};
+
+inline bool operator==(const LayerId& a, const LayerId& b) {
+    return a.user == b.user && a.layer == b.layer;
+}
+
+inline int qHash(const LayerId& layer) {
+    return qHash(layer.user) + 31*qHash(layer.layer);
+}
+
+inline QDebug operator<<(QDebug stream, const LayerId& layer) {
+    return stream << "{ user" << layer.user << "layer" << layer.layer << "}";
+}
 
 //! The main part is where all the drawing takes place.
 class Painting : public QObject {
@@ -17,15 +38,14 @@ private:
     QColor penColor;
 
     //! Map from uid layer to layer.
-    QHash<uint32_t, Layer*> uidToLayer;
+    QHash<LayerId, Layer*> uidToLayer;
     QHash<uint32_t, bool> userToVisible;
     //! Layers z-order.
-    QVector<uint32_t> zOrder;
+    QVector<LayerId> zOrder;
 
-    //! Constant when we did not choose a current layer.
-    static const uint32_t NO_LAYER = 0;
+    uint32_t ourUserId = UINT32_MAX;
     //! Layer on which we're drawing.
-    uint32_t currentLayer = NO_LAYER;
+    LayerId currentLayer = LayerId(ourUserId, NO_LAYER);
     //! The next one layer uid if we add or duplicate the layer.
     uint32_t nextLayerUid = 1000;
     //! Tool which we're drawing.
@@ -34,11 +54,11 @@ private:
     //! Returned layer from layer uid.
     //! \param uid layer uid
     //! \return Layer.
-    const Layer* getByUid(uint32_t uid) const;
+    const Layer* getByUid(LayerId uid) const;
     //! Returned layer from layer uid.(non-const)
     //! \param uid layer uid
     //! \return Layer.
-    Layer* getByUid(uint32_t uid);
+    Layer* getByUid(LayerId uid);
 
 signals:
     //! Emitted when the painting is changed and need repaint
@@ -75,6 +95,8 @@ signals:
     //! \param uid Layer uid.
     void layerDuplicated(uint32_t uid);
 
+    void userAdded(uint32_t uid);
+
 public slots:
     //! Add stroke to the selected layer of the current painting.
     //! \param stroke Stroke to add.
@@ -83,7 +105,8 @@ public slots:
     //! Create new layer in current painting.
     //! \param name Layer name.
     //! \return Uid of the created new layer.
-    uint32_t addLayer(uint32_t user, const QString& name);
+    LayerId addLayer(const QString& name);
+    void addLayer(LayerId idx, const QString& name);
 
     void changingUserVisible(uint32_t user, bool visible);
     //! Selects layer with given uid.
@@ -93,18 +116,21 @@ public slots:
     //! Move a layer with a layer uid to a new z-order position.
     //! \param uid A layer uid.
     //! \param newPos A new z-order position.
-    void moveLayer(uint32_t uid, uint32_t newPos);
+    void moveLayer(LayerId uid, uint32_t newPos);
 
     //! Copies layer from a given uid to a new uid.
     //! \param fromUid A given layer uid
     //! \param toUid A new layer uid.
-    void copyFromLayer(uint32_t fromUid, uint32_t toUid);
+    void copyFromLayer(LayerId fromUid, LayerId toUid);
 
     //! Changes the current tool to a another tool.
     //! \param tool A new another tool.
     void setCurrentTool(Tool* tool);
 
 public:
+    //! Constant when we did not choose a current layer.
+    static const uint32_t NO_LAYER;
+
     //! Create painting.
     //! \param parent
     explicit Painting(QObject* parent);
@@ -113,7 +139,7 @@ public:
     //! Added the stroke to layer with the layer uid.
     //! \param uid The layer uid.
     //! \param stroke The stroke that will be added.
-    void addStroke(uint32_t uid, const Stroke& stroke);
+    void addStroke(LayerId uid, const Stroke& stroke);
 
     //! Gives pen color.
     //! \return pen color.
@@ -136,11 +162,11 @@ public:
     //! Rename layer with the layer uid.
     //! \param uid The layer uid.
     //! \param name The new layer name.
-    void renameLayer(uint32_t uid, const QString& name);
+    void renameLayer(LayerId uid, const QString& name);
 
     //! Remove layer with the layer uid.
     //! \param uid The layer uid.
-    void removeLayer(uint32_t uid);
+    void removeLayer(LayerId uid);
 
     //! Returns point to the current layer.
     //! \return Point to the current layer.
@@ -148,9 +174,12 @@ public:
 
     //! Returns the current layer uid.
     //! \return The current layer uid.
-    uint32_t getCurrentLayerId() const;
+    LayerId getCurrentLayerId() const;
 
     QList<Layer*> getLayers() const ;
+
+    uint32_t getOurUserId() const;
+    void setOurUserId(uint32_t newUserId);
 
     //! Returns count of layers.
     //! \return count of layers.
@@ -159,12 +188,16 @@ public:
     //! Returns the layer index in z-order with layer uid.
     //! \param uid The layer uid.
     //! \return The layer index in z-order.
-    int layerIndex(uint32_t uid) const;
+    int layerIndex(LayerId uid) const;
 
-    //! Checks if layers.
-    bool hasLayers() const;
+    //! Checks if Painting has our layers.
+    bool hasOwnLayers() const;
 
     bool containsUser(uint32_t user);
 
-    bool containsLayer(uint32_t user, const QString& name);
+    bool containsLayer(LayerId uid);
+
+    LayerId uidFromLayer(const Layer* layer) const;
+
+    uint32_t getTopOwnLayer(uint32_t ignoreLayer=NO_LAYER);
 };

@@ -1,21 +1,20 @@
 #pragma once
 
 #include <QImage>
+#include <QVector>
 #include "Stroke.h"
 
 //! This is the layer on which we draw with tools.
 class Layer {
 private:
-    uint32_t user;
     //! List of strokes, see class Stroke for details.
-    QList<Stroke> strokes;
+    QVector<Stroke> strokes;
     //! Layer name.
     QString name;
 
 public:
     //! Gets layer name.
     const QString& getName() const;
-    uint32_t getUser() const;
 
     //! Sets new layer name.
     //! \param name New layer name.
@@ -37,9 +36,11 @@ public:
 
     //! Creates layer.
     //! \param name layer name.
-    Layer(uint32_t user, const QString& name);
+    explicit Layer(const QString& name);
 
     //! Copies the strokes of another layer.
     //! \param other another layer.
     void copyFrom(const Layer& other);
+
+    const QVector<Stroke>& getSrokes() const;
 };

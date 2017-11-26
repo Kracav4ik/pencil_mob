@@ -2,6 +2,7 @@
 
 #include <QPolygon>
 #include <QColor>
+#include <QDebug>
 
 
 class QPainter;
@@ -19,11 +20,10 @@ struct Stroke{
     //! \param color Stroke color
     //! \param isEraser If stroke eraser.
     //! \param polygon List of points of the stroke.
-    explicit Stroke(const QColor& color, bool isEraser=false, const QPolygon& polygon=QPolygon());
+    explicit Stroke(const QColor& color=QColor::Invalid, bool isEraser=false, const QPolygon& polygon=QPolygon());
 
     //! Draws a polylines from self polygon.
     void paint(QPainter& painter) const;
 };
 
-
-
+QDebug operator<<(QDebug debug, const Stroke& stroke);

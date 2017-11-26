@@ -15,10 +15,10 @@ ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
         , toolSelector(new ToolSelectorWidget(this))
-        , listOfVisibleUsersWidget(new ListOfVisibleUsersWidget(this))
         , messages(new MessagesWidget(this))
         , layersWidget(new LayersWidget(this))
         , painting(this)
+        , listOfVisibleUsersWidget(new ListOfVisibleUsersWidget(this, painting.getOurUserId()))
 {
     client->setObjectName("socket");
     colorChooser->setObjectName("colorChooser");
@@ -60,6 +60,7 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, SIGNAL(layerRemoved(uint32_t)), layersWidget, SLOT(deleteLayer(uint32_t)));
     connect(&painting, SIGNAL(layerSelected(uint32_t)), layersWidget, SLOT(selectLayer(uint32_t)));
     connect(&painting, SIGNAL(layerMoved(uint32_t, uint32_t)), layersWidget, SLOT(moveLayer(uint32_t, uint32_t)));
+    connect(&painting, SIGNAL(userAdded(uint32_t)), listOfVisibleUsersWidget, SLOT(addUser(uint32_t)));
 
     on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
@@ -75,41 +76,56 @@ void ClientMainWindow::handleStringMessage(uint32_t user, const StringMessage& m
     messages->append(m.str);
 }
 
-void ClientMainWindow::handleSetClientNameMessage(uint32_t user, const SetClientNameMessage& m) {
+void ClientMainWindow::handleSetClientInfoMessage(uint32_t user, const SetClientInfoMessage& m) {
     setWindowTitle("Name is " + m.name);
+    // TODO: this message should not have 'uint32_t user' sender param that server uses to tell us our id
+    painting.setOurUserId(user);
+    listOfVisibleUsersWidget->setOurUserId(user);
 }
 
 void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
-    painting.addStroke(m.layerId, Stroke(m.color, m.isEraser, m.points));
+    painting.addStroke({user, m.layerId}, Stroke(m.color, m.isEraser, m.points));
 }
 
 void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) {
     if (!painting.containsUser(user)){
         listOfVisibleUsersWidget->addUser(user);
     }
-    painting.addLayer(user, m.layerName);
+    painting.addLayer({user, m.layerId}, m.layerName);
 }
 
 void ClientMainWindow::handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) {
-    painting.renameLayer(m.uid, m.layerName);
+    painting.renameLayer({user, m.layerId}, m.layerName);
 }
 
 void ClientMainWindow::handleMoveLayerMessage(uint32_t user, const MoveLayerMessage& m) {
-    painting.moveLayer(m.uid, m.newPos);
+    painting.moveLayer({user, m.layerId}, m.newPos);
 }
 
 void ClientMainWindow::handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) {
-    painting.removeLayer(m.uid);
+    painting.removeLayer({user, m.layerId});
 }
 
 void ClientMainWindow::handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) {
-    painting.copyFromLayer(m.fromUid, m.toUid);
+    painting.copyFromLayer({m.fromUserId, m.fromLayerId}, {user, m.toLayerId});
+}
+
+void ClientMainWindow::handleLayerContentsMessage(uint32_t user, const LayerContentsMessage& m) {
+    LayerId layer(user, m.layerId);
+    if (painting.containsLayer(layer)) {
+        qDebug() << "WTF?! error: layer " << layer << " already in painting";
+        return;
+    }
+    painting.addLayer(layer, m.layerName);
+    for (const Stroke& stroke : m.strokes) {
+        painting.addStroke(layer, stroke);
+    }
 }
 
 void ClientMainWindow::on_socket_connected() {
     buttonSend->setEnabled(true);
     for (const Layer* layer :painting.getLayers()) {
-        sendMessage<AddNewLayerMessage>(layer->getName());
+        sendMessage<LayerContentsMessage>(painting.uidFromLayer(layer).layer, layer->getSrokes(), layer->getName());
     }
     printf("Connected\n");
 }
@@ -136,12 +152,12 @@ void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
 }
 
 void ClientMainWindow::strokeFinished(const Stroke& stroke) {
-    if (!painting.hasLayers()) {
+    if (!painting.hasOwnLayers()) {
         return; // TODO: disable tools instead
     }
-    uint32_t layerId = painting.getCurrentLayerId();
+    LayerId layerId = painting.getCurrentLayerId();
 
-    sendMessage<PathMessage>(stroke.color, layerId, stroke.isEraser, stroke.polygon);
+    sendMessage<PathMessage>(stroke.color, layerId.layer, stroke.isEraser, stroke.polygon);
 }
 
 bool ClientMainWindow::isConnected() {
@@ -176,41 +192,41 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
     painting.setPenColor(color);
 }
 
-uint32_t ClientMainWindow::on_layersWidget_addLayerClicked() {
+LayerId ClientMainWindow::on_layersWidget_addLayerClicked() {
     QString name = QString("New layer %1").arg(newLayerCounter++);
-    uint32_t uid = painting.addLayer(0, name);
+    LayerId result = painting.addLayer(name);
 
-    sendMessage<AddNewLayerMessage>(name);
-    return uid;
+    sendMessage<AddNewLayerMessage>(result.layer, name);
+    return result;
 }
 
 void ClientMainWindow::on_layersWidget_removeLayerClicked() {
-    if (!painting.hasLayers()) {
+    if (!painting.hasOwnLayers()) {
         return; // TODO: disable button instead
     }
-    uint32_t uid = painting.getCurrentLayerId();
+    LayerId uid = painting.getCurrentLayerId();
     painting.removeLayer(uid);
 
-    sendMessage<RemoveLayerMessage>(uid);
+    sendMessage<RemoveLayerMessage>(uid.layer);
 
-    if (!painting.hasLayers()) {
+    if (!painting.hasOwnLayers()) {
         on_layersWidget_addLayerClicked();
     }
 }
 
 void ClientMainWindow::on_layersWidget_duplicateLayerClicked() {
-    if (!painting.hasLayers()) {
+    if (!painting.hasOwnLayers()) {
         return; // TODO: disable button instead
     }
-    uint32_t toUid = on_layersWidget_addLayerClicked();
-    uint32_t fromUid = painting.getCurrentLayerId();
+    LayerId toUid = on_layersWidget_addLayerClicked();
+    LayerId fromUid = painting.getCurrentLayerId();
     painting.copyFromLayer(fromUid, toUid);
 
-    sendMessage<CopyLayerMessage>(fromUid, toUid);
+    sendMessage<CopyLayerMessage>(fromUid.user, fromUid.layer, toUid.layer);
 }
 
 void ClientMainWindow::on_layersWidget_renameClicked() {
-    if (!painting.hasLayers()) {
+    if (!painting.hasOwnLayers()) {
         return; // TODO: disable button instead
     }
     const QString& oldName = painting.getCurrentLayer()->getName();
@@ -221,35 +237,35 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
 
     painting.renameLayer(painting.getCurrentLayerId(), name);
 
-    sendMessage<RenameLayerMessage>(painting.getCurrentLayerId(), name);
+    sendMessage<RenameLayerMessage>(painting.getCurrentLayerId().layer, name);
 }
 
 void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
-    int index = painting.layerIndex(uid);
+    int index = painting.layerIndex({painting.getOurUserId(), uid});
     if (index == -1) {
-        printf("on_layersWidget_upButtonClicked: Layer not found for uid %d\n", uid);
+        qDebug() << "on_layersWidget_upButtonClicked: Layer not found for uid" << uid;
         return;
     }
     if (index <= 0) {
         return;
     }
     uint32_t newPos = static_cast<uint32_t>(index - 1);
-    painting.moveLayer(uid, newPos);
+    painting.moveLayer({painting.getOurUserId(), uid}, newPos);
 
     sendMessage<MoveLayerMessage>(uid, newPos);
 }
 
 void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
-    int index = painting.layerIndex(uid);
+    int index = painting.layerIndex({painting.getOurUserId(), uid});
     if (index == -1) {
-        printf("on_layersWidget_downButtonClicked: Layer not found for uid %d\n", uid);
+        qDebug() << "on_layersWidget_downButtonClicked: Layer not found for uid" << uid;
         return;
     }
     if (index >= painting.layersCount() - 1) {
         return;
     }
     uint32_t newPos = static_cast<uint32_t>(index + 1);
-    painting.moveLayer(uid, newPos);
+    painting.moveLayer({painting.getOurUserId(), uid}, newPos);
 
     sendMessage<MoveLayerMessage>(uid, newPos);
 }
