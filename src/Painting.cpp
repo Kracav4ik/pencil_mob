@@ -71,7 +71,11 @@ void Painting::addLayer(LayerId idx, const QString& name) {
         emit userAdded(idx.user);
     }
     zOrder.append(idx);
-    emit layerAdded(idx.layer, name);
+    if (idx.user == getOurUserId()) {
+        emit ownLayerAdded(idx.layer, name);
+    } else {
+        emit layerAdded(idx, name);
+    }
     if (currentLayer.layer == NO_LAYER) {
         selectLayer(getTopOwnLayer());
     }

@@ -30,6 +30,7 @@ set(COMMON_SOURCES
         Layer.cpp
         Layer.h
         enums.cpp
+        LayerId.h
     )
 
 add_library(pencil_mob_common ${COMMON_SOURCES})

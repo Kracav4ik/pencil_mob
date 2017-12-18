@@ -1,5 +1,7 @@
 #pragma once
 
+#include "LayerId.h"
+
 #include <QDockWidget>
 #include <QHash>
 
@@ -32,10 +34,15 @@ private slots:
     void on_duplicateLayer_clicked();
 
 public slots:
-     //! Adds layer to list.
+     //! Adds layer of another client to list.
      //! \param uid layer uid.
      //! \param name layer name.
-    void appendLayer(uint32_t uid, const QString& name);
+    void appendLayer(LayerId uid, const QString& name);
+
+     //! Adds our layer to list.
+     //! \param uid layer uid.
+     //! \param name layer name.
+    void appendOwnLayer(uint32_t ownUid, const QString& name);
 
      //! Deletes layer from list.
      //! \param uid layer uid.

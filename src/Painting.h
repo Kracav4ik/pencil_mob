@@ -1,4 +1,7 @@
 #pragma once
+
+#include "LayerId.h"
+
 #include <QColor>
 #include <QPicture>
 #include <QVector>
@@ -9,26 +12,6 @@ class Tool;
 class Layer;
 class Stroke;
 class ClientMainWindow;
-
-struct LayerId {
-    uint32_t user = 0;
-    uint32_t layer = 0;
-
-    LayerId() = default;
-    LayerId(uint32_t user, uint32_t layer): user(user), layer(layer) {}
-};
-
-inline bool operator==(const LayerId& a, const LayerId& b) {
-    return a.user == b.user && a.layer == b.layer;
-}
-
-inline int qHash(const LayerId& layer) {
-    return qHash(layer.user) + 31*qHash(layer.layer);
-}
-
-inline QDebug operator<<(QDebug stream, const LayerId& layer) {
-    return stream << "{ user" << layer.user << "layer" << layer.layer << "}";
-}
 
 //! The main part is where all the drawing takes place.
 class Painting : public QObject {
@@ -73,10 +56,15 @@ signals:
     //! \param name New layer name.
     void layerNameChanged(uint32_t uid, const QString& name);
 
-    //! Emitted when the new layer is added.
-    //! \param uid New uid layer.
+    //! Emitted when the new layer on another client is added.
+    //! \param uid New layer uid.
     //! \param name New layer name.
-    void layerAdded(uint32_t uid, const QString& name);
+    void layerAdded(LayerId uid, const QString& name);
+
+    //! Emitted when the new layer is added to our client.
+    //! \param uid New layer uid.
+    //! \param name New layer name.
+    void ownLayerAdded(uint32_t uid, const QString& name);
 
     //! Emitted when the layer is moved.
     //! \param uid Layer uid.

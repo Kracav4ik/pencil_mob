@@ -8,21 +8,29 @@ LayersWidget::LayersWidget(QWidget* parent)
     setupUi(this);
 }
 
-void LayersWidget::appendLayer(uint32_t uid, const QString& name) {
+void LayersWidget::appendLayer(LayerId uid, const QString& name) {
+    LayerButtonWidget* button = new LayerButtonWidget(this, QString("%1: %2").arg(uid.user).arg(name));
+
+    QVBoxLayout* boxLayout = getButtonsLayout();
+    boxLayout->insertWidget(boxLayout->count() - 1, button);
+    button->setEnabled(false);
+}
+
+void LayersWidget::appendOwnLayer(uint32_t ownUid, const QString& name) {
     LayerButtonWidget* button = new LayerButtonWidget(this, name);
-    uidToLayer[uid] = button;
+    uidToLayer[ownUid] = button;
 
     QVBoxLayout* boxLayout = getButtonsLayout();
     boxLayout->insertWidget(boxLayout->count() - 1, button);
 
-    connect(button, &LayerButtonWidget::clicked, [this, uid]() {
-        emit layerSelected(uid);
+    connect(button, &LayerButtonWidget::clicked, [this, ownUid]() {
+        emit layerSelected(ownUid);
     });
-    connect(button, &LayerButtonWidget::upButtonClicked, [this, uid]() {
-        emit upButtonClicked(uid);
+    connect(button, &LayerButtonWidget::upButtonClicked, [this, ownUid]() {
+        emit upButtonClicked(ownUid);
     });
-    connect(button, &LayerButtonWidget::downButtonClicked, [this, uid]() {
-        emit downButtonClicked(uid);
+    connect(button, &LayerButtonWidget::downButtonClicked, [this, ownUid]() {
+        emit downButtonClicked(ownUid);
     });
 }
 
@@ -72,7 +80,7 @@ void LayersWidget::moveLayer(uint32_t uid, uint32_t newPos) {
     QVBoxLayout* layout = getButtonsLayout();
     LayerButtonWidget* button = uidToLayer[uid];
     if (!button) {
-        printf("ERRRROR: moveLayer cannot find button %d\n", uid);
+        qDebug() << "ERRRROR: moveLayer cannot find button" << uid;
         return;
     }
 
