@@ -5,7 +5,7 @@
 #include "Stroke.h"
 
 //! This is the layer on which we draw with tools.
-class Layer {
+class Layer: public Serializable {
 private:
     //! List of strokes, see class Stroke for details.
     QVector<Stroke> strokes;
@@ -15,6 +15,9 @@ private:
 public:
     //! Gets layer name.
     const QString& getName() const;
+
+    void read(const QJsonObject& json) override;
+    void write(QJsonObject& json) const override;
 
     //! Sets new layer name.
     //! \param name New layer name.
@@ -37,6 +40,8 @@ public:
     //! Creates layer.
     //! \param name layer name.
     explicit Layer(const QString& name);
+
+    Layer() = default;
 
     //! Copies the strokes of another layer.
     //! \param other another layer.

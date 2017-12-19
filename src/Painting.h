@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Serializable.h"
 #include "LayerId.h"
 
 #include <QColor>
@@ -14,7 +15,7 @@ class Stroke;
 class ClientMainWindow;
 
 //! The main part is where all the drawing takes place.
-class Painting : public QObject {
+class Painting : public QObject, public Serializable {
 Q_OBJECT
 private:
     //! Color of pen which we're drawing.
@@ -129,6 +130,9 @@ public:
     //! \param stroke The stroke that will be added.
     void addStroke(LayerId uid, const Stroke& stroke);
 
+    void read(const QJsonObject& json) override;
+    void write(QJsonObject& json) const override;
+
     //! Gives pen color.
     //! \return pen color.
     const QColor& getPenColor() const;
@@ -188,4 +192,6 @@ public:
     LayerId uidFromLayer(const Layer* layer) const;
 
     uint32_t getTopOwnLayer(uint32_t ignoreLayer=NO_LAYER);
+
+    uint32_t getNextLayerUid();
 };

@@ -8,6 +8,10 @@
 #include "TextProgress.h"
 #include "Layer.h"
 #include <QInputDialog>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 static const float SCALE_FACTOR = powf(2, 0.25);
 
@@ -298,4 +302,80 @@ void ClientMainWindow::on_canvas_zoomChanged(float z) {
 void ClientMainWindow::on_resetZoom_clicked() {
     canvas->resetZoomCamera();
     canvas->update();
+}
+
+bool loadLayers(Painting& p, const QString& path, QString* errorMsg) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)){
+        if (errorMsg) {
+            *errorMsg = QString("Couldn't open file \"%1\" for reading.").arg(path);
+        }
+        return false;
+    }
+
+    p.read(QJsonDocument::fromJson(file.readAll()).object());
+    return true;
+
+}
+
+QString ClientMainWindow::getImagesDir() {
+    return QCoreApplication::applicationDirPath() + "/../data/images";
+}
+
+void ClientMainWindow::on_actionOpen_triggered() {
+    QString openPath = QFileDialog::getOpenFileName(this, "Open image", getImagesDir(), "JSON files (*.json)");
+    if (openPath.isNull()){
+        return;
+    }
+
+    QString errorMsg;
+    if (!loadLayers(painting, openPath, &errorMsg)) {
+        QMessageBox::critical(this, "Error opening image", errorMsg);
+        return;
+    }
+    path = openPath;
+    canvas->update();
+}
+
+void ClientMainWindow::on_actionSave_triggered() {
+    if (path.isNull()) {
+        on_actionSaveAs_triggered();
+    } else {
+        doSaveLayers(path);
+    }
+}
+
+void ClientMainWindow::on_actionSaveAs_triggered() {
+    QString savePath = QFileDialog::getSaveFileName(this, "Save layers as", getImagesDir(), "JSON files (*.json)");
+    doSaveLayers(savePath);
+}
+
+bool saveLayers(const Painting& p, const QString& path, QString* errorMsg) {
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)){
+        if (errorMsg) {
+            *errorMsg = QString("Couldn't open file \"%1\" for writing.").arg(path);
+        }
+        return false;
+    }
+
+    // root object to be filled.
+    QJsonObject root;
+    p.write(root);
+    file.write(QJsonDocument(root).toJson(QJsonDocument::Compact));
+    return true;
+}
+
+
+void ClientMainWindow::doSaveLayers(const QString& savePath) {
+    if (savePath.isNull()){
+        return;
+    }
+
+    QString errorMsg;
+    if (!saveLayers(painting, savePath, &errorMsg)) {
+        QMessageBox::critical(this, "Error saving layers", errorMsg);
+        return;
+    }
+    path = savePath;
 }

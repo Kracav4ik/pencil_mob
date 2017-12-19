@@ -1,5 +1,7 @@
 #include "Layer.h"
 #include <QPainter>
+#include <QJsonObject>
+#include <QJsonArray>
 
 QImage Layer::drawImg(const QSize& size, const QPointF& translation) const {
     QImage img(size, QImage::Format_ARGB32_Premultiplied);
@@ -38,4 +40,24 @@ void Layer::copyFrom(const Layer& other) {
 
 const QVector<Stroke>& Layer::getSrokes() const {
     return strokes;
+}
+
+void Layer::read(const QJsonObject& json) {
+    name = json["name"].toString("");
+    for (QJsonValue stroke : json["strokes"].toArray()) {
+        strokes << Stroke();
+        strokes.last().read(stroke.toObject());
+    }
+}
+
+void Layer::write(QJsonObject& json) const {
+    json["name"] = name;
+
+    QJsonArray newStrokes;
+    for (const Stroke& stroke : strokes) {
+        QJsonObject object;
+        stroke.write(object);
+        newStrokes << object;
+    }
+    json["strokes"] = newStrokes;
 }

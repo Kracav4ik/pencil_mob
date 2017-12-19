@@ -28,6 +28,8 @@ private:
     LayersWidget* layersWidget;
     //! Widget with messages.
     MessagesWidget* messages;
+    //! The path to current opened file, null string if no file is open.
+    QString path;
     //! Reader of message between client and server.
     ClientMessageReader reader;
     //! The main part is where all the drawing takes place.
@@ -39,6 +41,12 @@ private:
     //! Check connected or not.
     //! \return Answer.
     bool isConnected();
+
+    //! Returns the path to levels directory ("data/levels").
+    static QString getImagesDir();
+    //! Saves level to specified path and sets path as current if there were no errors.
+    //! \param savePath specified path.
+    void doSaveLayers(const QString& savePath);
 
     void handleStringMessage(uint32_t user, const StringMessage& m) override;
     void handleSetClientInfoMessage(uint32_t user, const SetClientInfoMessage& m) override;
@@ -100,5 +108,10 @@ public slots:
     void on_canvas_rightDrag(const QPointF& delta);
     void on_canvas_zoomChanged(float z);
     void on_resetZoom_clicked();
+
+private slots:
+    void on_actionOpen_triggered();
+    void on_actionSave_triggered();
+    void on_actionSaveAs_triggered();
 };
 

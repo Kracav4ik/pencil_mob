@@ -29,6 +29,7 @@ set(COMMON_SOURCES
         Stroke.h
         Layer.cpp
         Layer.h
+        Serializable.h
         enums.cpp
         LayerId.h
     )

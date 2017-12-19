@@ -1,8 +1,10 @@
 #include "Painting.h"
-#include <QPainter>
 #include "tools/Tool.h"
 #include "Stroke.h"
 #include "Layer.h"
+#include <QPainter>
+#include <QJsonObject>
+#include <QJsonArray>
 
 const uint32_t Painting::NO_LAYER = 0;
 
@@ -54,12 +56,15 @@ int Painting::strokesCount() const {
     return size;
 }
 
-LayerId Painting::addLayer(const QString& name) {
+uint32_t Painting::getNextLayerUid() {
     uint32_t uid = nextLayerUid++;
     while (uidToLayer.contains({getOurUserId(), uid})) {
         uid++;
     }
-    LayerId layer(getOurUserId(), uid);
+    return uid;
+}
+LayerId Painting::addLayer(const QString& name) {
+    LayerId layer(getOurUserId(), getNextLayerUid());
     addLayer(layer, name);
     return layer;
 }
@@ -270,4 +275,34 @@ uint32_t Painting::getTopOwnLayer(uint32_t ignoreLayer) {
 
 uint32_t Painting::getOurUserId() const {
     return ourUserId;
+}
+
+void Painting::read(const QJsonObject& json) {
+    int version = json["version"].toInt(-1);
+    if (version == -1) {
+        printf("File with invalid version!\n");
+    } else {
+        printf("Reading from version %d\n", version);
+    }
+
+    for (QJsonValue layerJson : json["layers"].toArray()) {
+        Layer layer;
+        layer.read(layerJson.toObject());
+        LayerId uid = {getOurUserId(), getNextLayerUid()};
+        addLayer(uid, layer.getName());
+        getByUid(uid)->copyFrom(layer);
+    }
+    emit changed();
+}
+
+void Painting::write(QJsonObject& json) const {
+    json["version"] = 1;
+
+    QJsonArray newLayers;
+    for (const Layer* layer : getLayers()) {
+        QJsonObject object;
+        layer->write(object);
+        newLayers << object;
+    }
+    json["layers"] = newLayers;
 }
