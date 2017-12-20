@@ -7,6 +7,11 @@
 #include "messages.h"
 #include "TextProgress.h"
 #include "Layer.h"
+#include "commands/AddLayerCommand.h"
+#include "commands/DeleteLayerCommand.h"
+#include "commands/DuplicateLayerCommand.h"
+#include "commands/RenameLayerCommand.h"
+#include "commands/MoveLayerCommand.h"
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -24,6 +29,7 @@ ClientMainWindow::ClientMainWindow()
         , painting(this)
         , listOfVisibleUsersWidget(new ListOfVisibleUsersWidget(this, painting.getOurUserId()))
 {
+    // create UI elements and autoconnect signals
     client->setObjectName("socket");
     colorChooser->setObjectName("colorChooser");
     toolSelector->setObjectName("toolSelector");
@@ -32,6 +38,7 @@ ClientMainWindow::ClientMainWindow()
     painting.setObjectName("painting");
     setupUi(this);
 
+    // dock widgets
     addDockWidget(Qt::RightDockWidgetArea, colorChooser);
     addDockWidget(Qt::LeftDockWidgetArea, toolSelector);
     addDockWidget(Qt::RightDockWidgetArea, listOfVisibleUsersWidget);
@@ -66,6 +73,16 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::layerSelected, layersWidget, &LayersWidget::selectLayer);
     connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
     connect(&painting, &Painting::userAdded, listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::addUser);
+
+    // undo/redo menu items
+    QAction* undoAction = undoStack.createUndoAction(this);
+    undoAction->setShortcut(QKeySequence("Ctrl+Z"));
+    menuView->addAction(undoAction);
+    QAction* redoAction = undoStack.createRedoAction(this);
+    redoAction->setShortcut(QKeySequence("Ctrl+Shift+Z"));
+    menuView->addAction(redoAction);
+
+    connect(&undoStack, &QUndoStack::indexChanged, canvas, &CanvasWidget::updateWidget);
 
     on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
@@ -199,8 +216,9 @@ void ClientMainWindow::on_colorChooser_colorSelected(const QColor& color) {
 
 LayerId ClientMainWindow::on_layersWidget_addLayerClicked() {
     QString name = QString("New layer %1").arg(newLayerCounter++);
-    LayerId result = painting.addLayer(name);
-
+    AddLayerCommand* cmd = new AddLayerCommand(painting, name, {painting.getOurUserId(), painting.getNextLayerUid()});
+    pushCommand(*cmd);
+    LayerId result = cmd->getLayerId();
     sendMessage<AddNewLayerMessage>(result.layer, name);
     return result;
 }
@@ -210,7 +228,8 @@ void ClientMainWindow::on_layersWidget_removeLayerClicked() {
         return; // TODO: disable button instead
     }
     LayerId uid = painting.getCurrentLayerId();
-    painting.removeLayer(uid);
+
+    pushCommand(DeleteLayerCommand::create(painting, uid));
 
     sendMessage<RemoveLayerMessage>(uid.layer);
 
@@ -223,11 +242,12 @@ void ClientMainWindow::on_layersWidget_duplicateLayerClicked() {
     if (!painting.hasOwnLayers()) {
         return; // TODO: disable button instead
     }
-    LayerId toUid = on_layersWidget_addLayerClicked();
     LayerId fromUid = painting.getCurrentLayerId();
-    painting.copyFromLayer(fromUid, toUid);
 
-    sendMessage<CopyLayerMessage>(fromUid.user, fromUid.layer, toUid.layer);
+    DuplicateLayerCommand* cmd = new DuplicateLayerCommand(painting, {painting.getOurUserId(), painting.getNextLayerUid()}, fromUid);
+    pushCommand(*cmd);
+
+    sendMessage<CopyLayerMessage>(fromUid.user, fromUid.layer, cmd->getLayerId().layer);
 }
 
 void ClientMainWindow::on_layersWidget_renameClicked() {
@@ -240,13 +260,15 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
         return;
     }
 
-    painting.renameLayer(painting.getCurrentLayerId(), name);
+    RenameLayerCommand* cmd = new RenameLayerCommand(painting, oldName, painting.getCurrentLayerId(), name);
+    pushCommand(*cmd);
 
     sendMessage<RenameLayerMessage>(painting.getCurrentLayerId().layer, name);
 }
 
 void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
-    int index = painting.layerIndex({painting.getOurUserId(), uid});
+    LayerId layerId(painting.getOurUserId(), uid);
+    int index = painting.layerIndex(layerId);
     if (index == -1) {
         qDebug() << "on_layersWidget_upButtonClicked: Layer not found for uid" << uid;
         return;
@@ -255,13 +277,16 @@ void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
         return;
     }
     uint32_t newPos = static_cast<uint32_t>(index - 1);
-    painting.moveLayer({painting.getOurUserId(), uid}, newPos);
+    MoveLayerCommand* cmd = new MoveLayerCommand(painting, layerId, newPos);
+    pushCommand(*cmd);
 
     sendMessage<MoveLayerMessage>(uid, newPos);
 }
 
 void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
-    int index = painting.layerIndex({painting.getOurUserId(), uid});
+    //TODO merge with on_layersWidget_upButtonClicked
+    LayerId layerId(painting.getOurUserId(), uid);
+    int index = painting.layerIndex(layerId);
     if (index == -1) {
         qDebug() << "on_layersWidget_downButtonClicked: Layer not found for uid" << uid;
         return;
@@ -270,7 +295,8 @@ void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
         return;
     }
     uint32_t newPos = static_cast<uint32_t>(index + 1);
-    painting.moveLayer({painting.getOurUserId(), uid}, newPos);
+    MoveLayerCommand* cmd = new MoveLayerCommand(painting, layerId, newPos);
+    pushCommand(*cmd);
 
     sendMessage<MoveLayerMessage>(uid, newPos);
 }
@@ -334,6 +360,7 @@ void ClientMainWindow::on_actionOpen_triggered() {
         return;
     }
     path = openPath;
+    undoStack.clear();
     canvas->update();
 }
 
@@ -378,4 +405,9 @@ void ClientMainWindow::doSaveLayers(const QString& savePath) {
         return;
     }
     path = savePath;
+    undoStack.setClean();
+}
+
+void ClientMainWindow::pushCommand(ClientCommand& command) {
+    undoStack.push(&command);
 }

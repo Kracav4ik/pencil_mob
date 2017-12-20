@@ -78,6 +78,22 @@ set(CLIENT_SOURCES
         widgets/UserWidget.cpp
         widgets/UserWidget.h
         widgets/user.ui
+        commands/ClientCommand.cpp
+        commands/ClientCommand.h
+        commands/AddDeleteLayerCommand.h
+        commands/AddDeleteLayerCommand.cpp
+        commands/LayerCommandBase.h
+        commands/LayerCommandBase.cpp
+        commands/AddLayerCommand.h
+        commands/AddLayerCommand.cpp
+        commands/DeleteLayerCommand.h
+        commands/DeleteLayerCommand.cpp
+        commands/DuplicateLayerCommand.cpp
+        commands/DuplicateLayerCommand.h
+        commands/RenameLayerCommand.cpp
+        commands/RenameLayerCommand.h
+        commands/MoveLayerCommand.cpp
+        commands/MoveLayerCommand.h
         )
 
 set(SERVER_SOURCES

@@ -184,6 +184,14 @@ const Layer* Painting::getCurrentLayer() const {
     return getByUid(getCurrentLayerId());
 }
 
+Layer* Painting::getCurrentLayer() {
+    return getByUid(getCurrentLayerId());
+}
+
+QString Painting::getLayerNameFromUid(LayerId uid) {
+    return getByUid(uid)->getName();
+}
+
 void Painting::addStroke(LayerId uid, const Stroke& stroke) {
     Layer* layer = getByUid(uid);
     if (!layer) {

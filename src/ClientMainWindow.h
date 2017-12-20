@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUndoStack>
 
 #include "ui_pencil_mob.h"
 #include "transport.h"
@@ -13,6 +14,7 @@ class ToolSelectorWidget;
 class LayersWidget;
 class MessagesWidget;
 class ListOfVisibleUsersWidget;
+class ClientCommand;
 
 //! Client which we're starting.
 class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow, private MessageHandler {
@@ -38,6 +40,8 @@ private:
     int newLayerCounter = 1;
 
     ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
+    //! Undo stack for editor commands.
+    QUndoStack undoStack;
     //! Check connected or not.
     //! \return Answer.
     bool isConnected();
@@ -65,6 +69,9 @@ private:
 public:
     //! Starts the client.
     ClientMainWindow();
+
+    //! Push the command to the undo stack.
+    void pushCommand(ClientCommand& command);
 
 public slots:
     //! Connects the client to the server.

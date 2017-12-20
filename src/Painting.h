@@ -35,15 +35,6 @@ private:
     //! Tool which we're drawing.
     Tool* currentTool = nullptr;
 
-    //! Returned layer from layer uid.
-    //! \param uid layer uid
-    //! \return Layer.
-    const Layer* getByUid(LayerId uid) const;
-    //! Returned layer from layer uid.(non-const)
-    //! \param uid layer uid
-    //! \return Layer.
-    Layer* getByUid(LayerId uid);
-
 signals:
     //! Emitted when the painting is changed and need repaint
     void changed();
@@ -163,6 +154,18 @@ public:
     //! Returns point to the current layer.
     //! \return Point to the current layer.
     const Layer* getCurrentLayer() const;
+    Layer* getCurrentLayer();
+
+    QString getLayerNameFromUid(LayerId uid);
+
+    //! Returned layer from layer uid.
+    //! \param uid layer uid
+    //! \return Layer.
+    const Layer* getByUid(LayerId uid) const;
+    //! Returned layer from layer uid.(non-const)
+    //! \param uid layer uid
+    //! \return Layer.
+    Layer* getByUid(LayerId uid);
 
     //! Returns the current layer uid.
     //! \return The current layer uid.
