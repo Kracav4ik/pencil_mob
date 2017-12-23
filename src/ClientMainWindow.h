@@ -72,6 +72,10 @@ public:
 
     //! Push the command to the undo stack.
     void pushCommand(ClientCommand& command);
+    //! Moving the layer from given uid down (if the second parameter true) or up (if the second parameter false).
+    //! \param uid Layer uid.
+    //! \param down The parameter that allows you to change direction of moving layer(up or down).
+    void moveDown(uint32_t uid, bool down);
 
 public slots:
     //! Connects the client to the server.

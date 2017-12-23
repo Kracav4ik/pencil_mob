@@ -267,16 +267,25 @@ void ClientMainWindow::on_layersWidget_renameClicked() {
 }
 
 void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
+    moveDown(uid, false);
+}
+
+void ClientMainWindow::moveDown(uint32_t uid, bool down) {
     LayerId layerId(painting.getOurUserId(), uid);
     int index = painting.layerIndex(layerId);
     if (index == -1) {
-        qDebug() << "on_layersWidget_upButtonClicked: Layer not found for uid" << uid;
+        qDebug() << "moveUp: Layer not found for uid" << uid;
         return;
     }
     if (index <= 0) {
         return;
     }
-    uint32_t newPos = static_cast<uint32_t>(index - 1);
+    uint32_t newPos;
+    if (down) {
+        newPos = static_cast<uint32_t>(index + 1);
+    } else {
+        newPos = static_cast<uint32_t>(index - 1);
+    }
     MoveLayerCommand* cmd = new MoveLayerCommand(painting, layerId, newPos);
     pushCommand(*cmd);
 
@@ -284,21 +293,7 @@ void ClientMainWindow::on_layersWidget_upButtonClicked(uint32_t uid) {
 }
 
 void ClientMainWindow::on_layersWidget_downButtonClicked(uint32_t uid) {
-    //TODO merge with on_layersWidget_upButtonClicked
-    LayerId layerId(painting.getOurUserId(), uid);
-    int index = painting.layerIndex(layerId);
-    if (index == -1) {
-        qDebug() << "on_layersWidget_downButtonClicked: Layer not found for uid" << uid;
-        return;
-    }
-    if (index >= painting.layersCount() - 1) {
-        return;
-    }
-    uint32_t newPos = static_cast<uint32_t>(index + 1);
-    MoveLayerCommand* cmd = new MoveLayerCommand(painting, layerId, newPos);
-    pushCommand(*cmd);
-
-    sendMessage<MoveLayerMessage>(uid, newPos);
+    moveDown(uid, true);
 }
 
 void ClientMainWindow::on_canvas_mouseWheel(float delta) {
