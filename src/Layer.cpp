@@ -61,3 +61,9 @@ void Layer::write(QJsonObject& json) const {
     }
     json["strokes"] = newStrokes;
 }
+
+void Layer::removeLastStroke() {
+    if (!strokes.empty()) {
+        strokes.removeLast();
+    }
+}

@@ -120,6 +120,7 @@ public:
     //! \param uid The layer uid.
     //! \param stroke The stroke that will be added.
     void addStroke(LayerId uid, const Stroke& stroke);
+    void removeLastStroke(LayerId uid);
 
     void read(const QJsonObject& json) override;
     void write(QJsonObject& json) const override;

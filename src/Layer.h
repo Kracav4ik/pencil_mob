@@ -48,4 +48,6 @@ public:
     void copyFrom(const Layer& other);
 
     const QVector<Stroke>& getSrokes() const;
+
+    void removeLastStroke();
 };

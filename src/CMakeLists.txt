@@ -94,6 +94,8 @@ set(CLIENT_SOURCES
         commands/RenameLayerCommand.h
         commands/MoveLayerCommand.cpp
         commands/MoveLayerCommand.h
+        commands/AddStrokeToCurrentLayerCommand.cpp
+        commands/AddStrokeToCurrentLayerCommand.h
         )
 
 set(SERVER_SOURCES

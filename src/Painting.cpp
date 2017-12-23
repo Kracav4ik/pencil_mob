@@ -202,6 +202,16 @@ void Painting::addStroke(LayerId uid, const Stroke& stroke) {
     emit changed();
 }
 
+void Painting::removeLastStroke(LayerId uid) {
+    Layer* layer = getByUid(uid);
+    if (!layer) {
+        qDebug() << "addStroke: Layer not found for uid" << uid.layer << "in user" << uid.user;
+        return;
+    }
+    layer->removeLastStroke();
+    emit changed();
+}
+
 const Layer* Painting::getByUid(LayerId uid) const {
     return uidToLayer[uid];
 }

@@ -12,6 +12,7 @@
 #include "commands/DuplicateLayerCommand.h"
 #include "commands/RenameLayerCommand.h"
 #include "commands/MoveLayerCommand.h"
+#include "commands/AddStrokeToCurrentLayerCommand.h"
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -56,7 +57,6 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::changed, canvas, &CanvasWidget::updateWidget);
     connect(&painting, &Painting::penColorChanged, &toolSelector->penTool, &PenTool::setPenColor);
     for (Tool* tool : toolSelector->allTools()) {
-        connect(tool, &Tool::strokeFinished, &painting, &Painting::addOwnStroke);
         connect(tool, &Tool::strokeFinished, this, &strokeFinished);
         connect(tool, &Tool::needRepaint, canvas, &CanvasWidget::updateWidget);
     }
@@ -177,6 +177,10 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     if (!painting.hasOwnLayers()) {
         return; // TODO: disable tools instead
     }
+
+    AddStrokeToCurrentLayerCommand* cmd = new AddStrokeToCurrentLayerCommand(painting, stroke);
+    pushCommand(*cmd);
+
     LayerId layerId = painting.getCurrentLayerId();
 
     sendMessage<PathMessage>(stroke.color, layerId.layer, stroke.isEraser, stroke.polygon);
