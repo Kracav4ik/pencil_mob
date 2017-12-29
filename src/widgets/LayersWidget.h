@@ -13,8 +13,10 @@ class LayerButtonWidget;
 class LayersWidget : public QDockWidget, private Ui::LayersWidget{
 Q_OBJECT
 private:
-     //! Map from layers uids to layers objects.
-    QHash<uint32_t, LayerButtonWidget*> uidToLayer;
+    //! Map from own layers uids to layers objects.
+    QHash<uint32_t, LayerButtonWidget*> uidToOwnLayer;
+    //! Map from other layers uids to layers objects.
+    QHash<LayerId, LayerButtonWidget*> uidToOtherLayer;
 
      //! Get layout.
      //! @return Layout to add layers.
@@ -44,11 +46,15 @@ public slots:
      //! \param name layer name.
     void appendOwnLayer(uint32_t ownUid, const QString& name);
 
-     //! Deletes layer from list.
+     //! Deletes layer from list other layers.
      //! \param uid layer uid.
-    void deleteLayer(uint32_t uid);
+    void deleteLayer(LayerId uid);
 
-     //! Selects layer from list.
+     //! Deletes layer from list own layers.
+     //! \param uid layer uid.
+    void deleteOwnLayer(uint32_t uid);
+
+     //! Selects layer from list own layers.
      //! \param uid layer uid.
     void selectLayer(uint32_t uid);
 

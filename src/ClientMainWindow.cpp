@@ -69,6 +69,7 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::layerAdded, layersWidget, &LayersWidget::appendLayer);
     connect(&painting, &Painting::ownLayerAdded, layersWidget, &LayersWidget::appendOwnLayer);
     connect(&painting, &Painting::layerNameChanged, layersWidget, &LayersWidget::changeLayerName);
+    connect(&painting, &Painting::ownLayerRemoved, layersWidget, &LayersWidget::deleteOwnLayer);
     connect(&painting, &Painting::layerRemoved, layersWidget, &LayersWidget::deleteLayer);
     connect(&painting, &Painting::layerSelected, layersWidget, &LayersWidget::selectLayer);
     connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
@@ -114,6 +115,7 @@ void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayer
         listOfVisibleUsersWidget->addUser(user);
     }
     painting.addLayer({user, m.layerId}, m.layerName);
+    qDebug() << "got add" << LayerId{user, m.layerId};
 }
 
 void ClientMainWindow::handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) {
@@ -126,6 +128,7 @@ void ClientMainWindow::handleMoveLayerMessage(uint32_t user, const MoveLayerMess
 
 void ClientMainWindow::handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) {
     painting.removeLayer({user, m.layerId});
+    qDebug() << "got remove" << LayerId{user, m.layerId};
 }
 
 void ClientMainWindow::handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) {
@@ -224,6 +227,8 @@ LayerId ClientMainWindow::on_layersWidget_addLayerClicked() {
     pushCommand(*cmd);
     LayerId result = cmd->getLayerId();
     sendMessage<AddNewLayerMessage>(result.layer, name);
+    qDebug() << "sent add" << result;
+
     return result;
 }
 

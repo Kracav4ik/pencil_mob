@@ -63,9 +63,13 @@ signals:
     //! \param newPos Z-order position.
     void layerMoved(uint32_t uid, uint32_t newPos);
 
-    //! Emitted when the layer is removed.
+    //! Emitted when the new layer on another client is removed.
     //! \param uid Layer uid.
-    void layerRemoved(uint32_t uid);
+    void layerRemoved(LayerId uid);
+
+    //! Emitted when the new layer is removed to our client.
+    //! \param uid Layer uid.
+    void ownLayerRemoved(uint32_t uid);
 
     //! Emitted when the layer is selected.
     //! \param uid Layer uid.

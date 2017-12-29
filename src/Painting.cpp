@@ -119,7 +119,11 @@ void Painting::removeLayer(LayerId uid) {
     }
     delete layer;
 
-    emit layerRemoved(uid.layer);
+    if (uid.user == getOurUserId()) {
+        emit ownLayerRemoved(uid.layer);
+    } else {
+        emit layerRemoved(uid);
+    }
     emit changed();
 }
 
