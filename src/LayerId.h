@@ -12,6 +12,13 @@ struct LayerId {
     LayerId(uint32_t user, uint32_t layer): user(user), layer(layer) {}
 };
 
+inline bool operator<(const LayerId& a, const LayerId& b) {
+    if (a.user == b.user) {
+        return a.layer < b.layer;
+    }
+    return a.user < b.user;
+}
+
 inline bool operator==(const LayerId& a, const LayerId& b) {
     return a.user == b.user && a.layer == b.layer;
 }
