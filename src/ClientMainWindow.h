@@ -8,6 +8,7 @@
 #include "ui_pencil_mob.h"
 #include "transport.h"
 #include "MessageHandler.h"
+#include "MessageSender.h"
 
 class ColorChooserWidget;
 class ToolSelectorWidget;
@@ -17,7 +18,7 @@ class ListOfVisibleUsersWidget;
 class ClientCommand;
 
 //! Client which we're starting.
-class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow, private MessageHandler {
+class ClientMainWindow : public QMainWindow, private Ui::ClientMainWindow, private MessageHandler, private MessageSender {
 Q_OBJECT
 private:
     //! Socket pointer for connect to server.
@@ -44,7 +45,9 @@ private:
     QUndoStack undoStack;
     //! Check connected or not.
     //! \return Answer.
-    bool isConnected();
+    bool isConnected() const override;
+
+    void writeMessage(const QByteArray& data) override;
 
     //! Returns the path to levels directory ("data/levels").
     static QString getImagesDir();
@@ -61,18 +64,6 @@ private:
     void handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) override;
     void handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) override;
     void handleLayerContentsMessage(uint32_t user, const LayerContentsMessage& m) override;
-
-    //! Something kind of magic.
-    template<typename MsgClass, typename... ArgTypes>
-    void sendMessage(ArgTypes... args) {
-        if(!isConnected()){
-            return;
-        }
-
-        client->write(MsgClass(args...).encodeMessage());
-        client->flush();
-    }
-    friend ClientCommand;
 
 public:
     //! Starts the client.

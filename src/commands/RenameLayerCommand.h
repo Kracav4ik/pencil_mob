@@ -9,7 +9,7 @@ private:
 
 public:
     //! Create the command for layer.
-    RenameLayerCommand(Painting& painting, ClientMainWindow& main, const QString& oldName, uint32_t uid, const QString& newName);
+    RenameLayerCommand(Painting& painting, MessageSender& sender, const QString& oldName, uint32_t uid, const QString& newName);
 
     void undo() override;
 

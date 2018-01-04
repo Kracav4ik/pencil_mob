@@ -10,7 +10,7 @@ private:
 
 public:
     //! Create the command for layer.
-    DuplicateLayerCommand(Painting& painting, ClientMainWindow& main, uint32_t to, LayerId from);
+    DuplicateLayerCommand(Painting& painting, MessageSender& sender, uint32_t to, LayerId from);
 
     void undo() override;
 

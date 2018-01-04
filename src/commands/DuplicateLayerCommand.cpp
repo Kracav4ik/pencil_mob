@@ -1,8 +1,9 @@
 #include "DuplicateLayerCommand.h"
 #include "messages.h"
+#include "Painting.h"
 
-DuplicateLayerCommand::DuplicateLayerCommand(Painting& painting, ClientMainWindow& main, uint32_t to, LayerId from)
-    : AddDeleteLayerCommand(painting, main, "Duplicate layer", painting.getLayerNameFromUid(from), to), from(from) {}
+DuplicateLayerCommand::DuplicateLayerCommand(Painting& painting, MessageSender& sender, uint32_t to, LayerId from)
+    : AddDeleteLayerCommand(painting, sender, "Duplicate layer", painting.getLayerNameFromUid(from), to), from(from) {}
 
 void DuplicateLayerCommand::undo() {
     deleteLayer();

@@ -8,5 +8,5 @@ void AddLayerCommand::redo() {
     createLayer();
 }
 
-AddLayerCommand::AddLayerCommand(Painting& painting, ClientMainWindow& main, const QString& name, uint32_t layerId)
-    : AddDeleteLayerCommand(painting, main, "Add layer", name, layerId) {}
+AddLayerCommand::AddLayerCommand(Painting& painting, MessageSender& sender, const QString& name, uint32_t layerId)
+    : AddDeleteLayerCommand(painting, sender, "Add layer", name, layerId) {}

@@ -96,7 +96,8 @@ set(CLIENT_SOURCES
         commands/MoveLayerCommand.h
         commands/AddStrokeToCurrentLayerCommand.cpp
         commands/AddStrokeToCurrentLayerCommand.h
-        )
+        MessageSender.h
+)
 
 set(SERVER_SOURCES
         main_server.cpp

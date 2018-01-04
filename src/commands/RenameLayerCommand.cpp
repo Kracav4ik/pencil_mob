@@ -1,9 +1,10 @@
 #include "RenameLayerCommand.h"
+#include "Painting.h"
 #include "messages.h"
 
 RenameLayerCommand::RenameLayerCommand(
-    Painting& painting, ClientMainWindow& main, const QString& oldName, uint32_t uid, const QString& newName)
-    : AddDeleteLayerCommand(painting, main, "Rename layer", oldName, uid), newName(newName){}
+    Painting& painting, MessageSender& sender, const QString& oldName, uint32_t uid, const QString& newName)
+    : AddDeleteLayerCommand(painting, sender, "Rename layer", oldName, uid), newName(newName){}
 
 void RenameLayerCommand::undo() {
     painting.renameLayer({painting.getOurUserId(), layerId}, layer.getName());

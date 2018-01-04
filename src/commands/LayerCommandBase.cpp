@@ -1,4 +1,4 @@
 #include "LayerCommandBase.h"
 
-LayerCommandBase::LayerCommandBase(Painting& painting, ClientMainWindow& main, const QString& text, const QString& name)
-    : ClientCommand(painting, main, text), layer(name) {}
+LayerCommandBase::LayerCommandBase(Painting& painting, MessageSender& sender, const QString& text, const QString& name)
+    : ClientCommand(painting, sender, text), layer(name) {}

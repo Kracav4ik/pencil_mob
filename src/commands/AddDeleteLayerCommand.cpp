@@ -1,8 +1,9 @@
 #include "AddDeleteLayerCommand.h"
+#include "Painting.h"
 #include "messages.h"
 
-AddDeleteLayerCommand::AddDeleteLayerCommand(Painting& painting, ClientMainWindow& main, const QString& text, const QString& name, uint32_t layerId)
-    : LayerCommandBase(painting, main, text, name), layerId(layerId) {}
+AddDeleteLayerCommand::AddDeleteLayerCommand(Painting& painting, MessageSender& sender, const QString& text, const QString& name, uint32_t layerId)
+    : LayerCommandBase(painting, sender, text, name), layerId(layerId) {}
 
 void AddDeleteLayerCommand::createLayer() {
     LayerId uid{painting.getOurUserId(), layerId};

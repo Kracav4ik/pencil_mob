@@ -190,8 +190,13 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
     sendMessage<PathMessage>(stroke.color, layerId.layer, stroke.isEraser, stroke.polygon);
 }
 
-bool ClientMainWindow::isConnected() {
+bool ClientMainWindow::isConnected() const {
     return buttonSend->isEnabled();
+}
+
+void ClientMainWindow::writeMessage(const QByteArray& data) {
+    client->write(data);
+    client->flush();
 }
 
 void ClientMainWindow::on_buttonSend_clicked(){
@@ -266,8 +271,14 @@ void ClientMainWindow::moveDown(uint32_t uid, bool down) {
         qDebug() << "moveUp: Layer not found for uid" << uid;
         return;
     }
-    if (index <= 0 && !down) {
-        return;
+    if (down) {
+        if (index == painting.layersCount() - 1) {
+            return;
+        }
+    } else {
+        if (index == 0) {
+            return;
+        }
     }
     uint32_t newPos;
     if (down) {

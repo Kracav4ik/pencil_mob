@@ -10,5 +10,5 @@ protected:
     Layer layer;
 
     //! Create the command for layer.
-    LayerCommandBase(Painting& painting, ClientMainWindow& main, const QString& text, const QString& name);
+    LayerCommandBase(Painting& painting, MessageSender& sender, const QString& text, const QString& name);
 };
