@@ -3,14 +3,14 @@
 #include "commands/AddDeleteLayerCommand.h"
 
 //! The command for deleting layer.
-class DeleteLayerCommand : public AddDeleteLayerCommand {
+class RemoveLayerCommand : public AddDeleteLayerCommand {
 private:
     //! Create the command. Made private so the command can be created from layer only.
-    DeleteLayerCommand(Painting& painting, const QString& name, LayerId layerId);
+    RemoveLayerCommand(Painting& painting, ClientMainWindow& main, const QString& name, uint32_t layerId);
 
 public:
     //! Create the command for layer.
-    static DeleteLayerCommand& create(Painting& painting, LayerId layerId);
+    static RemoveLayerCommand& create(Painting& painting, ClientMainWindow& main, uint32_t layerId);
 
     void undo() override;
     void redo() override;

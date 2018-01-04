@@ -58,10 +58,15 @@ signals:
     //! \param name New layer name.
     void ownLayerAdded(uint32_t uid, const QString& name);
 
-    //! Emitted when the layer is moved.
+    //! Emitted when the layer is moved to our client.
     //! \param uid Layer uid.
     //! \param newPos Z-order position.
-    void layerMoved(uint32_t uid, uint32_t newPos);
+    void ownLayerMoved(uint32_t uid, uint32_t newPos);
+
+    //! Emitted when the new layer on another client is moved.
+    //! \param uid Layer uid.
+    //! \param newPos Z-order position.
+    void layerMoved(LayerId uid, uint32_t newPos);
 
     //! Emitted when the new layer on another client is removed.
     //! \param uid Layer uid.

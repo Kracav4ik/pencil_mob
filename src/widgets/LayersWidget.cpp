@@ -12,17 +12,20 @@ void LayersWidget::appendLayer(LayerId uid, const QString& name) {
     LayerButtonWidget* button = new LayerButtonWidget(this, QString("%1: %2").arg(uid.user).arg(name));
     uidToOtherLayer[uid] = button;
 
+    addButtonWidget(button);
+    button->setEnabled(false);
+}
+
+void LayersWidget::addButtonWidget(LayerButtonWidget* button) {
     QVBoxLayout* boxLayout = getButtonsLayout();
     boxLayout->insertWidget(boxLayout->count() - 1, button);
-    button->setEnabled(false);
 }
 
 void LayersWidget::appendOwnLayer(uint32_t ownUid, const QString& name) {
     LayerButtonWidget* button = new LayerButtonWidget(this, name);
     uidToOwnLayer[ownUid] = button;
 
-    QVBoxLayout* boxLayout = getButtonsLayout();
-    boxLayout->insertWidget(boxLayout->count() - 1, button);
+    addButtonWidget(button);
 
     connect(button, &LayerButtonWidget::clicked, [this, ownUid]() {
         emit layerSelected(ownUid);
@@ -36,15 +39,15 @@ void LayersWidget::appendOwnLayer(uint32_t ownUid, const QString& name) {
 }
 
 void LayersWidget::deleteLayer(LayerId uid) {
-    QVBoxLayout* boxLayout = getButtonsLayout();
-    LayerButtonWidget* button = uidToOtherLayer.take(uid);
-    boxLayout->removeWidget(button);
-    button->deleteLater();
+    removeButtonWidget(uidToOtherLayer.take(uid));
 }
 
 void LayersWidget::deleteOwnLayer(uint32_t uid) {
+    removeButtonWidget(uidToOwnLayer.take(uid));
+}
+
+void LayersWidget::removeButtonWidget(LayerButtonWidget* button) {
     QVBoxLayout* boxLayout = getButtonsLayout();
-    LayerButtonWidget* button = uidToOwnLayer.take(uid);
     boxLayout->removeWidget(button);
     button->deleteLater();
 }
@@ -84,14 +87,26 @@ QVBoxLayout* LayersWidget::getButtonsLayout() {
     return reinterpret_cast<QVBoxLayout*>(layers->layout());
 }
 
-void LayersWidget::moveLayer(uint32_t uid, uint32_t newPos) {
-    QVBoxLayout* layout = getButtonsLayout();
+void LayersWidget::moveOwnLayer(uint32_t uid, uint32_t newPos) {
     LayerButtonWidget* button = uidToOwnLayer[uid];
     if (!button) {
         qDebug() << "ERRRROR: moveLayer cannot find button" << uid;
         return;
     }
+    moveButtonWidgetToNewPos(button, newPos);
+}
 
+void LayersWidget::moveLayer(LayerId uid, uint32_t newPos) {
+    LayerButtonWidget* button = uidToOtherLayer[uid];
+    if (!button) {
+        qDebug() << "ERRRROR: moveLayer cannot find button" << uid;
+        return;
+    }
+    moveButtonWidgetToNewPos(button, newPos);
+}
+
+void LayersWidget::moveButtonWidgetToNewPos(LayerButtonWidget* button, uint32_t newPos) {
+    QVBoxLayout* layout = getButtonsLayout();
     layout->removeWidget(button);
     layout->insertWidget(newPos, button);
 }

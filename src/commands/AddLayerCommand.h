@@ -6,7 +6,7 @@
 class AddLayerCommand : public AddDeleteLayerCommand {
 public:
     //! Create the command for layer.
-    AddLayerCommand(Painting& painting, const QString& name, LayerId layerId);
+    AddLayerCommand(Painting& painting, ClientMainWindow& main, const QString& name, uint32_t layerId);
 
     void undo() override;
     void redo() override;

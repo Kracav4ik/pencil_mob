@@ -86,8 +86,8 @@ set(CLIENT_SOURCES
         commands/LayerCommandBase.cpp
         commands/AddLayerCommand.h
         commands/AddLayerCommand.cpp
-        commands/DeleteLayerCommand.h
-        commands/DeleteLayerCommand.cpp
+        commands/RemoveLayerCommand.h
+        commands/RemoveLayerCommand.cpp
         commands/DuplicateLayerCommand.cpp
         commands/DuplicateLayerCommand.h
         commands/RenameLayerCommand.cpp

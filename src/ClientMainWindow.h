@@ -64,7 +64,15 @@ private:
 
     //! Something kind of magic.
     template<typename MsgClass, typename... ArgTypes>
-    void sendMessage(ArgTypes... args);
+    void sendMessage(ArgTypes... args) {
+        if(!isConnected()){
+            return;
+        }
+
+        client->write(MsgClass(args...).encodeMessage());
+        client->flush();
+    }
+    friend ClientCommand;
 
 public:
     //! Starts the client.

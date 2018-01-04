@@ -1,8 +1,8 @@
 #include "DuplicateLayerCommand.h"
-#include "Painting.h"
+#include "messages.h"
 
-DuplicateLayerCommand::DuplicateLayerCommand(Painting& painting, LayerId to, const LayerId& from)
-    : AddDeleteLayerCommand(painting, "Duplicate layer", painting.getLayerNameFromUid(from), to), from(from) {}
+DuplicateLayerCommand::DuplicateLayerCommand(Painting& painting, ClientMainWindow& main, uint32_t to, LayerId from)
+    : AddDeleteLayerCommand(painting, main, "Duplicate layer", painting.getLayerNameFromUid(from), to), from(from) {}
 
 void DuplicateLayerCommand::undo() {
     deleteLayer();
@@ -10,5 +10,6 @@ void DuplicateLayerCommand::undo() {
 
 void DuplicateLayerCommand::redo() {
     createLayer();
-    painting.copyFromLayer(from, layerId);
+    painting.copyFromLayer(from, {painting.getOurUserId(), layerId});
+    sendMessage<CopyLayerMessage>(from.user, from.layer, layerId);
 }

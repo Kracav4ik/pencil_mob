@@ -1,13 +1,15 @@
 #include "MoveLayerCommand.h"
-#include "Painting.h"
+#include "messages.h"
 
-MoveLayerCommand::MoveLayerCommand(Painting& painting, const LayerId& oldPos, uint32_t newPos)
-    : AddDeleteLayerCommand(painting, "Move layer", painting.getLayerNameFromUid(oldPos), oldPos), newPos(newPos) {}
+MoveLayerCommand::MoveLayerCommand(Painting& painting, ClientMainWindow& main, uint32_t uid, uint32_t oldPos, uint32_t newPos)
+    : AddDeleteLayerCommand(painting, main, "Move layer", painting.getLayerNameFromUid({painting.getOurUserId(), uid}), uid), oldPos(oldPos), newPos(newPos) {}
 
 void MoveLayerCommand::undo() {
-    painting.moveLayer({layerId.user, newPos}, layerId.layer);
+    painting.moveLayer({painting.getOurUserId(), layerId}, oldPos);
+    sendMessage<MoveLayerMessage>(layerId, oldPos);
 }
 
 void MoveLayerCommand::redo() {
-    painting.moveLayer(layerId, newPos);
+    painting.moveLayer({painting.getOurUserId(), layerId}, newPos);
+    sendMessage<MoveLayerMessage>(layerId, newPos);
 }

@@ -70,6 +70,10 @@ LayerId Painting::addLayer(const QString& name) {
 }
 
 void Painting::addLayer(LayerId idx, const QString& name) {
+    if (idx.layer == NO_LAYER) {
+        qDebug() << "addLayer: layer to add for user " << idx.user << " is NO_LAYER";
+        return;
+    }
     uidToLayer[idx] = new Layer(name);
     if (!containsUser(idx.user)) {
         userToVisible[idx.user] = true;
@@ -137,7 +141,11 @@ void Painting::moveLayer(LayerId uid, uint32_t newPos) {
         return;
     }
     zOrder.insert(newPos, uid);
-    emit layerMoved(uid.layer, newPos);
+    if (uid.user == getOurUserId()) {
+        emit ownLayerMoved(uid.layer, newPos);
+    } else {
+        emit layerMoved(uid, newPos);
+    }
     emit changed();
 }
 
@@ -149,7 +157,7 @@ void Painting::copyFromLayer(LayerId fromUid, LayerId toUid) {
     }
     Layer* toLayer = getByUid(toUid);
     if (!toLayer) {
-        qDebug() << "renameLayer: copyFromLayer: source layer" << toUid.layer << "in user" << toUid.user << "not found in uidToLayer map";
+        qDebug() << "copyFromLayer: source layer" << toUid.layer << "in user" << toUid.user << "not found in uidToLayer map";
 
         return;
     }

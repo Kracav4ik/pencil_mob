@@ -10,7 +10,7 @@ private:
     LayerId uid;
     
 public:
-    AddStrokeToCurrentLayerCommand(Painting& painting, const Stroke& stroke);
+    AddStrokeToCurrentLayerCommand(Painting& painting, ClientMainWindow& main, const Stroke& stroke);
 
     void undo() override;
     void redo() override;

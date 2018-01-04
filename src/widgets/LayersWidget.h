@@ -22,6 +22,10 @@ private:
      //! @return Layout to add layers.
     QVBoxLayout* getButtonsLayout();
 
+    void removeButtonWidget(LayerButtonWidget* button);
+    void moveButtonWidgetToNewPos(LayerButtonWidget* button, uint32_t newPos);
+    void addButtonWidget(LayerButtonWidget* button);
+
 private slots:
      //! It is called when the button rename is clicked.
     void on_renameLayer_clicked();
@@ -46,11 +50,11 @@ public slots:
      //! \param name layer name.
     void appendOwnLayer(uint32_t ownUid, const QString& name);
 
-     //! Deletes layer from list other layers.
+     //! Deletes layer of another client from the list.
      //! \param uid layer uid.
     void deleteLayer(LayerId uid);
 
-     //! Deletes layer from list own layers.
+     //! Deletes our layer from the list.
      //! \param uid layer uid.
     void deleteOwnLayer(uint32_t uid);
 
@@ -63,10 +67,15 @@ public slots:
      //! \param name new layer name.
     void changeLayerName(uint32_t uid, const QString& name);
 
+     //! Move a layer of another client from layer uid to new layer's uid using the insert.
+     //! \param uid old layer uid.
+     //! \param newPos new layer uid.
+    void moveLayer(LayerId uid, uint32_t newPos);
+
      //! Move a layer from layer uid to new layer's uid using the insert.
      //! \param uid old layer uid.
      //! \param newPos new layer uid.
-    void moveLayer(uint32_t uid, uint32_t newPos);
+    void moveOwnLayer(uint32_t uid, uint32_t newPos);
 
 public:
      //! Create widget.
