@@ -143,7 +143,7 @@ void ClientMainWindow::handleLayerContentsMessage(uint32_t user, const LayerCont
         qDebug() << "WTF?! error: layer " << layer << " already in painting";
         return;
     }
-    painting.addLayer(layer, m.layerName);
+    painting.addLayer(layer, m.layerName, user < painting.getOurUserId());
     for (const Stroke& stroke : m.strokes) {
         painting.addStroke(layer, stroke);
     }

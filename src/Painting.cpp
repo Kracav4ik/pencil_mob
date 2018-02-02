@@ -70,7 +70,7 @@ LayerId Painting::addLayer(const QString& name) {
     return layer;
 }
 
-void Painting::addLayer(LayerId idx, const QString& name) {
+void Painting::addLayer(LayerId idx, const QString& name, bool pre) {
     if (idx.layer == NO_LAYER) {
         qDebug() << "addLayer: layer to add for user " << idx.user << " is NO_LAYER";
         return;
@@ -80,11 +80,15 @@ void Painting::addLayer(LayerId idx, const QString& name) {
         userToVisible[idx.user] = true;
         emit userAdded(idx.user);
     }
-    zOrder.append(idx);
+    if (pre) {
+        zOrder.prepend(idx);
+    } else {
+        zOrder.append(idx);
+    }
     if (idx.user == getOurUserId()) {
         emit ownLayerAdded(idx.layer, name);
     } else {
-        emit layerAdded(idx, name);
+        emit layerAdded(idx, name, pre);
     }
     if (currentLayer.layer == NO_LAYER) {
         selectLayer(getTopOwnLayer());

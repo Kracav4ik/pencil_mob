@@ -24,7 +24,7 @@ private:
 
     void removeButtonWidget(LayerButtonWidget* button);
     void moveButtonWidgetToNewPos(LayerButtonWidget* button, uint32_t newPos);
-    void addButtonWidget(LayerButtonWidget* button);
+    void addButtonWidget(LayerButtonWidget* button, bool pre=false);
 
 private slots:
      //! It is called when the button rename is clicked.
@@ -43,7 +43,7 @@ public slots:
      //! Adds layer of another client to list.
      //! \param uid layer uid.
      //! \param name layer name.
-    void appendLayer(LayerId uid, const QString& name);
+    void appendLayer(LayerId uid, const QString& name, bool pre);
 
      //! Adds our layer to list.
      //! \param uid layer uid.

@@ -8,17 +8,21 @@ LayersWidget::LayersWidget(QWidget* parent)
     setupUi(this);
 }
 
-void LayersWidget::appendLayer(LayerId uid, const QString& name) {
+void LayersWidget::appendLayer(LayerId uid, const QString& name, bool pre) {
     LayerButtonWidget* button = new LayerButtonWidget(this, QString("%1: %2").arg(uid.user).arg(name));
     uidToOtherLayer[uid] = button;
 
-    addButtonWidget(button);
+    addButtonWidget(button, pre);
     button->setEnabled(false);
 }
 
-void LayersWidget::addButtonWidget(LayerButtonWidget* button) {
+void LayersWidget::addButtonWidget(LayerButtonWidget* button, bool pre) {
     QVBoxLayout* boxLayout = getButtonsLayout();
-    boxLayout->insertWidget(boxLayout->count() - 1, button);
+    if (pre) {
+        boxLayout->insertWidget(0, button);
+    } else {
+        boxLayout->insertWidget(boxLayout->count() - 1, button);
+    }
 }
 
 void LayersWidget::appendOwnLayer(uint32_t ownUid, const QString& name) {

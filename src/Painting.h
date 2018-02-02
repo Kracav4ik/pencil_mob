@@ -52,7 +52,7 @@ signals:
     //! Emitted when the new layer on another client is added.
     //! \param uid New layer uid.
     //! \param name New layer name.
-    void layerAdded(LayerId uid, const QString& name);
+    void layerAdded(LayerId uid, const QString& name, bool pre);
 
     //! Emitted when the new layer is added to our client.
     //! \param uid New layer uid.
@@ -96,7 +96,7 @@ public slots:
     //! \param name Layer name.
     //! \return Uid of the created new layer.
     LayerId addLayer(const QString& name);
-    void addLayer(LayerId idx, const QString& name);
+    void addLayer(LayerId idx, const QString& name, bool pre=false);
 
     void changingUserVisible(uint32_t user, bool visible);
     //! Selects layer with given uid.
