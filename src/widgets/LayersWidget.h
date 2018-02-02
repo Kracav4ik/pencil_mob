@@ -104,4 +104,7 @@ signals:
 
      //! Informs the client that down button is clicked.
     void downButtonClicked(uint32_t uid);
+
+    //! Informs the client that layer is changed visible.
+    void layerVisibleChanged(uint32_t uid, bool visible);
 };

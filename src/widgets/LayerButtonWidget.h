@@ -15,6 +15,8 @@ private slots:
      //! Click the button up, which moves the layer up.
     void on_downButton_clicked();
 
+    void on_layerVisible_clicked(bool visible);
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -35,6 +37,8 @@ public:
 signals:
      //! The signal for selected. If you click on widget.
     void clicked();
+
+    void layerVisibleClicked(bool visible);
 
      //! The signal indicates that the button is up clicked.
     void upButtonClicked();

@@ -27,6 +27,10 @@ void LayersWidget::appendOwnLayer(uint32_t ownUid, const QString& name) {
 
     addButtonWidget(button);
 
+    connect(button, &LayerButtonWidget::layerVisibleClicked, [this, ownUid](bool visible) {
+        emit layerVisibleChanged(ownUid, visible);
+    });
+
     connect(button, &LayerButtonWidget::clicked, [this, ownUid]() {
         emit layerSelected(ownUid);
     });

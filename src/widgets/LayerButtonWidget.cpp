@@ -28,3 +28,7 @@ void LayerButtonWidget::on_upButton_clicked() {
 void LayerButtonWidget::on_downButton_clicked() {
     emit downButtonClicked();
 }
+
+void LayerButtonWidget::on_layerVisible_clicked(bool visible) {
+    emit layerVisibleClicked(visible);
+}

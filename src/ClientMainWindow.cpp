@@ -65,6 +65,7 @@ ClientMainWindow::ClientMainWindow()
     connect(canvas, &CanvasWidget::leftDrag, toolSelector, &ToolSelectorWidget::drag);
     connect(canvas, &CanvasWidget::endDrag, toolSelector, &ToolSelectorWidget::endDrag);
     connect(layersWidget, &LayersWidget::layerSelected, &painting, &Painting::selectLayer);
+    connect(layersWidget, &LayersWidget::layerVisibleChanged, &painting, &Painting::changeLayerVisible);
     connect(listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::changedUserVisible, &painting, &Painting::changingUserVisible);
     connect(&painting, &Painting::layerAdded, layersWidget, &LayersWidget::appendLayer);
     connect(&painting, &Painting::ownLayerAdded, layersWidget, &LayersWidget::appendOwnLayer);

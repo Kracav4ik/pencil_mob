@@ -35,7 +35,8 @@ void Painting::addOwnStroke(const Stroke& stroke) {
 void Painting::drawPicture(QPainter& p, const QSize& size, const QPointF& translation) const {
     for (LayerId uid : zOrder) {
         const Layer* layer = getByUid(uid);
-        if (!userToVisible[uidFromLayer(layer).user]) {
+        LayerId layerId = uidFromLayer(layer);
+        if (!userToVisible[layerId.user] or layerId.user == getOurUserId() and ourUidToVisible.contains(layerId.layer) and !ourUidToVisible[layerId.layer]) {
             continue;
         }
         QImage img = layer->drawImg(size, translation);
@@ -279,8 +280,7 @@ void Painting::setOurUserId(uint32_t newUserId) {
     }
     for (uint32_t key : userToVisible.keys()) {
         if (key == getOurUserId()) {
-            bool visible = userToVisible.take(key);
-            userToVisible[newUserId] = visible;
+            userToVisible[newUserId] = userToVisible.take(key);
         }
     }
     for (LayerId& layer : zOrder) {
@@ -335,4 +335,9 @@ void Painting::write(QJsonObject& json) const {
         newLayers << object;
     }
     json["layers"] = newLayers;
+}
+
+void Painting::changeLayerVisible(uint32_t uid, bool visible) {
+    ourUidToVisible[uid] = visible;
+    emit changed();
 }

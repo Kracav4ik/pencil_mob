@@ -24,6 +24,7 @@ private:
     //! Map from uid layer to layer.
     QHash<LayerId, Layer*> uidToLayer;
     QHash<uint32_t, bool> userToVisible;
+    QHash<uint32_t, bool> ourUidToVisible;
     //! Layers z-order.
     QVector<LayerId> zOrder;
 
@@ -101,6 +102,8 @@ public slots:
     //! Selects layer with given uid.
     //! \param uid
     void selectLayer(uint32_t uid);
+
+    void changeLayerVisible(uint32_t uid, bool visible);
 
     //! Move a layer with a layer uid to a new z-order position.
     //! \param uid A layer uid.
