@@ -112,6 +112,10 @@ void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
     painting.addStroke({user, m.layerId}, Stroke(m.color, m.isEraser, m.points));
 }
 
+void ClientMainWindow::handleRemoveLastStrokeMessage(uint32_t user, const RemoveLastStrokeMessage& m) {
+    painting.removeLastStroke({user, m.layerId});
+}
+
 void ClientMainWindow::handleAddNewLayerMessage(uint32_t user, const AddNewLayerMessage& m) {
     if (!painting.containsUser(user)){
         listOfVisibleUsersWidget->addUser(user);
@@ -185,10 +189,6 @@ void ClientMainWindow::strokeFinished(const Stroke& stroke) {
 
     AddStrokeToCurrentLayerCommand* cmd = new AddStrokeToCurrentLayerCommand(painting, *this, stroke);
     pushCommand(*cmd);
-
-    LayerId layerId = painting.getCurrentLayerId();
-
-    sendMessage<PathMessage>(stroke.color, layerId.layer, stroke.isEraser, stroke.polygon);
 }
 
 bool ClientMainWindow::isConnected() const {

@@ -201,6 +201,24 @@ struct RemoveLayerMessage : MessageBase{
     }
 };
 
+struct RemoveLastStrokeMessage : MessageBase{
+    uint32_t layerId;
+
+    explicit RemoveLastStrokeMessage(uint32_t layerId)
+            : MessageBase(REMOVE_LAST_STROKE_MESSAGE), layerId(layerId) {}
+
+    QByteArray encodeMessageBody() const override {
+        return encode(static_cast<uint32_t>(layerId));
+    }
+
+    explicit RemoveLastStrokeMessage(const QByteArray& data)
+            : MessageBase(REMOVE_LAST_STROKE_MESSAGE) {
+        QByteArray m = data;
+
+        layerId = decodeAndShift(m);
+    }
+};
+
 struct CopyLayerMessage : MessageBase{
     uint32_t fromUserId;
     uint32_t fromLayerId;

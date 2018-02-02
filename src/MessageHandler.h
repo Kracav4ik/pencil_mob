@@ -11,6 +11,7 @@ class AddNewLayerMessage;
 class RenameLayerMessage;
 class MoveLayerMessage;
 class RemoveLayerMessage;
+class RemoveLastStrokeMessage;
 class CopyLayerMessage;
 class LayerContentsMessage;
 
@@ -26,6 +27,7 @@ protected:
     virtual void handleRenameLayerMessage(uint32_t user, const RenameLayerMessage& m) = 0;
     virtual void handleMoveLayerMessage(uint32_t user, const MoveLayerMessage& m) = 0;
     virtual void handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) = 0;
+    virtual void handleRemoveLastStrokeMessage(uint32_t user, const RemoveLastStrokeMessage& m) = 0;
     virtual void handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) = 0;
     virtual void handleLayerContentsMessage(uint32_t user, const LayerContentsMessage& m) = 0;
 

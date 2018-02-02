@@ -9,6 +9,7 @@ const char* getMessageTypeString(uint32_t type) {
         case RENAME_LAYER_MESSAGE: return "RenameLayerMessage";
         case MOVE_LAYER_MESSAGE: return "MoveLayerMessage";
         case REMOVE_LAYER_MESSAGE: return "RemoveLayerMessage";
+        case REMOVE_LAST_STROKE_MESSAGE: return "RemoveLastStrokeMessage";
         case COPY_LAYER_MESSAGE: return "CopyLayerMessage";
         case LAYER_CONTENTS_MESSAGE: return "LayerContentsMessage";
     }

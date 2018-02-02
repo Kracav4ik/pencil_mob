@@ -40,6 +40,11 @@ void MessageHandler::handle(uint32_t user, uint32_t messageType, const QByteArra
             handleRemoveLayerMessage(user, msg);
             break;
         }
+        case REMOVE_LAST_STROKE_MESSAGE: {
+            RemoveLastStrokeMessage msg(message);
+            handleRemoveLastStrokeMessage(user, msg);
+            break;
+        }
         case COPY_LAYER_MESSAGE: {
             CopyLayerMessage msg(message);
             handleCopyLayerMessage(user, msg);

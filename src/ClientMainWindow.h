@@ -64,6 +64,7 @@ private:
     void handleRemoveLayerMessage(uint32_t user, const RemoveLayerMessage& m) override;
     void handleCopyLayerMessage(uint32_t user, const CopyLayerMessage& m) override;
     void handleLayerContentsMessage(uint32_t user, const LayerContentsMessage& m) override;
+    void handleRemoveLastStrokeMessage(uint32_t user, const RemoveLastStrokeMessage& m) override;
 
 public:
     //! Starts the client.
