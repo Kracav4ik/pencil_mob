@@ -69,7 +69,8 @@ ClientMainWindow::ClientMainWindow()
     connect(listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::changedUserVisible, &painting, &Painting::changingUserVisible);
     connect(&painting, &Painting::layerAdded, layersWidget, &LayersWidget::appendLayer);
     connect(&painting, &Painting::ownLayerAdded, layersWidget, &LayersWidget::appendOwnLayer);
-    connect(&painting, &Painting::layerNameChanged, layersWidget, &LayersWidget::changeLayerName);
+    connect(&painting, &Painting::ownLayerNameChanged, layersWidget, &LayersWidget::changeLayerName);
+    connect(&painting, &Painting::layerNameChanged, layersWidget, &LayersWidget::changeOwnLayerName);
     connect(&painting, &Painting::ownLayerRemoved, layersWidget, &LayersWidget::deleteOwnLayer);
     connect(&painting, &Painting::layerRemoved, layersWidget, &LayersWidget::deleteLayer);
     connect(&painting, &Painting::layerSelected, layersWidget, &LayersWidget::selectLayer);

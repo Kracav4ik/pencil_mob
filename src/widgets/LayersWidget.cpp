@@ -75,6 +75,15 @@ void LayersWidget::changeLayerName(uint32_t uid, const QString& name) {
     button->setName(name);
 }
 
+void LayersWidget::changeOwnLayerName(LayerId uid, const QString& name) {
+    LayerButtonWidget* button = uidToOtherLayer[uid];
+    if (!button) {
+        printf("ERRRROR: changeLayerName cannot find button %d\n", uid);
+        return;
+    }
+    button->setName(name);
+}
+
 void LayersWidget::on_renameLayer_clicked() {
     emit renameClicked();
 }

@@ -194,7 +194,11 @@ void Painting::renameLayer(LayerId uid, const QString& name) {
         return;
     }
     layer->setName(name);
-    emit layerNameChanged(uid.layer, name);
+    if (uid.user == getOurUserId()) {
+        emit ownLayerNameChanged(uid.layer, name);
+    } else {
+        emit layerNameChanged(uid, name);
+    }
 }
 
 const Layer* Painting::getCurrentLayer() const {

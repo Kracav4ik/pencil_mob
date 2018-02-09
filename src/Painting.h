@@ -47,7 +47,9 @@ signals:
     //! Emitted when the layer name is changed.
     //! \param uid Layer uid.
     //! \param name New layer name.
-    void layerNameChanged(uint32_t uid, const QString& name);
+    void ownLayerNameChanged(uint32_t uid, const QString& name);
+
+    void layerNameChanged(LayerId uid, const QString& name);
 
     //! Emitted when the new layer on another client is added.
     //! \param uid New layer uid.

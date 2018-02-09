@@ -67,6 +67,8 @@ public slots:
      //! \param name new layer name.
     void changeLayerName(uint32_t uid, const QString& name);
 
+    void changeOwnLayerName(LayerId uid, const QString& name);
+
      //! Move a layer of another client from layer uid to new layer's uid using the insert.
      //! \param uid old layer uid.
      //! \param newPos new layer uid.
