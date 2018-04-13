@@ -2,7 +2,7 @@
 #include <QPoint>
 #include <QPainter>
 
-void Tool::beginDrag() {}
+void Tool::beginDrag(const QPoint& pos) {}
 
 void Tool::drag(const QPoint& pos) {}
 

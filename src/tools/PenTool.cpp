@@ -2,13 +2,16 @@
 
 #include "Stroke.h"
 
-void PenTool::beginDrag() {
-    currentStoke = new Stroke(penColor);
+void PenTool::beginDrag(const QPoint& pos) {
+    currentStoke = new Stroke(penColor, false, QPolygon{{pos}});
+    emit needRepaint();
 }
 
 void PenTool::drag(const QPoint& pos) {
     if (currentStoke) {
-        currentStoke->polygon << pos;
+        if (!currentStoke->polygon.contains(pos)) {
+            currentStoke->polygon << pos;
+        }
         emit needRepaint();
     }
 }

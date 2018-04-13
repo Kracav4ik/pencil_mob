@@ -16,6 +16,7 @@ void Stroke::paint(QPainter& painter) const {
 
     QPen pen(QBrush(color), 5);
     painter.setPen(pen);
+    painter.drawPoints(polygon);
     painter.drawPolyline(polygon);
 }
 

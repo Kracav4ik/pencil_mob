@@ -12,7 +12,7 @@ class Tool: public QObject {
 Q_OBJECT
 public:
     //! Beginning of the mouse drag.
-    virtual void beginDrag();
+    virtual void beginDrag(const QPoint& pos);
     //! Drag of the mouse.
     //! \param pos mouse position.
     virtual void drag(const QPoint& pos);

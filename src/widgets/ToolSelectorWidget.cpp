@@ -32,9 +32,9 @@ void ToolSelectorWidget::selectTool(Tool* tool) {
     }
 }
 
-void ToolSelectorWidget::beginDrag() {
+void ToolSelectorWidget::beginDrag(const QPoint& pos) {
     if (currentTool){
-        currentTool->beginDrag();
+        currentTool->beginDrag(pos);
     }
 }
 

@@ -42,7 +42,7 @@ signals:
 
 public slots:
     //! We catch the beginning of the mouse drag.
-    void beginDrag();
+    void beginDrag(const QPoint& pos);
 
     //! We catch the drag of the mouse.
     //! \param pos mouse position.

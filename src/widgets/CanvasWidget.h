@@ -60,7 +60,7 @@ signals:
     void rightDrag(const QPointF& delta);
 
     //! Ending movement of the mouse.
-    void beginDrag();
+    void beginDrag(const QPoint& pos);
     //! Beginning movement of the mouse.
     void endDrag();
 

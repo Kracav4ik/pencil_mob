@@ -13,7 +13,7 @@ private:
     Stroke* currentStoke = nullptr;
 
 public:
-    void beginDrag() override;
+    void beginDrag(const QPoint& pos) override;
     void drag(const QPoint& pos) override;
     void endDrag() override;
 

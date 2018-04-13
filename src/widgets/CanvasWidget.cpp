@@ -3,7 +3,7 @@
 
 void CanvasWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
-        emit beginDrag();
+        emit beginDrag(camera.screenToWorld(event->pos()));
     }
 }
 
