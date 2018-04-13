@@ -21,6 +21,8 @@
 
 static const float SCALE_FACTOR = powf(2, 0.25);
 
+const QString APP_NAME = " - Pencil mob";
+
 ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
         , colorChooser(new ColorChooserWidget(this))
@@ -77,6 +79,7 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::ownLayerMoved, layersWidget, &LayersWidget::moveOwnLayer);
     connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
     connect(&painting, &Painting::userAdded, listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::addUser);
+    connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
 
     // undo/redo menu items
     QAction* undoAction = undoStack.createUndoAction(this);
@@ -172,6 +175,7 @@ void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state
         case QAbstractSocket::UnconnectedState:
             buttonSend->setEnabled(false);
             buttonConnect->setEnabled(true);
+            updateTitle();
             break;
         default:
             break;
@@ -355,6 +359,7 @@ void ClientMainWindow::on_actionOpen_triggered() {
         return;
     }
     path = openPath;
+    updateTitle();
     undoStack.clear();
     canvas->update();
 }
@@ -400,7 +405,23 @@ void ClientMainWindow::doSaveLayers(const QString& savePath) {
         return;
     }
     path = savePath;
+    updateTitle();
     undoStack.setClean();
+}
+
+void ClientMainWindow::updateTitle() {
+    if (isConnected()){
+        return;
+    }
+    if (path.isNull()) {
+        setWindowTitle("* New" + APP_NAME);
+        return;
+    }
+    QString title = QDir(getImagesDir()).relativeFilePath(path) + APP_NAME;
+    if (!undoStack.isClean()) {
+        title = "* " + title;
+    }
+    setWindowTitle(title);
 }
 
 void ClientMainWindow::pushCommand(ClientCommand& command) {
