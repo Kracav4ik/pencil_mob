@@ -212,4 +212,6 @@ public:
     uint32_t getTopOwnLayer(uint32_t ignoreLayer=NO_LAYER);
 
     uint32_t getNextLayerUid();
+
+    void clearAll();
 };

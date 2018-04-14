@@ -21,7 +21,7 @@
 
 static const float SCALE_FACTOR = powf(2, 0.25);
 
-const QString APP_NAME = " - Pencil mob";
+const QString APP_NAME = "Pencil mob";
 
 ClientMainWindow::ClientMainWindow()
         : client(new QTcpSocket(this))
@@ -359,8 +359,31 @@ void ClientMainWindow::on_actionOpen_triggered() {
         return;
     }
     path = openPath;
-    updateTitle();
     undoStack.clear();
+    updateTitle();
+    canvas->update();
+}
+
+void ClientMainWindow::on_actionNew_triggered() {
+    if (!undoStack.isClean()) {
+        auto answer = QMessageBox::question(
+            this,
+            APP_NAME,
+            "Are you want to save file `" + (path.isEmpty() ? "New" : path) + "`?",
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel
+        );
+        if (answer == QMessageBox::StandardButton::Cancel) {
+            return;
+        }
+        if (answer == QMessageBox::StandardButton::Yes) {
+            on_actionSave_triggered();
+        }
+    }
+    undoStack.clear();
+    path.clear();
+    painting.clearAll();
+    newLayerCounter = 1;
+    on_layersWidget_addLayerClicked();
     canvas->update();
 }
 
@@ -405,8 +428,8 @@ void ClientMainWindow::doSaveLayers(const QString& savePath) {
         return;
     }
     path = savePath;
-    updateTitle();
     undoStack.setClean();
+    updateTitle();
 }
 
 void ClientMainWindow::updateTitle() {
@@ -414,10 +437,10 @@ void ClientMainWindow::updateTitle() {
         return;
     }
     if (path.isNull()) {
-        setWindowTitle("* New" + APP_NAME);
+        setWindowTitle("* New - " + APP_NAME);
         return;
     }
-    QString title = QDir(getImagesDir()).relativeFilePath(path) + APP_NAME;
+    QString title = QDir(getImagesDir()).relativeFilePath(path) + " - " + APP_NAME;
     if (!undoStack.isClean()) {
         title = "* " + title;
     }
@@ -426,4 +449,22 @@ void ClientMainWindow::updateTitle() {
 
 void ClientMainWindow::pushCommand(ClientCommand& command) {
     undoStack.push(&command);
+}
+
+void ClientMainWindow::closeEvent(QCloseEvent* event) {
+    if (undoStack.isClean()) {
+        return;
+    }
+    auto answer = QMessageBox::question(
+        this,
+        APP_NAME,
+        "Are you want to save file `" + (path.isEmpty()? "New": path) + "`?",
+        QMessageBox::StandardButton::Yes|QMessageBox::StandardButton::No|QMessageBox::StandardButton::Cancel
+    );
+    if (answer == QMessageBox::StandardButton::Cancel) {
+        event->ignore();
+    }
+    if (answer == QMessageBox::StandardButton::Yes) {
+        on_actionSave_triggered();
+    }
 }

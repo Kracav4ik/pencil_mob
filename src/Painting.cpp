@@ -349,3 +349,25 @@ void Painting::changeLayerVisible(uint32_t uid, bool visible) {
     ourUidToVisible[uid] = visible;
     emit changed();
 }
+
+void Painting::clearAll() {
+    uint32_t layer = getTopOwnLayer();
+    while (layer != NO_LAYER) {
+        emit ownLayerRemoved(layer);
+        zOrder.removeOne({getOurUserId(), layer});
+        layer = getTopOwnLayer();
+    }
+    
+    currentLayer = LayerId(ourUserId, NO_LAYER);
+    nextLayerUid = 1000;
+    userToVisible.clear();
+    userToVisible[ourUserId] = true;
+
+    ourUidToVisible.clear();
+    zOrder.clear();
+    for (const Layer* layer: uidToLayer){
+        delete layer;
+    }
+    uidToLayer.clear();
+    emit changed();
+}

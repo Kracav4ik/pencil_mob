@@ -77,6 +77,9 @@ public:
     //! \param down The parameter that allows you to change direction of moving layer(up or down).
     void moveDown(uint32_t uid, bool down);
 
+protected:
+    void closeEvent(QCloseEvent* event) override;
+
 public slots:
     //! Connects the client to the server.
     void on_socket_readyRead();
@@ -121,6 +124,7 @@ public slots:
     void on_resetZoom_clicked();
 
 private slots:
+    void on_actionNew_triggered();
     void on_actionOpen_triggered();
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
