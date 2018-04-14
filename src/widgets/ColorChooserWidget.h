@@ -12,8 +12,8 @@ private slots:
     void updateColor();
 
     //! Changes the color value.
-    //! \param value color value
-    void on_sliderL_valueChanged(int value);
+    //! \param y color value
+    void on_gradientV_mouseDrag(int _, int y);
 
     //! Selects a color from the palette.
     //! \param x, y Coordinates of the palette.

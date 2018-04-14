@@ -53,7 +53,23 @@ ColorChooserWidget::ColorChooserWidget(QWidget* parent): QDockWidget(parent) {
             }
         }
 
+        int L0 = color.lightness();
+
+        int y0 = (255 - L0) * (h - 1) / 255;
+
         painter.drawImage(QPoint(), img);
+        QPainterPath path1 = QPainterPath();
+        QPainterPath path2 = QPainterPath();
+        QPolygon polygon1 = QPolygon{{{w / 2 + 4, y0}, {w / 2 + 8, y0 - 4}, {w / 2 + 8, y0 + 4}}};
+        QPolygon polygon2 = QPolygon{{{w / 2 - 5, y0}, {w / 2 - 9, y0 - 4}, {w / 2 - 9, y0 + 4}}};
+        path1.addPolygon(polygon1);
+        path2.addPolygon(polygon2);
+        painter.fillPath(path1, {Qt::white});
+        painter.fillPath(path2, {Qt::white});
+
+        painter.setPen(Qt::black);
+        painter.drawPolygon(polygon2);
+        painter.drawPolygon(polygon1);
     });
 
     connect(editR, &QLineEdit::textChanged, this, &updateColor);
@@ -93,7 +109,6 @@ void ColorChooserWidget::selectColor(const QColor& c) {
         editS->setText(str(c.hslSaturation()));
     }
     editL->setText(str(c.lightness()));
-    sliderL->setValue(c.lightness());
 
     rainbowHS->update();
     gradientV->update();
@@ -135,8 +150,13 @@ void ColorChooserWidget::updateColor() {
     selectColor(c);
 }
 
-void ColorChooserWidget::on_sliderL_valueChanged(int value) {
-    editL->setText(str(value));
+void ColorChooserWidget::on_gradientV_mouseDrag(int _, int y) {
+    int y1 = gradientV->height() - 1;
+    y = qBound(0, y, y1);
+    int L = 255 - y * 255 / y1;
+    QColor c;
+    c.setHsl(color.hslHue(), color.hslSaturation(), L);
+    selectColor(c);
 }
 
 void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
@@ -144,7 +164,7 @@ void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
     x = qBound(0, x, x1);
     int y1 = rainbowHS->height() - 1;
     y = qBound(0, y, y1);
-    
+
     int H = x * 359 / x1;
     int S = 255 - y * 255 / y1;
 

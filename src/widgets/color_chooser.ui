@@ -6,15 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>350</height>
+    <width>192</width>
+    <height>310</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>260</width>
-    <height>326</height>
-   </size>
   </property>
   <property name="allowedAreas">
    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
@@ -49,13 +43,13 @@
         <widget class="QFrame" name="frame">
          <property name="minimumSize">
           <size>
-           <width>182</width>
+           <width>142</width>
            <height>194</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>182</width>
+           <width>142</width>
            <height>194</height>
           </size>
          </property>
@@ -88,13 +82,13 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>180</width>
+              <width>140</width>
               <height>192</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>140</width>
               <height>192</height>
              </size>
             </property>
@@ -120,7 +114,7 @@
         <widget class="QFrame" name="frame_2">
          <property name="minimumSize">
           <size>
-           <width>10</width>
+           <width>20</width>
            <height>194</height>
           </size>
          </property>
@@ -159,7 +153,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>8</width>
+              <width>18</width>
               <height>192</height>
              </size>
             </property>
@@ -172,49 +166,6 @@
            </widget>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="sliderL">
-         <property name="minimumSize">
-          <size>
-           <width>22</width>
-           <height>202</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>22</width>
-           <height>202</height>
-          </size>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>255</number>
-         </property>
-         <property name="pageStep">
-          <number>8</number>
-         </property>
-         <property name="value">
-          <number>255</number>
-         </property>
-         <property name="tracking">
-          <bool>true</bool>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>32</number>
-         </property>
         </widget>
        </item>
       </layout>
@@ -330,7 +281,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Hue</string>
+             <string>H</string>
             </property>
             <property name="buddy">
              <cstring>editH</cstring>
@@ -365,7 +316,7 @@
           <item row="0" column="2">
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Red</string>
+             <string>R</string>
             </property>
             <property name="buddy">
              <cstring>editR</cstring>
@@ -400,7 +351,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Saturation</string>
+             <string>S</string>
             </property>
             <property name="buddy">
              <cstring>editS</cstring>
@@ -435,7 +386,7 @@
           <item row="1" column="2">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Green</string>
+             <string>G</string>
             </property>
             <property name="buddy">
              <cstring>editG</cstring>
@@ -470,7 +421,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Lightness</string>
+             <string>L</string>
             </property>
             <property name="buddy">
              <cstring>editL</cstring>
@@ -505,7 +456,7 @@
           <item row="2" column="2">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Blue</string>
+             <string>B</string>
             </property>
             <property name="buddy">
              <cstring>editB</cstring>
