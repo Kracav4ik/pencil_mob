@@ -80,6 +80,7 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
     connect(&painting, &Painting::userAdded, listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::addUser);
     connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
+    connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
 
     // undo/redo menu items
     QAction* undoAction = undoStack.createUndoAction(this);
@@ -89,8 +90,9 @@ ClientMainWindow::ClientMainWindow()
     redoAction->setShortcut(QKeySequence("Ctrl+Shift+Z"));
     menuView->addAction(redoAction);
 
-    connect(&undoStack, &QUndoStack::indexChanged, canvas, &CanvasWidget::updateWidget);
+    connect(&timer, &QTimer::timeout, this, &resave);
 
+    timer.start(100000);
     on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
@@ -465,6 +467,12 @@ void ClientMainWindow::closeEvent(QCloseEvent* event) {
         event->ignore();
     }
     if (answer == QMessageBox::StandardButton::Yes) {
+        on_actionSave_triggered();
+    }
+}
+
+void ClientMainWindow::resave() {
+    if (!path.isEmpty()) {
         on_actionSave_triggered();
     }
 }

@@ -4,6 +4,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QUndoStack>
+#include <QTimer>
 
 #include "ui_pencil_mob.h"
 #include "transport.h"
@@ -39,6 +40,7 @@ private:
     Painting painting;
     //! Something kind of counter.
     int newLayerCounter = 1;
+    QTimer timer;
 
     ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
     //! Undo stack for editor commands.
@@ -129,5 +131,6 @@ private slots:
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
     void updateTitle();
+    void resave();
 };
 
