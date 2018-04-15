@@ -30,6 +30,7 @@ ClientMainWindow::ClientMainWindow()
         , messages(new MessagesWidget(this))
         , layersWidget(new LayersWidget(this))
         , painting(this)
+        , recent("previous file.tmp")
         , listOfVisibleUsersWidget(new ListOfVisibleUsersWidget(this, painting.getOurUserId()))
 {
     // create UI elements and autoconnect signals
@@ -92,8 +93,19 @@ ClientMainWindow::ClientMainWindow()
 
     connect(&timer, &QTimer::timeout, this, &resave);
 
+    if (recent.open(QIODevice::Truncate | QIODevice::ReadOnly)) {
+        path = recent.readAll();
+        if (!path.isEmpty() && path.endsWith(".json")){
+            open(path);
+        }
+        recent.close();
+    }
+    
+    if (!painting.hasOwnLayers()) {
+        on_layersWidget_addLayerClicked();
+    }
+
     timer.start(100000);
-    on_layersWidget_addLayerClicked();
     toolSelector->toolButtons.buttons()[0]->click();
     colorChooser->selectColor(painting.getPenColor());
     show();
@@ -350,19 +362,25 @@ QString ClientMainWindow::getImagesDir() {
 }
 
 void ClientMainWindow::on_actionOpen_triggered() {
-    QString openPath = QFileDialog::getOpenFileName(this, "Open image", getImagesDir(), "JSON files (*.json)");
+    const QString& openPath = QFileDialog::getOpenFileName(this, "Open image", getImagesDir(), "JSON files (*.json)");
+    open(openPath);
     if (openPath.isNull()){
         return;
     }
-
+    if (recent.open(QIODevice::Truncate | QIODevice::WriteOnly)){
+        recent.write(path.toUtf8().toStdString().c_str());
+        recent.close();
+    }
+}
+void ClientMainWindow::open(const QString& openPath) {
     QString errorMsg;
     if (!loadLayers(painting, openPath, &errorMsg)) {
         QMessageBox::critical(this, "Error opening image", errorMsg);
         return;
     }
     path = openPath;
-    undoStack.clear();
     updateTitle();
+    undoStack.clear();
     canvas->update();
 }
 
@@ -381,6 +399,8 @@ void ClientMainWindow::on_actionNew_triggered() {
             on_actionSave_triggered();
         }
     }
+    recent.open(QIODevice::WriteOnly);
+    recent.close();
     undoStack.clear();
     path.clear();
     painting.clearAll();
@@ -430,6 +450,10 @@ void ClientMainWindow::doSaveLayers(const QString& savePath) {
         return;
     }
     path = savePath;
+    if (recent.open(QIODevice::Truncate | QIODevice::WriteOnly)){
+        recent.write(path.toUtf8());
+        recent.close();
+    }
     undoStack.setClean();
     updateTitle();
 }

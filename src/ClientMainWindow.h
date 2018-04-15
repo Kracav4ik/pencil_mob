@@ -41,6 +41,7 @@ private:
     //! Something kind of counter.
     int newLayerCounter = 1;
     QTimer timer;
+    QFile recent;
 
     ListOfVisibleUsersWidget* listOfVisibleUsersWidget;
     //! Undo stack for editor commands.
@@ -56,6 +57,7 @@ private:
     //! Saves level to specified path and sets path as current if there were no errors.
     //! \param savePath specified path.
     void doSaveLayers(const QString& savePath);
+    void open(const QString& openPath);
 
     void handleStringMessage(uint32_t user, const StringMessage& m) override;
     void handleSetClientInfoMessage(uint32_t user, const SetClientInfoMessage& m) override;
