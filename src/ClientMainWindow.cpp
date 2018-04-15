@@ -86,10 +86,10 @@ ClientMainWindow::ClientMainWindow()
     // undo/redo menu items
     QAction* undoAction = undoStack.createUndoAction(this);
     undoAction->setShortcut(QKeySequence("Ctrl+Z"));
-    menuView->addAction(undoAction);
+    menuEdit->addAction(undoAction);
     QAction* redoAction = undoStack.createRedoAction(this);
     redoAction->setShortcut(QKeySequence("Ctrl+Shift+Z"));
-    menuView->addAction(redoAction);
+    menuEdit->addAction(redoAction);
 
     connect(&timer, &QTimer::timeout, this, &resave);
 
