@@ -3,7 +3,7 @@
 #include "Stroke.h"
 
 void PenTool::beginDrag(const QPoint& pos) {
-    currentStoke = new Stroke(penColor, false, QPolygon{{pos}});
+    currentStoke = new Stroke(penColor, false, QPolygon{{pos}}, brushSize);
     emit needRepaint();
 }
 

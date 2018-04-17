@@ -64,6 +64,7 @@ ClientMainWindow::ClientMainWindow()
         connect(tool, &Tool::needRepaint, canvas, &CanvasWidget::updateWidget);
     }
     connect(toolSelector, &ToolSelectorWidget::toolSelected, &painting, &Painting::setCurrentTool);
+    connect(toolSelector, &ToolSelectorWidget::toolSelected, this, setCurrentTool);
     connect(canvas, &CanvasWidget::beginDrag, toolSelector, &ToolSelectorWidget::beginDrag);
     connect(canvas, &CanvasWidget::leftDrag, toolSelector, &ToolSelectorWidget::drag);
     connect(canvas, &CanvasWidget::endDrag, toolSelector, &ToolSelectorWidget::endDrag);
@@ -80,6 +81,8 @@ ClientMainWindow::ClientMainWindow()
     connect(&painting, &Painting::ownLayerMoved, layersWidget, &LayersWidget::moveOwnLayer);
     connect(&painting, &Painting::layerMoved, layersWidget, &LayersWidget::moveLayer);
     connect(&painting, &Painting::userAdded, listOfVisibleUsersWidget, &ListOfVisibleUsersWidget::addUser);
+    connect(colorChooser->density, SIGNAL(valueChanged(int)), this, SLOT(densityChanged(int)));
+    connect(colorChooser->brushSize, SIGNAL(valueChanged(int)), &painting, SLOT(setBrushSize(int)));
     connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
     connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
 
@@ -127,7 +130,7 @@ void ClientMainWindow::handleSetClientInfoMessage(uint32_t user, const SetClient
 }
 
 void ClientMainWindow::handlePathMessage(uint32_t user, const PathMessage& m) {
-    painting.addStroke({user, m.layerId}, Stroke(m.color, m.isEraser, m.points));
+    painting.addStroke({user, m.layerId}, Stroke(m.color, m.isEraser, m.points, m.brushSize));
 }
 
 void ClientMainWindow::handleRemoveLastStrokeMessage(uint32_t user, const RemoveLastStrokeMessage& m) {
@@ -499,4 +502,14 @@ void ClientMainWindow::resave() {
     if (!path.isEmpty()) {
         on_actionSave_triggered();
     }
+}
+
+void ClientMainWindow::densityChanged(int a) {
+    QColor c = painting.getPenColor();
+    c.setAlpha(int(2.55 * a));
+    painting.setPenColor(c);
+}
+
+void ClientMainWindow::setCurrentTool(Tool* tool) {
+    colorChooser->setBrushSize(tool->getBrushSize());
 }

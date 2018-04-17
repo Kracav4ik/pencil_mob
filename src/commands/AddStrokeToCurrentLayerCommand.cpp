@@ -13,5 +13,5 @@ void AddStrokeToCurrentLayerCommand::undo() {
 void AddStrokeToCurrentLayerCommand::redo() {
     uid = painting.getCurrentLayerId();
     painting.addStroke(uid, stroke);
-    sendMessage<PathMessage>(stroke.color, uid.layer, stroke.isEraser, stroke.polygon);
+    sendMessage<PathMessage>(stroke.color, uid.layer, stroke.isEraser, stroke.polygon, stroke.brushSize);
 }

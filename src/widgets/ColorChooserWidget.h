@@ -5,7 +5,7 @@
 #include "ui_color_chooser.h"
 
 //! This is a widget that allows you to choose the color that you want to draw.
-class ColorChooserWidget : public QDockWidget, private Ui::ColorChooserWidget {
+class ColorChooserWidget : public QDockWidget, public Ui::ColorChooserWidget {
 Q_OBJECT
 private slots:
     //! Updates the current color if needed.
@@ -31,6 +31,7 @@ public:
     //! Sets a color.
     //! \param c Color.
     void selectColor(const QColor& c);
+    void setBrushSize(int bs);
 
 signals:
     //! A signal that tells the client the selected color.

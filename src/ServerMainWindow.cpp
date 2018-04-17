@@ -104,7 +104,7 @@ void ServerMainWindow::readyToRead() {
                 }
                 case PATH_MESSAGE: {
                     PathMessage m(message);
-                    painting.addStroke({senderUid, m.layerId}, Stroke(m.color, m.isEraser, m.points));
+                    painting.addStroke({senderUid, m.layerId}, Stroke(m.color, m.isEraser, m.points, m.brushSize));
                     break;
                 }
                 default: /* do nothing */;

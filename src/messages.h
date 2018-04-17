@@ -48,9 +48,10 @@ struct PathMessage : MessageBase{
     uint32_t layerId;
     bool isEraser;
     QVector<QPoint> points;
+    uint32_t brushSize;
 
-    PathMessage(const QColor& color, uint32_t layerId, bool isEraser, const QVector<QPoint>& points)
-            : MessageBase(PATH_MESSAGE), color(color), layerId(layerId), isEraser(isEraser), points(points) {}
+    PathMessage(const QColor& color, uint32_t layerId, bool isEraser, const QVector<QPoint>& points, uint32_t brushSize)
+            : MessageBase(PATH_MESSAGE), color(color), layerId(layerId), isEraser(isEraser), points(points), brushSize(brushSize) {}
 
     QByteArray encodeMessageBody() const override {
         QByteArray array;
@@ -68,6 +69,8 @@ struct PathMessage : MessageBase{
             array.append(encode(static_cast<uint32_t>(pointsItem.x())));
             array.append(encode(static_cast<uint32_t>(pointsItem.y())));
         }
+
+        array.append(encode(static_cast<uint32_t>(brushSize)));
 
         return array;
     }
@@ -99,6 +102,8 @@ struct PathMessage : MessageBase{
 
             points << QPoint(x, y);
         }
+
+        brushSize = decodeAndShift(m);
     }
 };
 

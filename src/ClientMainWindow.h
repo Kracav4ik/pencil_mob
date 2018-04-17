@@ -134,5 +134,7 @@ private slots:
     void on_actionSaveAs_triggered();
     void updateTitle();
     void resave();
+    void densityChanged(int a);
+    void setCurrentTool(Tool* tool);
 };
 

@@ -4,8 +4,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-Stroke::Stroke(const QColor& color, bool isEraser, const QPolygon& polygon)
-        : color(color), isEraser(isEraser), polygon(polygon) {}
+Stroke::Stroke(const QColor& color, bool isEraser, const QPolygon& polygon, int brushSize)
+        : color(color), isEraser(isEraser), polygon(polygon), brushSize(brushSize) {}
 
 void Stroke::paint(QPainter& painter) const {
     if (isEraser){
@@ -14,7 +14,7 @@ void Stroke::paint(QPainter& painter) const {
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     }
 
-    QPen pen(QBrush(color), 5);
+    QPen pen(QBrush(color), brushSize);
     painter.setPen(pen);
     painter.drawPoints(polygon);
     painter.drawPolyline(polygon);
@@ -27,6 +27,7 @@ void Stroke::read(const QJsonObject& json) {
     int b = array[2].toInt(-1);
     int a = array[3].toInt(-1);
     color = QColor(r, g, b, a);
+    brushSize = json["brush_size"].toInt(-1);
     isEraser = json["is_eraser"].toBool(false);
     QPolygon p;
     for (const QJsonValueRef& arr : json["points"].toArray()) {
@@ -40,6 +41,7 @@ void Stroke::read(const QJsonObject& json) {
 
 void Stroke::write(QJsonObject& json) const {
     json["color"] = QJsonArray({color.red(), color.green(), color.blue(), color.alpha()});
+    json["brush_size"] = brushSize;
     json["is_eraser"] = isEraser;
     
     QJsonArray newPoints;

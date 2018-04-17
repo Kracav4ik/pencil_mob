@@ -18,11 +18,13 @@ struct Stroke: public Serializable {
     //! List of points of the stroke.
     QPolygon polygon;
 
+    int brushSize;
+
     //! Create stroke.
     //! \param color Stroke color
     //! \param isEraser If stroke eraser.
     //! \param polygon List of points of the stroke.
-    explicit Stroke(const QColor& color=QColor::Invalid, bool isEraser=false, const QPolygon& polygon=QPolygon());
+    explicit Stroke(const QColor& color=QColor::Invalid, bool isEraser=false, const QPolygon& polygon=QPolygon(), int brushSize=5);
 
     void read(const QJsonObject& json) override;
     void write(QJsonObject& json) const override;

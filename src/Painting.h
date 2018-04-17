@@ -121,6 +121,8 @@ public slots:
     //! \param tool A new another tool.
     void setCurrentTool(Tool* tool);
 
+    void setBrushSize(int bs);
+
 public:
     //! Constant when we did not choose a current layer.
     static const uint32_t NO_LAYER;

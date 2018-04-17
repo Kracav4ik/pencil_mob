@@ -306,7 +306,8 @@ msg_classes = [
         Field(tcolor, 'color'),
         Field(tuint32, 'layerId'),
         Field(tbool, 'isEraser'),
-        Field(tpointvector, 'points')
+        Field(tpointvector, 'points'),
+        Field(tuint32, 'brushSize'),
     ]),
     MsgClass('AddNewLayerMessage', [Field(tuint32, 'layerId'), Field(tstring, 'layerName')]),
     MsgClass('RenameLayerMessage', [Field(tuint32, 'layerId'), Field(tstring, 'layerName')]),

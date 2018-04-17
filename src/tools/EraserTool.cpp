@@ -3,7 +3,7 @@
 #include "Stroke.h"
 
 void EraserTool::beginDrag(const QPoint& pos) {
-    currentStoke = new Stroke(QColor(), true, QPolygon{{pos}});
+    currentStoke = new Stroke(QColor(), true, QPolygon{{pos}}, brushSize);
     emit needRepaint();
 }
 

@@ -9,3 +9,11 @@ void Tool::drag(const QPoint& pos) {}
 void Tool::endDrag() {}
 
 void Tool::paint(QPainter& painter) {}
+
+void Tool::setBrushSize(int bs) {
+    brushSize = bs;
+}
+
+int Tool::getBrushSize() {
+    return brushSize;
+}

@@ -10,6 +10,9 @@ class Stroke;
 //! Abstract class for inheritance of tools.
 class Tool: public QObject {
 Q_OBJECT
+protected:
+    int brushSize = 5;
+
 public:
     //! Beginning of the mouse drag.
     virtual void beginDrag(const QPoint& pos);
@@ -21,6 +24,9 @@ public:
     //! Drawing with the tool.
     //! \param painter Painter who draw.
     virtual void paint(QPainter& painter);
+
+    virtual void setBrushSize(int bs);
+    int getBrushSize();
 
 signals:
     //! It is called if you need to repaint.

@@ -371,3 +371,7 @@ void Painting::clearAll() {
     uidToLayer.clear();
     emit changed();
 }
+
+void Painting::setBrushSize(int bs) {
+    currentTool->setBrushSize(bs);
+}

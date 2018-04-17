@@ -172,3 +172,7 @@ void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
     c.setHsl(H, S, color.lightness());
     selectColor(c);
 }
+
+void ColorChooserWidget::setBrushSize(int bs) {
+    brushSize->setValue(bs);
+}
