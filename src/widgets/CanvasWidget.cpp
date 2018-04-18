@@ -76,6 +76,17 @@ void CanvasWidget::zoomAround(float s, const QPointF& pos) {
 
 void CanvasWidget::resetZoomCamera() {
     zoomAround(1/camera.getScale(), QPointF(rect().width()/2, rect().height()/2));
+    update();
+}
+
+void CanvasWidget::centralZoomInCamera(float z) {
+    zoomAround(z, QPointF(rect().width()/2, rect().height()/2));
+    update();
+}
+
+void CanvasWidget::centralZoomOutCamera(float z) {
+    zoomAround(1/z, QPointF(rect().width()/2, rect().height()/2));
+    update();
 }
 
 void CanvasWidget::moveCamera(const QPointF& delta) {

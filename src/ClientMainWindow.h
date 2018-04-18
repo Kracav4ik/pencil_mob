@@ -126,6 +126,8 @@ public slots:
     void on_canvas_rightDrag(const QPointF& delta);
     void on_canvas_zoomChanged(float z);
     void on_resetZoom_clicked();
+    void on_zoomIn_clicked();
+    void on_zoomOut_clicked();
 
 private slots:
     void on_actionNew_triggered();

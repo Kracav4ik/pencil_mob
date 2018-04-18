@@ -31,6 +31,9 @@ public slots:
     void zoomCamera(float s);
     //! Resets to base zoom (scale = 1).
     void resetZoomCamera();
+    void centralZoomInCamera(float z);
+    void centralZoomOutCamera(float z);
+
     //! Move camera by specified shift.
     //! \param delta shift that is added to current translation.
     void moveCamera(const QPointF& delta);

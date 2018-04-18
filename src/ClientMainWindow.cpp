@@ -85,6 +85,7 @@ ClientMainWindow::ClientMainWindow()
     connect(colorChooser->brushSize, SIGNAL(valueChanged(int)), &painting, SLOT(setBrushSize(int)));
     connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
     connect(&undoStack, &QUndoStack::cleanChanged, this, &updateTitle);
+    connect(&undoStack, SIGNAL(indexChanged(int)), canvas, SLOT(setFocus()));
 
     // undo/redo menu items
     QAction* undoAction = undoStack.createUndoAction(this);
@@ -343,7 +344,12 @@ void ClientMainWindow::on_canvas_zoomChanged(float z) {
 
 void ClientMainWindow::on_resetZoom_clicked() {
     canvas->resetZoomCamera();
-    canvas->update();
+}
+void ClientMainWindow::on_zoomIn_clicked() {
+    canvas->centralZoomInCamera(SCALE_FACTOR);
+}
+void ClientMainWindow::on_zoomOut_clicked(){
+    canvas->centralZoomOutCamera(SCALE_FACTOR);
 }
 
 bool loadLayers(Painting& p, const QString& path, QString* errorMsg) {
