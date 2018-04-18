@@ -11,9 +11,10 @@ class Stroke;
 class Tool: public QObject {
 Q_OBJECT
 protected:
-    int brushSize = 5;
+    int brushSize;
 
 public:
+    Tool(int brushSize = 4);
     //! Beginning of the mouse drag.
     virtual void beginDrag(const QPoint& pos);
     //! Drag of the mouse.
@@ -25,7 +26,7 @@ public:
     //! \param painter Painter who draw.
     virtual void paint(QPainter& painter);
 
-    virtual void setBrushSize(int bs);
+    virtual void setBrushSize(int size);
     int getBrushSize();
 
 signals:

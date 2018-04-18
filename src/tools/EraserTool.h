@@ -9,6 +9,8 @@ private:
     //! A stroke that erase a eraser. More about stroke in class Stroke
     Stroke* currentStoke = nullptr;
 public:
+    EraserTool();
+
     void beginDrag(const QPoint& pos) override;
 
     void drag(const QPoint& pos) override;

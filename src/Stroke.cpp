@@ -14,7 +14,7 @@ void Stroke::paint(QPainter& painter) const {
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     }
 
-    QPen pen(QBrush(color), brushSize);
+    QPen pen(QBrush(color), brushSize, Qt::SolidLine, Qt::RoundCap);
     painter.setPen(pen);
     painter.drawPoints(polygon);
     painter.drawPolyline(polygon);

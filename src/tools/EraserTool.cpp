@@ -28,3 +28,5 @@ void EraserTool::paint(QPainter& painter) {
         currentStoke->paint(painter);
     }
 }
+
+EraserTool::EraserTool(): Tool(20) {}

@@ -6,19 +6,17 @@
 ToolSelectorWidget::ToolSelectorWidget(QWidget* parent)
         : QDockWidget(parent), toolButtons(this) {
     setupUi(this);
-    QHBoxLayout* layout = new QHBoxLayout();
     ToolSelectorButton* button;
 
     button = new ToolSelectorButton(this, QIcon("../icons/Pen tool.png"), &penTool);
     toolButtons.addButton(button);
-    layout->addWidget(button);
+    container->layout()->addWidget(button);
 
     button = new ToolSelectorButton(this, QIcon("../icons/Eraser tool.png"), &eraserTool);
     toolButtons.addButton(button);
-    layout->addWidget(button);
+    container->layout()->addWidget(button);
 
-    layout->addSpacerItem(new QSpacerItem(100, 0));
-    dockWidgetContents->setLayout(layout);
+    qobject_cast<QHBoxLayout*>(container->layout())->addSpacerItem(new QSpacerItem(100, 0));
 }
 
 void ToolSelectorWidget::selectTool(Tool* tool) {

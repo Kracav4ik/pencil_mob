@@ -10,10 +10,12 @@ void Tool::endDrag() {}
 
 void Tool::paint(QPainter& painter) {}
 
-void Tool::setBrushSize(int bs) {
-    brushSize = bs;
+void Tool::setBrushSize(int size) {
+    brushSize = size;
 }
 
 int Tool::getBrushSize() {
     return brushSize;
 }
+
+Tool::Tool(int brushSize):brushSize(brushSize)  {}
