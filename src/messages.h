@@ -59,6 +59,7 @@ struct PathMessage : MessageBase{
         array.append(static_cast<uint8_t>(color.red()));
         array.append(static_cast<uint8_t>(color.green()));
         array.append(static_cast<uint8_t>(color.blue()));
+        array.append(static_cast<uint8_t>(color.alpha()));
 
         array.append(encode(static_cast<uint32_t>(layerId)));
 
@@ -84,6 +85,8 @@ struct PathMessage : MessageBase{
         color.setGreen(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
         color.setBlue(static_cast<uint8_t>(m[0]));
+        m = m.mid(1);
+        color.setAlpha(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
 
         layerId = decodeAndShift(m);
@@ -274,6 +277,7 @@ struct LayerContentsMessage : MessageBase{
             array.append(static_cast<uint8_t>(strokesItem.color.red()));
             array.append(static_cast<uint8_t>(strokesItem.color.green()));
             array.append(static_cast<uint8_t>(strokesItem.color.blue()));
+            array.append(static_cast<uint8_t>(strokesItem.color.alpha()));
             array.append(static_cast<char>(strokesItem.isEraser ? 1 : 0));
             array.append(encode(static_cast<uint32_t>(strokesItem.polygon.size())));
             for (const QPoint& strokesItem_polygonItem : strokesItem.polygon) {
@@ -302,6 +306,8 @@ struct LayerContentsMessage : MessageBase{
         color.setGreen(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
         color.setBlue(static_cast<uint8_t>(m[0]));
+        m = m.mid(1);
+        color.setAlpha(static_cast<uint8_t>(m[0]));
         m = m.mid(1);
 
             bool isEraser;

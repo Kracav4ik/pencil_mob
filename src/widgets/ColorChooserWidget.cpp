@@ -147,6 +147,7 @@ void ColorChooserWidget::updateColor() {
         c.setHsl(H, S, L);
     }
 
+    c.setAlpha(int(2.55 * density->value()));
     selectColor(c);
 }
 
@@ -156,6 +157,7 @@ void ColorChooserWidget::on_gradientV_mouseDrag(int _, int y) {
     int L = 255 - y * 255 / y1;
     QColor c;
     c.setHsl(color.hslHue(), color.hslSaturation(), L);
+    c.setAlpha(int(2.55 * density->value()));
     selectColor(c);
 }
 
@@ -170,6 +172,7 @@ void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
 
     QColor c;
     c.setHsl(H, S, color.lightness());
+    c.setAlpha(int(2.55 * density->value()));
     selectColor(c);
 }
 

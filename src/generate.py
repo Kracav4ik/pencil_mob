@@ -222,7 +222,7 @@ class Field:
 
 tpoint = StructType('QPoint', [Field(tuint32, 'x'), Field(tuint32, 'y')])
 tpointvector = ListType('QVector<QPoint>', tpoint)
-tcolor = StructType('QColor', [Field(tuint8, 'red'), Field(tuint8, 'green'), Field(tuint8, 'blue')])
+tcolor = StructType('QColor', [Field(tuint8, 'red'), Field(tuint8, 'green'), Field(tuint8, 'blue'), Field(tuint8, 'alpha')])
 tpolygon = ListType('QPolygon', tpoint)
 trtroke = StructType('Stroke', [Field(tcolor, 'color'), Field(tbool, 'isEraser'), Field(tpolygon, 'polygon')], False)
 tpointstroke = ListType('QVector<Stroke>', trtroke)

@@ -9,10 +9,12 @@ ToolSelectorWidget::ToolSelectorWidget(QWidget* parent)
     ToolSelectorButton* button;
 
     button = new ToolSelectorButton(this, QIcon("../icons/Pen tool.png"), &penTool);
+    button->setShortcut(QKeySequence("P"));
     toolButtons.addButton(button);
     container->layout()->addWidget(button);
 
     button = new ToolSelectorButton(this, QIcon("../icons/Eraser tool.png"), &eraserTool);
+    button->setShortcut(QKeySequence("E"));
     toolButtons.addButton(button);
     container->layout()->addWidget(button);
 
