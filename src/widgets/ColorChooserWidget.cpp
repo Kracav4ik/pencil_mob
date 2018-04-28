@@ -179,3 +179,10 @@ void ColorChooserWidget::on_rainbowHS_mouseDrag(int x, int y) {
 void ColorChooserWidget::setBrushSize(int bs) {
     brushSize->setValue(bs);
 }
+
+void ColorChooserWidget::setDensity(int alpha) {
+    QColor c;
+    c.setHsl(color.hslHue(), color.hslSaturation(), color.lightness());
+    c.setAlpha(int(2.55 * alpha));
+    selectColor(c);
+}

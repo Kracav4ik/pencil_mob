@@ -512,9 +512,7 @@ void ClientMainWindow::resave() {
 }
 
 void ClientMainWindow::densityChanged(int a) {
-    QColor c = painting.getPenColor();
-    c.setAlpha(int(2.55 * a));
-    painting.setPenColor(c);
+    colorChooser->setDensity(a);
 }
 
 void ClientMainWindow::setCurrentTool(Tool* tool) {

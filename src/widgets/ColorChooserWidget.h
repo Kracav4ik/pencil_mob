@@ -32,6 +32,7 @@ public:
     //! \param c Color.
     void selectColor(const QColor& c);
     void setBrushSize(int bs);
+    void setDensity(int alpha);
 
 signals:
     //! A signal that tells the client the selected color.
