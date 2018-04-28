@@ -201,8 +201,9 @@ void ClientMainWindow::on_socket_stateChanged(QAbstractSocket::SocketState state
 }
 
 void ClientMainWindow::on_canvas_debugInfo(int linesCount, int paintTime) {
-    static TextProgress p(20);
-    debug->setText(QString("linesCount: %1, paintTime: %2 ms |%3|").arg(linesCount).arg(paintTime).arg(p.get()));
+    return;
+//    static TextProgress p(20);
+//    debug->setText(QString("linesCount: %1, paintTime: %2 ms |%3|").arg(linesCount).arg(paintTime).arg(p.get()));
 }
 
 void ClientMainWindow::strokeFinished(const Stroke& stroke) {

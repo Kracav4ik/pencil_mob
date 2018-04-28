@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>192</width>
-    <height>422</height>
+    <height>269</height>
    </rect>
   </property>
   <property name="allowedAreas">
@@ -44,13 +44,13 @@
          <property name="minimumSize">
           <size>
            <width>142</width>
-           <height>194</height>
+           <height>102</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>142</width>
-           <height>194</height>
+           <height>102</height>
           </size>
          </property>
          <property name="frameShape">
@@ -83,13 +83,13 @@
             <property name="minimumSize">
              <size>
               <width>140</width>
-              <height>192</height>
+              <height>100</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>140</width>
-              <height>192</height>
+              <height>100</height>
              </size>
             </property>
            </widget>
@@ -115,13 +115,13 @@
          <property name="minimumSize">
           <size>
            <width>20</width>
-           <height>194</height>
+           <height>102</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>10</width>
-           <height>194</height>
+           <height>102</height>
           </size>
          </property>
          <property name="frameShape">
@@ -154,13 +154,13 @@
             <property name="minimumSize">
              <size>
               <width>18</width>
-              <height>192</height>
+              <height>100</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>8</width>
-              <height>192</height>
+              <height>100</height>
              </size>
             </property>
            </widget>
@@ -278,6 +278,16 @@
           <property name="verticalSpacing">
            <number>2</number>
           </property>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>G</string>
+            </property>
+            <property name="buddy">
+             <cstring>editG</cstring>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -338,33 +348,28 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_5">
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="editR">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>G</string>
-            </property>
-            <property name="buddy">
-             <cstring>editG</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>B</string>
-            </property>
-            <property name="buddy">
-             <cstring>editB</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>L</string>
-            </property>
-            <property name="buddy">
-             <cstring>editL</cstring>
+             <string>0</string>
             </property>
            </widget>
           </item>
@@ -393,58 +398,28 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>B</string>
+            </property>
+            <property name="buddy">
+             <cstring>editB</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>L</string>
+            </property>
+            <property name="buddy">
+             <cstring>editL</cstring>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="3">
            <widget class="QLineEdit" name="editB">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>30</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>30</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLineEdit" name="editR">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>30</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>30</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="editH">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -485,6 +460,31 @@
             </property>
             <property name="buddy">
              <cstring>editR</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="editH">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
            </widget>
           </item>
