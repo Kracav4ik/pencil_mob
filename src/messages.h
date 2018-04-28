@@ -284,6 +284,7 @@ struct LayerContentsMessage : MessageBase{
                 array.append(encode(static_cast<uint32_t>(strokesItem_polygonItem.x())));
                 array.append(encode(static_cast<uint32_t>(strokesItem_polygonItem.y())));
             }
+            array.append(encode(static_cast<uint32_t>(strokesItem.brushSize)));
         }
 
         array.append(layerName.toUtf8());
@@ -327,7 +328,10 @@ struct LayerContentsMessage : MessageBase{
             polygon << QPoint(x, y);
         }
 
-            strokes << Stroke(color, isEraser, polygon);
+            uint32_t brushSize;
+            brushSize = decodeAndShift(m);
+
+            strokes << Stroke(color, isEraser, polygon, brushSize);
         }
 
         layerName = QString(m);

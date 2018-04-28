@@ -54,5 +54,5 @@ void Stroke::write(QJsonObject& json) const {
 }
 
 QDebug operator<<(QDebug debug, const Stroke& stroke) {
-    return debug << "color is" << stroke.color << "\n points is" << stroke.polygon.toList();
+    return debug << "color is" << stroke.color << "\n points is" << stroke.polygon.toList() << "\n brush size is" << stroke.brushSize;
 }
